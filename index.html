@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>InviteMaster - Создай уникальное приглашение</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/categories.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+
+<body>
+    <!-- Фоновый паттерн -->
+    <div class="pattern-bg"></div>
+
+    <!-- Навигация -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">✨</span>
+                InviteMaster
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <a href="/" class="active">Главная</a>
+                <a href="#how-it-works">Как это работает</a>
+                <a href="#examples">Примеры</a>
+                <a href="#contacts">Контакты</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Hero секция -->
+        <section class="hero">
+            <div class="container">
+                <h1 class="hero-title">
+                    Создайте красивое<br>
+                    <span class="gradient-text">приглашение за 5 минут</span>
+                </h1>
+                <p class="hero-subtitle">
+                    Выберите дизайн, добавьте детали и получите уникальную ссылку<br> 
+                    для ваших гостей. Бесплатно и без регистрации.
+                </p>
+                <a href="#categories" class="btn btn-primary">Создать приглашение</a>
+            </div>
+        </section>
+
+        <!-- Категории -->
+        <section id="categories" class="categories-section">
+            <div class="container">
+                <h2 class="section-title">Выберите тип мероприятия</h2>
+                <div class="categories-grid">
+                    <a href="/wedding/" class="category-card">
+                        <div class="category-icon">💒</div>
+                        <h3 class="category-title">Свадьба</h3>
+                        <p class="category-desc">Романтичные и элегантные приглашения на свадьбу</p>
+                        <span class="category-link">Выбрать дизайн →</span>
+                    </a>
+
+                    <a href="/birthday/" class="category-card">
+                        <div class="category-icon">🎂</div>
+                        <h3 class="category-title">День рождения</h3>
+                        <p class="category-desc">Яркие и праздничные для любого возраста</p>
+                        <span class="category-link">Выбрать дизайн →</span>
+                    </a>
+
+                    <a href="/other/" class="category-card">
+                        <div class="category-icon">🎊</div>
+                        <h3 class="category-title">Другое</h3>
+                        <p class="category-desc">Корпоратив, вечеринка, выпускной и не только</p>
+                        <span class="category-link">Выбрать дизайн →</span>
+                    </a>
+                </div>
+
+                <!-- Дополнительные категории (для разнообразия) -->
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;">
+                    <div
+                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
+                        <span style="font-size: 2rem;">👶</span>
+                        <p style="margin-top: 0.5rem;">Детский праздник</p>
+                    </div>
+                    <div
+                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
+                        <span style="font-size: 2rem;">💼</span>
+                        <p style="margin-top: 0.5rem;">Корпоратив</p>
+                    </div>
+                    <div
+                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
+                        <span style="font-size: 2rem;">🎓</span>
+                        <p style="margin-top: 0.5rem;">Выпускной</p>
+                    </div>
+                    <div
+                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
+                        <span style="font-size: 2rem;">🏡</span>
+                        <p style="margin-top: 0.5rem;">Новоселье</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Как это работает -->
+        <section id="how-it-works" class="how-it-works">
+            <div class="container">
+                <h2 class="section-title">Как это работает</h2>
+                <div class="steps-grid">
+                    <div class="step-card">
+                        <div class="step-number">1</div>
+                        <h4>Выберите категорию</h4>
+                        <p>Свадьба, день рождения или другое мероприятие</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">2</div>
+                        <h4>Выберите дизайн</h4>
+                        <p>Просмотрите макеты и выберите подходящий</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">3</div>
+                        <h4>Заполните данные</h4>
+                        <p>Дата, место, детали мероприятия</p>
+                    </div>
+                    <div class="step-card">
+                        <div class="step-number">4</div>
+                        <h4>Поделитесь ссылкой</h4>
+                        <p>Отправьте уникальную ссылку гостям</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-info">
+                    <div class="logo">✨ InviteMaster</div>
+                    <p>Создавайте красивые приглашения<br>для ваших мероприятий</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Навигация</h4>
+                    <a href="/">Главная</a>
+                    <a href="/wedding/">Свадьба</a>
+                    <a href="/birthday/">День рождения</a>
+                    <a href="/other/">Другое</a>
+                </div>
+                <div class="footer-links">
+                    <h4>Информация</h4>
+                    <a href="#">Как это работает</a>
+                    <a href="#">Примеры</a>
+                    <a href="#">Контакты</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 InviteMaster. Все права защищены.</p>
+            </div>
+        </div>
+    </footer>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="ru">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Приглашение - InviteMaster</title>
+
+    <!-- Подключаем шрифты для всех типов приглашений -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap"
+        rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
+        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
+        rel="stylesheet">
+
+    <!-- Стили -->
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/invitation.css">
+
+    <!-- Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
+</head>
+
+<body>
+    <div class="pattern-bg"></div>
+
+    <!-- Навигация (опционально, можно скрыть на странице приглашения) -->
+    <nav class="navbar" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);">
+        <div class="nav-container">
+            <a href="/" class="logo">
+                <span class="logo-icon">✨</span>
+                InviteMaster
+            </a>
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+            <div class="nav-links" id="navLinks">
+                <a href="/">Главная</a>
+                <a href="/wedding/">Свадьба</a>
+                <a href="/birthday/">День рождения</a>
+                <a href="/other/">Другое</a>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <!-- Индикатор загрузки -->
+        <div class="loading-spinner" id="loadingSpinner">
+            <div class="spinner"></div>
+            <p>Загрузка приглашения...</p>
+        </div>
+
+        <!-- Страница приглашения -->
+        <div class="invitation-wrapper" id="invitationWrapper" style="display: none;">
+            <!-- Контент приглашения -->
+            <div class="invitation-content" id="invitationContent">
+                <!-- Здесь будет динамический контент -->
+            </div>
+
+            <!-- Панель действий -->
+            <div class="invitation-actions">
+                <div class="actions-bar">
+                    <button class="action-btn" id="copyLinkBtn">
+                        <span class="material-symbols-outlined">link</span>
+                        <span>Копировать ссылку</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Страница ошибки -->
+        <div class="error-page" id="errorPage" style="display: none;">
+            <div class="container">
+                <div class="error-card">
+                    <div class="error-icon">😕</div>
+                    <h2>Приглашение не найдено</h2>
+                    <p>Возможно, оно было удалено или ссылка недействительна</p>
+                    <a href="/" class="btn btn-primary">Создать своё приглашение</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="../js/script.js"></script>
+    <script>
+    // ПОЛУЧАЕМ SLUG ИЗ ХЕША (работает с /#slug)
+    if (window.location.hash) {
+        // Убираем символ # и получаем slug
+        window.invitationSlug = window.location.hash.substring(1);
+        console.log('Загрузка приглашения по slug из хеша:', window.invitationSlug);
+    }
+    
+    // Проверяем старый формат с ?id=...
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('id')) {
+        window.invitationId = urlParams.get('id');
+        console.log('Загрузка приглашения по ID:', window.invitationId);
+    }
+    
+    // Если ничего не нашли - показываем ошибку
+    if (!window.invitationSlug && !window.invitationId) {
+        console.log('Не указан slug или ID приглашения');
+    }
+</script>
+    <script src="../js/invitation.js"></script>
+</body>
+
+</html>
