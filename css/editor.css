@@ -17,24 +17,10 @@
     border: 1px solid rgba(168, 216, 234, 0.3);
 }
 
-/* Шапка с шаблоном */
 .template-header {
     text-align: center;
-    animation: slideDown 0.5s ease;
 }
 
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-/* Форма */
 .editor-form {
     padding: 2rem;
 }
@@ -77,13 +63,38 @@
     box-shadow: 0 0 0 4px rgba(168, 216, 234, 0.2);
 }
 
-.form-group input::placeholder,
-.form-group textarea::placeholder {
-    color: var(--text-light);
-    opacity: 0.7;
+.slug-input-wrapper {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 12px;
+    overflow: hidden;
+    background: white;
 }
 
-/* Адаптивность */
+.slug-domain {
+    padding: 0.75rem 1rem;
+    background: #f7fafc;
+    color: #4a5568;
+    font-size: 0.9rem;
+    border-right: 2px solid #e2e8f0;
+    white-space: nowrap;
+}
+
+.slug-input-wrapper input {
+    flex: 1;
+    border: none !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+}
+
+.slug-hint {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: 0.85rem;
+    color: #718096;
+}
+
 @media (max-width: 768px) {
     .form-row {
         grid-template-columns: 1fr;

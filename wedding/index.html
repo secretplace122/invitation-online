@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Свадебные приглашения - InviteMaster</title>
+    <title>Свадебные приглашения - invitation-online</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/templates.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="pattern-bg"></div>
@@ -16,8 +13,11 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <span class="logo-icon">✨</span>
-                InviteMaster
+                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                    <path d="M16 10l-4 4-4-4"/>
+                </svg>
+                invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <span></span>
@@ -40,7 +40,6 @@
                 <p class="category-description">Создайте идеальное приглашение для вашего особенного дня</p>
             </div>
 
-            <!-- Фильтры для свадебных шаблонов -->
             <div class="templates-filters">
                 <button class="filter-btn active" data-filter="all">Все стили</button>
                 <button class="filter-btn" data-filter="classic">Классические</button>
@@ -50,32 +49,7 @@
                 <button class="filter-btn" data-filter="minimal">Минимализм</button>
             </div>
 
-            <!-- Сетка шаблонов -->
-            <div class="templates-grid" id="templatesGrid">
-                <!-- Шаблоны будут загружены через JS -->
-            </div>
-
-            <!-- Дополнительные советы -->
-            <div class="wedding-tips" style="margin-top: 3rem; padding: 2rem; background: white; border-radius: 20px; box-shadow: var(--shadow);">
-                <h3 style="text-align: center; margin-bottom: 1.5rem;">💡 Как выбрать идеальное приглашение</h3>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
-                    <div style="text-align: center;">
-                        <span style="font-size: 2rem;">🎨</span>
-                        <h4>Цветовая гамма</h4>
-                        <p style="color: var(--text-light);">Сочетайте с цветами вашей свадьбы</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="font-size: 2rem;">📜</span>
-                        <h4>Стиль торжества</h4>
-                        <p style="color: var(--text-light);">Дизайн должен отражать атмосферу праздника</p>
-                    </div>
-                    <div style="text-align: center;">
-                        <span style="font-size: 2rem;">💝</span>
-                        <h4>Личные детали</h4>
-                        <p style="color: var(--text-light);">Добавьте историю вашей любви</p>
-                    </div>
-                </div>
-            </div>
+            <div class="templates-grid" id="templatesGrid"></div>
         </div>
     </main>
 
@@ -83,7 +57,13 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="logo">✨ InviteMaster</div>
+                    <div class="logo">
+                        <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                            <path d="M16 10l-4 4-4-4"/>
+                        </svg>
+                        invitation-online
+                    </div>
                     <p>Создавайте красивые приглашения<br>для ваших мероприятий</p>
                 </div>
                 <div class="footer-links">
@@ -101,268 +81,43 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 InviteMaster. Все права защищены.</p>
+                <p>&copy; 2026 invitation-online. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
+    <script src="../js/script.js"></script>
     <script>
-        // Шаблоны для свадьбы (очень много вариантов)
         const weddingTemplates = [
-            // Классические
-            {
-                id: 1,
-                name: '💍 Вечная любовь',
-                preview: '💞',
-                description: 'Классический дизайн с двумя кольцами и нежными кружевами',
-                colors: ['#F9F3E6', '#D4AF37'],
-                category: 'classic',
-                style: 'Классический',
-                elements: 'Кольца, кружево, цветы',
-                uses: 1254
-            },
-            {
-                id: 2,
-                name: '🌹 Красная роза',
-                preview: '🌹',
-                description: 'Романтичный дизайн с красными розами и золотыми элементами',
-                colors: ['#8B0000', '#FFD700'],
-                category: 'classic',
-                style: 'Романтичный',
-                elements: 'Розы, банты, сердечки',
-                uses: 987
-            },
-            {
-                id: 3,
-                name: '👑 Королевская свадьба',
-                preview: '👑',
-                description: 'Роскошный дизайн с коронами и вензелями',
-                colors: ['#4B0082', '#FFD700'],
-                category: 'classic',
-                style: 'Роскошный',
-                elements: 'Короны, вензеля, драгоценности',
-                uses: 756
-            },
-            
-            // Современные
-            {
-                id: 4,
-                name: '✨ Минимализм шик',
-                preview: '⬜',
-                description: 'Лаконичный дизайн с геометрическими формами',
-                colors: ['#000000', '#FFFFFF'],
-                category: 'modern',
-                style: 'Минимализм',
-                elements: 'Линии, формы, контраст',
-                uses: 892
-            },
-            {
-                id: 5,
-                name: '🎨 Акварельная нежность',
-                preview: '🎨',
-                description: 'Модный акварельный дизайн с разводами',
-                colors: ['#FFB6C1', '#87CEEB'],
-                category: 'modern',
-                style: 'Акварельный',
-                elements: 'Акварель, разводы, пастель',
-                uses: 734
-            },
-            {
-                id: 6,
-                name: '📸 Фото-история',
-                preview: '📷',
-                description: 'Современный дизайн с местом для ваших фотографий',
-                colors: ['#808080', '#FFFFFF'],
-                category: 'modern',
-                style: 'Фото-стиль',
-                elements: 'Рамки, поляроиды',
-                uses: 623
-            },
-            {
-                id: 7,
-                name: '🌈 Градиент любви',
-                preview: '🌈',
-                description: 'Яркий градиентный дизайн для смелых пар',
-                colors: ['#FF1493', '#00FFFF'],
-                category: 'modern',
-                style: 'Градиент',
-                elements: 'Плавные переходы',
-                uses: 456
-            },
-            
-            // Винтажные
-            {
-                id: 8,
-                name: '📜 Старинный свиток',
-                preview: '📜',
-                description: 'Винтажный дизайн в стиле старой бумаги',
-                colors: ['#D2B48C', '#8B4513'],
-                category: 'vintage',
-                style: 'Винтажный',
-                elements: 'Свитки, перья, сургуч',
-                uses: 567
-            },
-            {
-                id: 9,
-                name: '🕰️ Ретро 20-х',
-                preview: '🎺',
-                description: 'Стиль великого Гэтсби и эпохи джаза',
-                colors: ['#000000', '#FFD700'],
-                category: 'vintage',
-                style: 'Ар-деко',
-                elements: 'Геометрия, бахрома, перья',
-                uses: 445
-            },
-            {
-                id: 10,
-                name: '🏰 Замковая сказка',
-                preview: '🏰',
-                description: 'Средневековый стиль с гербами и замками',
-                colors: ['#708090', '#C0C0C0'],
-                category: 'vintage',
-                style: 'Средневековый',
-                elements: 'Гербы, замки, рыцари',
-                uses: 334
-            },
-            {
-                id: 11,
-                name: '🌾 Прованс',
-                preview: '🌾',
-                description: 'Французский деревенский шик с лавандой',
-                colors: ['#E6E6FA', '#9370DB'],
-                category: 'vintage',
-                style: 'Прованс',
-                elements: 'Лаванда, пшеница',
-                uses: 678
-            },
-            
-            // Природные
-            {
-                id: 12,
-                name: '🌿 Лесная сказка',
-                preview: '🌲',
-                description: 'Эко-дизайн с лесными мотивами',
-                colors: ['#2E8B57', '#8B4513'],
-                category: 'nature',
-                style: 'Эко',
-                elements: 'Деревья, листья, шишки',
-                uses: 543
-            },
-            {
-                id: 13,
-                name: '🏖️ Пляжная церемония',
-                preview: '🌊',
-                description: 'Для свадьбы на берегу океана',
-                colors: ['#00CED1', '#FFD700'],
-                category: 'nature',
-                style: 'Пляжный',
-                elements: 'Ракушки, волны, песок',
-                uses: 432
-            },
-            {
-                id: 14,
-                name: '⛰️ Горный воздух',
-                preview: '🏔️',
-                description: 'Для свадьбы в горах или на природе',
-                colors: ['#87CEEB', '#228B22'],
-                category: 'nature',
-                style: 'Горный',
-                elements: 'Горы, ели, облака',
-                uses: 321
-            },
-            {
-                id: 15,
-                name: '🌸 Сад цветов',
-                preview: '🌺',
-                description: 'Дизайн с множеством полевых цветов',
-                colors: ['#FF69B4', '#FFA500'],
-                category: 'nature',
-                style: 'Цветочный',
-                elements: 'Цветы, бабочки, стрекозы',
-                uses: 876
-            },
-            
-            // Минимализм
-            {
-                id: 16,
-                name: '⬜ Белый лист',
-                preview: '📄',
-                description: 'Максимально простой и элегантный дизайн',
-                colors: ['#FFFFFF', '#F5F5F5'],
-                category: 'minimal',
-                style: 'Минимализм',
-                elements: 'Только текст',
-                uses: 654
-            },
-            {
-                id: 17,
-                name: '✏️ Графичный стиль',
-                preview: '✏️',
-                description: 'Черно-белая графика и шрифты',
-                colors: ['#000000', '#FFFFFF'],
-                category: 'minimal',
-                style: 'Графичный',
-                elements: 'Линии, штрихи',
-                uses: 543
-            },
-            {
-                id: 18,
-                name: '🔲 Геометрия чувств',
-                preview: '🔲',
-                description: 'Строгие геометрические формы',
-                colors: ['#2C3E50', '#BDC3C7'],
-                category: 'minimal',
-                style: 'Геометрический',
-                elements: 'Круги, квадраты, треугольники',
-                uses: 432
-            },
-            
-            // Бонус: необычные
-            {
-                id: 19,
-                name: '🎮 Для геймеров',
-                preview: '🎮',
-                description: 'Свадьба в стиле ваших любимых игр',
-                colors: ['#4B0082', '#00FF00'],
-                category: 'modern',
-                style: 'Геймерский',
-                elements: 'Пиксели, контроллеры',
-                uses: 234
-            },
-            {
-                id: 20,
-                name: '🎬 Кино-стиль',
-                preview: '🎬',
-                description: 'Приглашение в стиле голливудской премьеры',
-                colors: ['#FFD700', '#000000'],
-                category: 'modern',
-                style: 'Киношный',
-                elements: 'Кинопленка, звезды',
-                uses: 345
-            },
-            {
-                id: 21,
-                name: '🚀 Космическая',
-                preview: '🚀',
-                description: 'Для тех, чья любовь космического масштаба',
-                colors: ['#4B0082', '#FF1493'],
-                category: 'modern',
-                style: 'Космический',
-                elements: 'Звезды, планеты, ракеты',
-                uses: 289
-            }
+            { id: 1, name: '💍 Вечная любовь', preview: '💞', description: 'Классический дизайн с двумя кольцами', colors: ['#F9F3E6', '#D4AF37'], category: 'classic', uses: 1254 },
+            { id: 2, name: '🌹 Красная роза', preview: '🌹', description: 'Романтичный дизайн с красными розами', colors: ['#8B0000', '#FFD700'], category: 'classic', uses: 987 },
+            { id: 3, name: '👑 Королевская свадьба', preview: '👑', description: 'Роскошный дизайн с коронами', colors: ['#4B0082', '#FFD700'], category: 'classic', uses: 756 },
+            { id: 4, name: '✨ Минимализм шик', preview: '⬜', description: 'Лаконичный дизайн с геометрией', colors: ['#000000', '#FFFFFF'], category: 'modern', uses: 892 },
+            { id: 5, name: '🎨 Акварельная нежность', preview: '🎨', description: 'Модный акварельный дизайн', colors: ['#FFB6C1', '#87CEEB'], category: 'modern', uses: 734 },
+            { id: 6, name: '📸 Фото-история', preview: '📷', description: 'Современный дизайн с местом для фото', colors: ['#808080', '#FFFFFF'], category: 'modern', uses: 623 },
+            { id: 7, name: '🌈 Градиент любви', preview: '🌈', description: 'Яркий градиентный дизайн', colors: ['#FF1493', '#00FFFF'], category: 'modern', uses: 456 },
+            { id: 8, name: '📜 Старинный свиток', preview: '📜', description: 'Винтажный дизайн', colors: ['#D2B48C', '#8B4513'], category: 'vintage', uses: 567 },
+            { id: 9, name: '🕰️ Ретро 20-х', preview: '🎺', description: 'Стиль великого Гэтсби', colors: ['#000000', '#FFD700'], category: 'vintage', uses: 445 },
+            { id: 10, name: '🏰 Замковая сказка', preview: '🏰', description: 'Средневековый стиль', colors: ['#708090', '#C0C0C0'], category: 'vintage', uses: 334 },
+            { id: 11, name: '🌾 Прованс', preview: '🌾', description: 'Французский деревенский шик', colors: ['#E6E6FA', '#9370DB'], category: 'vintage', uses: 678 },
+            { id: 12, name: '🌿 Лесная сказка', preview: '🌲', description: 'Эко-дизайн', colors: ['#2E8B57', '#8B4513'], category: 'nature', uses: 543 },
+            { id: 13, name: '🏖️ Пляжная церемония', preview: '🌊', description: 'Для свадьбы на берегу', colors: ['#00CED1', '#FFD700'], category: 'nature', uses: 432 },
+            { id: 14, name: '⛰️ Горный воздух', preview: '🏔️', description: 'Для свадьбы в горах', colors: ['#87CEEB', '#228B22'], category: 'nature', uses: 321 },
+            { id: 15, name: '🌸 Сад цветов', preview: '🌺', description: 'Дизайн с полевыми цветами', colors: ['#FF69B4', '#FFA500'], category: 'nature', uses: 876 },
+            { id: 16, name: '⬜ Белый лист', preview: '📄', description: 'Максимально простой дизайн', colors: ['#FFFFFF', '#F5F5F5'], category: 'minimal', uses: 654 },
+            { id: 17, name: '✏️ Графичный стиль', preview: '✏️', description: 'Черно-белая графика', colors: ['#000000', '#FFFFFF'], category: 'minimal', uses: 543 },
+            { id: 18, name: '🔲 Геометрия чувств', preview: '🔲', description: 'Строгие геометрические формы', colors: ['#2C3E50', '#BDC3C7'], category: 'minimal', uses: 432 },
+            { id: 19, name: '🎮 Для геймеров', preview: '🎮', description: 'В стиле любимых игр', colors: ['#4B0082', '#00FF00'], category: 'modern', uses: 234 },
+            { id: 20, name: '🎬 Кино-стиль', preview: '🎬', description: 'В стиле голливудской премьеры', colors: ['#FFD700', '#000000'], category: 'modern', uses: 345 },
+            { id: 21, name: '🚀 Космическая', preview: '🚀', description: 'Любовь космического масштаба', colors: ['#4B0082', '#FF1493'], category: 'modern', uses: 289 }
         ];
 
-        // Отображение шаблонов
         function displayTemplates(filter = 'all') {
             const grid = document.getElementById('templatesGrid');
-            
-            const filtered = filter === 'all' 
-                ? weddingTemplates 
-                : weddingTemplates.filter(t => t.category === filter);
+            const filtered = filter === 'all' ? weddingTemplates : weddingTemplates.filter(t => t.category === filter);
             
             grid.innerHTML = filtered.map(template => `
-                <div class="template-card" data-category="${template.category}" onclick="selectTemplate(${template.id})">
+                <div class="template-card" onclick="selectTemplate(${template.id})">
                     <div class="template-preview" style="background: linear-gradient(135deg, ${template.colors[0]}, ${template.colors[1]})">
                         <span class="template-emoji">${template.preview}</span>
                     </div>
@@ -370,11 +125,7 @@
                         <h3 class="template-name">${template.name}</h3>
                         <p class="template-desc">${template.description}</p>
                         <div class="template-meta">
-                            <span class="template-price">✨ ${template.style}</span>
-                            <span class="template-uses">💒 ${template.uses} пар</span>
-                        </div>
-                        <div style="font-size: 0.85rem; color: var(--text-light); margin: 0.5rem 0;">
-                            ${template.elements}
+                            <span class="template-price">✨ ${template.uses} пар</span>
                         </div>
                         <button class="btn btn-secondary template-btn">Выбрать дизайн</button>
                     </div>
@@ -382,18 +133,16 @@
             `).join('');
         }
 
-        // Выбор шаблона
         function selectTemplate(templateId) {
             sessionStorage.setItem('selectedTemplate', templateId);
             sessionStorage.setItem('selectedCategory', 'wedding');
             window.location.href = '/editor/';
         }
 
-        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             displayTemplates();
+            setPatternBg('wedding-category.png');
             
-            // Фильтры
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -403,6 +152,5 @@
             });
         });
     </script>
-    <script src="../js/script.js"></script>
 </body>
 </html>

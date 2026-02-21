@@ -1,34 +1,24 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор приглашения - InviteMaster</title>
+    <title>Редактор приглашения - invitation-online</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/editor.css">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
-
-    <!-- Firebase сначала -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-    <!-- Наш конфиг с db -->
-    <script src="../js/firebase-config.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
 </head>
-
 <body>
     <div class="pattern-bg"></div>
 
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <span class="logo-icon">✨</span>
-                InviteMaster
+                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                    <path d="M16 10l-4 4-4-4"/>
+                </svg>
+                invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <span></span>
@@ -47,62 +37,18 @@
     <main>
         <section class="editor-section">
             <div class="editor-container">
-                <!-- Шапка с выбранным шаблоном -->
-                <div class="selected-template-info" id="selectedTemplateInfo">
-                    <!-- Информация о шаблоне подгрузится сюда -->
-                </div>
-
-                <!-- Форма редактора (только нужные поля) -->
-                <div class="editor-form" id="editorForm">
+                <div class="selected-template-info" id="selectedTemplateInfo"></div>
+                <div class="editor-form">
                     <form id="invitationForm">
                         <div class="form-group">
                             <label for="customSlug">Ваша уникальная ссылка</label>
                             <div class="slug-input-wrapper">
-                                <span class="slug-domain">invitemaster.ru/invitation/</span>
-                                <input type="text" id="customSlug" placeholder="moya-svadba-2026" required
-                                    pattern="[a-z0-9-]+" title="Только латинские буквы, цифры и дефисы">
+                                <span class="slug-domain">invitation-online.ru/invitation/#</span>
+                                <input type="text" id="customSlug" placeholder="moya-svadba-2026" required pattern="[a-z0-9-]+" title="Только латинские буквы, цифры и дефисы">
                             </div>
                             <small class="slug-hint">Например: svadba-aleksandra-2026</small>
                         </div>
 
-                        <!-- Добавить стили для slug -->
-                        <style>
-                            .slug-input-wrapper {
-                                display: flex;
-                                align-items: center;
-                                border: 2px solid #e2e8f0;
-                                border-radius: 12px;
-                                overflow: hidden;
-                                background: white;
-                            }
-
-                            .slug-domain {
-                                padding: 0.75rem 1rem;
-                                background: #f7fafc;
-                                color: #4a5568;
-                                font-size: 0.9rem;
-                                border-right: 2px solid #e2e8f0;
-                                white-space: nowrap;
-                            }
-
-                            .slug-input-wrapper input {
-                                flex: 1;
-                                border: none !important;
-                                margin: 0 !important;
-                                border-radius: 0 !important;
-                            }
-
-                            .slug-input-wrapper input:focus {
-                                box-shadow: none !important;
-                            }
-
-                            .slug-hint {
-                                display: block;
-                                margin-top: 0.25rem;
-                                font-size: 0.85rem;
-                                color: #718096;
-                            }
-                        </style>
                         <div class="form-group">
                             <label for="organizerName">Ваше имя / Имена</label>
                             <input type="text" id="organizerName" placeholder="Александр и Елена" required>
@@ -126,8 +72,7 @@
 
                         <div class="form-group">
                             <label for="eventMessage">Текст приглашения</label>
-                            <textarea id="eventMessage" rows="3"
-                                placeholder="Дорогие гости, приглашаем вас..."></textarea>
+                            <textarea id="eventMessage" rows="3" placeholder="Дорогие гости, приглашаем вас..."></textarea>
                         </div>
 
                         <button type="submit" class="btn btn-primary">Создать приглашение</button>
@@ -137,8 +82,10 @@
         </section>
     </main>
 
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
     <script src="../js/script.js"></script>
     <script src="../js/editor.js"></script>
 </body>
-
 </html>

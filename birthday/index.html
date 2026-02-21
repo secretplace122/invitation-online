@@ -3,12 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Приглашения на день рождения - InviteMaster</title>
+    <title>Приглашения на день рождения - invitation-online</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/templates.css">
-    <!-- Firebase SDK -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
 <body>
     <div class="pattern-bg"></div>
@@ -16,8 +13,11 @@
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <span class="logo-icon">✨</span>
-                InviteMaster
+                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                    <path d="M16 10l-4 4-4-4"/>
+                </svg>
+                invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <span></span>
@@ -40,7 +40,6 @@
                 <p class="category-description">Создайте яркое приглашение для любого возраста</p>
             </div>
 
-            <!-- Фильтры для быстрого выбора -->
             <div class="templates-filters">
                 <button class="filter-btn active" data-filter="all">Все</button>
                 <button class="filter-btn" data-filter="kids">Детские</button>
@@ -48,10 +47,7 @@
                 <button class="filter-btn" data-filter="anniversary">Юбилеи</button>
             </div>
 
-            <!-- Сетка шаблонов -->
-            <div class="templates-grid" id="templatesGrid">
-                <!-- Шаблоны будут загружены через JS -->
-            </div>
+            <div class="templates-grid" id="templatesGrid"></div>
         </div>
     </main>
 
@@ -59,7 +55,13 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="logo">✨ InviteMaster</div>
+                    <div class="logo">
+                        <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                            <path d="M16 10l-4 4-4-4"/>
+                        </svg>
+                        invitation-online
+                    </div>
                     <p>Создавайте красивые приглашения<br>для ваших мероприятий</p>
                 </div>
                 <div class="footer-links">
@@ -77,139 +79,33 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2024 InviteMaster. Все права защищены.</p>
+                <p>&copy; 2026 invitation-online. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
+    <script src="../js/script.js"></script>
     <script>
-        // Шаблоны для дня рождения
         const birthdayTemplates = [
-            // Детские
-            {
-                id: 101,
-                name: '🌈 Радужное настроение',
-                preview: '🦄',
-                description: 'Яркий дизайн с единорогами и радугой для маленьких принцесс',
-                colors: ['#FFB6C1', '#87CEEB'],
-                category: 'kids',
-                age: '3-7 лет',
-                uses: 234
-            },
-            {
-                id: 102,
-                name: '🦸 Супергерои',
-                preview: '🦸‍♂️',
-                description: 'Для отважных супергероев и их друзей',
-                colors: ['#FF4500', '#1E90FF'],
-                category: 'kids',
-                age: '5-10 лет',
-                uses: 189
-            },
-            {
-                id: 103,
-                name: '🐼 Милые зверята',
-                preview: '🐨',
-                description: 'Нежный дизайн с лесными зверушками',
-                colors: ['#D2B48C', '#98FB98'],
-                category: 'kids',
-                age: '2-6 лет',
-                uses: 156
-            },
-            {
-                id: 104,
-                name: '🤖 Космическое приключение',
-                preview: '🚀',
-                description: 'Для юных космонавтов и любителей приключений',
-                colors: ['#4B0082', '#00CED1'],
-                category: 'kids',
-                age: '6-12 лет',
-                uses: 112
-            },
-            // Взрослые
-            {
-                id: 201,
-                name: '🥂 Стильная вечеринка',
-                preview: '✨',
-                description: 'Минималистичный дизайн для взрослой вечеринки',
-                colors: ['#000000', '#FFD700'],
-                category: 'adult',
-                age: '18+',
-                uses: 345
-            },
-            {
-                id: 202,
-                name: '🌸 Цветочное настроение',
-                preview: '🌺',
-                description: 'Нежный дизайн с цветами для любительниц прекрасного',
-                colors: ['#FF69B4', '#FFA07A'],
-                category: 'adult',
-                age: 'любой',
-                uses: 278
-            },
-            {
-                id: 203,
-                name: '🍷 Вечер в стиле ретро',
-                preview: '🎺',
-                description: 'Винтажный стиль для ценителей старой школы',
-                colors: ['#8B4513', '#DEB887'],
-                category: 'adult',
-                age: '30+',
-                uses: 167
-            },
-            {
-                id: 204,
-                name: '🌴 Пляжная вечеринка',
-                preview: '🏖️',
-                description: 'Яркий летний дизайн для отдыха на природе',
-                colors: ['#FFA500', '#40E0D0'],
-                category: 'adult',
-                age: 'любой',
-                uses: 198
-            },
-            // Юбилеи
-            {
-                id: 301,
-                name: '👑 Золотой юбилей',
-                preview: '🌟',
-                description: 'Элегантный дизайн для 50-летнего юбилея',
-                colors: ['#FFD700', '#B8860B'],
-                category: 'anniversary',
-                age: '50 лет',
-                uses: 89
-            },
-            {
-                id: 302,
-                name: '💎 Бриллиантовая дата',
-                preview: '💎',
-                description: 'Роскошный дизайн для 60-летия',
-                colors: ['#B0C4DE', '#2F4F4F'],
-                category: 'anniversary',
-                age: '60 лет',
-                uses: 67
-            },
-            {
-                id: 303,
-                name: '🎉 Нашему папе/маме',
-                preview: '❤️',
-                description: 'Теплый семейный дизайн для родителей',
-                colors: ['#CD5C5C', '#FA8072'],
-                category: 'anniversary',
-                age: 'любой',
-                uses: 145
-            }
+            { id: 101, name: '🌈 Радужное настроение', preview: '🦄', description: 'Яркий дизайн с единорогами', colors: ['#FFB6C1', '#87CEEB'], category: 'kids', age: '3-7 лет', uses: 234 },
+            { id: 102, name: '🦸 Супергерои', preview: '🦸‍♂️', description: 'Для отважных супергероев', colors: ['#FF4500', '#1E90FF'], category: 'kids', age: '5-10 лет', uses: 189 },
+            { id: 103, name: '🐼 Милые зверята', preview: '🐨', description: 'Нежный дизайн со зверушками', colors: ['#D2B48C', '#98FB98'], category: 'kids', age: '2-6 лет', uses: 156 },
+            { id: 104, name: '🤖 Космическое приключение', preview: '🚀', description: 'Для юных космонавтов', colors: ['#4B0082', '#00CED1'], category: 'kids', age: '6-12 лет', uses: 112 },
+            { id: 201, name: '🥂 Стильная вечеринка', preview: '✨', description: 'Минималистичный дизайн', colors: ['#000000', '#FFD700'], category: 'adult', age: '18+', uses: 345 },
+            { id: 202, name: '🌸 Цветочное настроение', preview: '🌺', description: 'Нежный дизайн с цветами', colors: ['#FF69B4', '#FFA07A'], category: 'adult', age: 'любой', uses: 278 },
+            { id: 203, name: '🍷 Вечер в стиле ретро', preview: '🎺', description: 'Винтажный стиль', colors: ['#8B4513', '#DEB887'], category: 'adult', age: '30+', uses: 167 },
+            { id: 204, name: '🌴 Пляжная вечеринка', preview: '🏖️', description: 'Летний дизайн', colors: ['#FFA500', '#40E0D0'], category: 'adult', age: 'любой', uses: 198 },
+            { id: 301, name: '👑 Золотой юбилей', preview: '🌟', description: 'Элегантный дизайн для 50 лет', colors: ['#FFD700', '#B8860B'], category: 'anniversary', age: '50 лет', uses: 89 },
+            { id: 302, name: '💎 Бриллиантовая дата', preview: '💎', description: 'Роскошный дизайн для 60 лет', colors: ['#B0C4DE', '#2F4F4F'], category: 'anniversary', age: '60 лет', uses: 67 },
+            { id: 303, name: '🎉 Нашему папе/маме', preview: '❤️', description: 'Теплый семейный дизайн', colors: ['#CD5C5C', '#FA8072'], category: 'anniversary', age: 'любой', uses: 145 }
         ];
 
-        // Отображение шаблонов
         function displayTemplates(filter = 'all') {
             const grid = document.getElementById('templatesGrid');
-            
-            const filtered = filter === 'all' 
-                ? birthdayTemplates 
-                : birthdayTemplates.filter(t => t.category === filter);
+            const filtered = filter === 'all' ? birthdayTemplates : birthdayTemplates.filter(t => t.category === filter);
             
             grid.innerHTML = filtered.map(template => `
-                <div class="template-card" data-category="${template.category}" onclick="selectTemplate(${template.id})">
+                <div class="template-card" onclick="selectTemplate(${template.id})">
                     <div class="template-preview" style="background: linear-gradient(135deg, ${template.colors[0]}, ${template.colors[1]})">
                         <span class="template-emoji">${template.preview}</span>
                     </div>
@@ -226,18 +122,16 @@
             `).join('');
         }
 
-        // Выбор шаблона
         function selectTemplate(templateId) {
             sessionStorage.setItem('selectedTemplate', templateId);
             sessionStorage.setItem('selectedCategory', 'birthday');
             window.location.href = '/editor/';
         }
 
-        // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
             displayTemplates();
+            setPatternBg('birthday-category.png');
             
-            // Фильтры
             document.querySelectorAll('.filter-btn').forEach(btn => {
                 btn.addEventListener('click', function() {
                     document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -247,6 +141,5 @@
             });
         });
     </script>
-    <script src="../js/script.js"></script>
 </body>
 </html>

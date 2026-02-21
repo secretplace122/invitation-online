@@ -1,26 +1,23 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>InviteMaster - Создай уникальное приглашение</title>
+    <title>invitation-online - Создай уникальное приглашение</title>
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/categories.css">
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 </head>
-
 <body>
-    <!-- Фоновый паттерн -->
     <div class="pattern-bg"></div>
 
-    <!-- Навигация -->
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <span class="logo-icon">✨</span>
-                InviteMaster
+                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                    <path d="M16 10l-4 4-4-4"/>
+                </svg>
+                invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <span></span>
@@ -37,7 +34,6 @@
     </nav>
 
     <main>
-        <!-- Hero секция -->
         <section class="hero">
             <div class="container">
                 <h1 class="hero-title">
@@ -52,7 +48,6 @@
             </div>
         </section>
 
-        <!-- Категории -->
         <section id="categories" class="categories-section">
             <div class="container">
                 <h2 class="section-title">Выберите тип мероприятия</h2>
@@ -63,14 +58,12 @@
                         <p class="category-desc">Романтичные и элегантные приглашения на свадьбу</p>
                         <span class="category-link">Выбрать дизайн →</span>
                     </a>
-
                     <a href="/birthday/" class="category-card">
                         <div class="category-icon">🎂</div>
                         <h3 class="category-title">День рождения</h3>
                         <p class="category-desc">Яркие и праздничные для любого возраста</p>
                         <span class="category-link">Выбрать дизайн →</span>
                     </a>
-
                     <a href="/other/" class="category-card">
                         <div class="category-icon">🎊</div>
                         <h3 class="category-title">Другое</h3>
@@ -78,35 +71,9 @@
                         <span class="category-link">Выбрать дизайн →</span>
                     </a>
                 </div>
-
-                <!-- Дополнительные категории (для разнообразия) -->
-                <div
-                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 2rem;">
-                    <div
-                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
-                        <span style="font-size: 2rem;">👶</span>
-                        <p style="margin-top: 0.5rem;">Детский праздник</p>
-                    </div>
-                    <div
-                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
-                        <span style="font-size: 2rem;">💼</span>
-                        <p style="margin-top: 0.5rem;">Корпоратив</p>
-                    </div>
-                    <div
-                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
-                        <span style="font-size: 2rem;">🎓</span>
-                        <p style="margin-top: 0.5rem;">Выпускной</p>
-                    </div>
-                    <div
-                        style="text-align: center; padding: 1rem; background: white; border-radius: 15px; opacity: 0.7;">
-                        <span style="font-size: 2rem;">🏡</span>
-                        <p style="margin-top: 0.5rem;">Новоселье</p>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- Как это работает -->
         <section id="how-it-works" class="how-it-works">
             <div class="container">
                 <h2 class="section-title">Как это работает</h2>
@@ -140,7 +107,13 @@
         <div class="container">
             <div class="footer-content">
                 <div class="footer-info">
-                    <div class="logo">✨ InviteMaster</div>
+                    <div class="logo">
+                        <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                            <path d="M16 10l-4 4-4-10"/>
+                        </svg>
+                        invitation-online
+                    </div>
                     <p>Создавайте красивые приглашения<br>для ваших мероприятий</p>
                 </div>
                 <div class="footer-links">
@@ -158,12 +131,11 @@
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 InviteMaster. Все права защищены.</p>
+                <p>&copy; 2026 invitation-online. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
     <script src="js/script.js"></script>
 </body>
-
 </html>

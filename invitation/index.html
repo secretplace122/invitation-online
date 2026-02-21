@@ -1,43 +1,27 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-    <title>Приглашение - InviteMaster</title>
-
-    <!-- Подключаем шрифты для всех типов приглашений -->
-    <link
-        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&display=swap"
-        rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap"
-        rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap"
-        rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap"
-        rel="stylesheet">
-
-    <!-- Стили -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Приглашение - invitation-online</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/invitation.css">
-
-    <!-- Firebase -->
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-    <script src="../js/firebase-config.js"></script>
 </head>
-
 <body>
     <div class="pattern-bg"></div>
 
-    <!-- Навигация (опционально, можно скрыть на странице приглашения) -->
-    <nav class="navbar" style="background: rgba(255,255,255,0.8); backdrop-filter: blur(10px);">
+    <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <span class="logo-icon">✨</span>
-                InviteMaster
+                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
+                    <path d="M16 10l-4 4-4-4"/>
+                </svg>
+                invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
                 <span></span>
@@ -54,20 +38,13 @@
     </nav>
 
     <main>
-        <!-- Индикатор загрузки -->
         <div class="loading-spinner" id="loadingSpinner">
             <div class="spinner"></div>
             <p>Загрузка приглашения...</p>
         </div>
 
-        <!-- Страница приглашения -->
         <div class="invitation-wrapper" id="invitationWrapper" style="display: none;">
-            <!-- Контент приглашения -->
-            <div class="invitation-content" id="invitationContent">
-                <!-- Здесь будет динамический контент -->
-            </div>
-
-            <!-- Панель действий -->
+            <div class="invitation-content" id="invitationContent"></div>
             <div class="invitation-actions">
                 <div class="actions-bar">
                     <button class="action-btn" id="copyLinkBtn">
@@ -78,7 +55,6 @@
             </div>
         </div>
 
-        <!-- Страница ошибки -->
         <div class="error-page" id="errorPage" style="display: none;">
             <div class="container">
                 <div class="error-card">
@@ -91,28 +67,19 @@
         </div>
     </main>
 
-    <script src="../js/script.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="../js/firebase-config.js"></script>
     <script>
-    // ПОЛУЧАЕМ SLUG ИЗ ХЕША (работает с /#slug)
-    if (window.location.hash) {
-        // Убираем символ # и получаем slug
-        window.invitationSlug = window.location.hash.substring(1);
-        console.log('Загрузка приглашения по slug из хеша:', window.invitationSlug);
-    }
-    
-    // Проверяем старый формат с ?id=...
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.has('id')) {
-        window.invitationId = urlParams.get('id');
-        console.log('Загрузка приглашения по ID:', window.invitationId);
-    }
-    
-    // Если ничего не нашли - показываем ошибку
-    if (!window.invitationSlug && !window.invitationId) {
-        console.log('Не указан slug или ID приглашения');
-    }
-</script>
+        if (window.location.hash) {
+            window.invitationSlug = window.location.hash.substring(1);
+        }
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.has('id')) {
+            window.invitationId = urlParams.get('id');
+        }
+    </script>
+    <script src="../js/script.js"></script>
     <script src="../js/invitation.js"></script>
 </body>
-
 </html>
