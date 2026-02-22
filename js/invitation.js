@@ -1,115 +1,25 @@
-const STYLES = {
-    wedding: (data) => `
-        <div class="invitation-themed wedding-theme">
-            <div class="invitation-card wedding-card">
-                <div class="card-header">
-                    <div class="decor-line"></div>
-                    <h2 class="event-type">Свадебное приглашение</h2>
-                    <div class="decor-line"></div>
-                </div>
-                <div class="card-body">
-                    <h1 class="names">${data.organizerName || 'Александр & Елена'}</h1>
-                    <p class="greeting">приглашают вас разделить с ними радость</p>
-                    <div class="details">
-                        <p class="date">${data.formattedDate || formatDate(data.eventDate)}</p>
-                        <p class="time">${data.eventTime ? 'в ' + data.eventTime : 'в 16:00'}</p>
-                        <p class="place">${data.eventPlace || 'ЗАГС, г. Москва'}</p>
-                    </div>
-                    <p class="message">${data.eventMessage || 'Будем рады видеть вас на нашем торжестве!'}</p>
-                </div>
-                <div class="card-footer">
-                    <div class="decor-line"></div>
-                </div>
-            </div>
-        </div>
-    `,
-    birthday: (data) => `
-        <div class="invitation-themed birthday-theme">
-            <div class="invitation-card birthday-card">
-                <div class="card-header">
-                    <div class="decor-line"></div>
-                    <h2 class="event-type">День рождения</h2>
-                    <div class="decor-line"></div>
-                </div>
-                <div class="card-body">
-                    <h1 class="names">${data.organizerName || 'София'}</h1>
-                    <p class="greeting">приглашает на свой праздник</p>
-                    <div class="details">
-                        <p class="date">${data.formattedDate || formatDate(data.eventDate)}</p>
-                        <p class="time">${data.eventTime ? 'в ' + data.eventTime : 'в 18:00'}</p>
-                        <p class="place">${data.eventPlace || 'Кафе "Уют", ул. Центральная'}</p>
-                    </div>
-                    <p class="message">${data.eventMessage || 'Будет весело и вкусно! Жду!'}</p>
-                </div>
-                <div class="card-footer">
-                    <div class="decor-line"></div>
-                </div>
-            </div>
-        </div>
-    `,
-    other: (data) => `
-        <div class="invitation-themed other-theme">
-            <div class="invitation-card other-card">
-                <div class="card-header">
-                    <div class="decor-line"></div>
-                    <h2 class="event-type">Приглашение</h2>
-                    <div class="decor-line"></div>
-                </div>
-                <div class="card-body">
-                    <h1 class="names">${data.organizerName || 'Мероприятие'}</h1>
-                    <p class="greeting">${data.eventMessage || 'Приглашаем вас принять участие'}</p>
-                    <div class="details">
-                        <p class="date">${data.formattedDate || formatDate(data.eventDate)}</p>
-                        <p class="time">${data.eventTime ? 'в ' + data.eventTime : 'в 19:00'}</p>
-                        <p class="place">${data.eventPlace || 'Конференц-зал, Бизнес-центр'}</p>
-                    </div>
-                </div>
-                <div class="card-footer">
-                    <div class="decor-line"></div>
-                </div>
-            </div>
-        </div>
-    `
-};
-
 let invitationSlug = window.invitationSlug || null;
-let invitationId = window.invitationId || null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Invitation.js loaded', { slug: invitationSlug, id: invitationId });
-    
     if (invitationSlug) {
-        loadInvitationBySlug(invitationSlug);
-    } else if (invitationId) {
-        loadInvitationById(invitationId);
+        loadInvitation();
     } else {
         showError();
     }
-
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
 });
 
-async function loadInvitationById(id) {
+async function loadInvitation() {
     try {
-        let data = null;
+        document.getElementById('loadingSpinner').style.display = 'flex';
         
-        if (!id.startsWith('local_')) {
-            const doc = await db.collection('invitations').doc(id).get();
-            if (doc.exists) {
-                data = doc.data();
-                data.id = doc.id;
-            }
-        }
-
-        if (!data) {
-            const local = localStorage.getItem(id);
-            if (local) {
-                data = JSON.parse(local);
-                data.id = id;
-            }
-        }
-
-        if (data) {
+        const query = await db.collection('invitations')
+            .where('slug', '==', invitationSlug)
+            .limit(1)
+            .get();
+        
+        if (!query.empty) {
+            const data = query.docs[0].data();
             displayInvitation(data);
         } else {
             showError();
@@ -120,145 +30,81 @@ async function loadInvitationById(id) {
     }
 }
 
-async function loadInvitationBySlug(slug) {
-    try {
-        document.getElementById('loadingSpinner').style.display = 'flex';
-        
-        const query = await db.collection('invitations')
-            .where('slug', '==', slug)
-            .limit(1)
-            .get();
-        
-        if (!query.empty) {
-            const doc = query.docs[0];
-            const data = doc.data();
-            data.id = doc.id;
-            
-            updateViewCount(doc.id);
-            updateMetaTags(data);
-            displayInvitation(data);
-        } else {
-            showError();
-        }
-    } catch (error) {
-        console.error('Slug load error:', error);
-        showError();
-    }
-}
-
-async function updateViewCount(docId) {
-    try {
-        const docRef = db.collection('invitations').doc(docId);
-        await docRef.update({ views: firebase.firestore.FieldValue.increment(1) });
-    } catch (error) {
-        console.error('View count error:', error);
-    }
-}
-
-function updateMetaTags(data) {
-    if (!data) return;
-    
-    let title = 'InviteMaster - Приглашение';
-    let description = 'Приглашение на мероприятие';
-    let imageUrl = '/images/og-default.jpg';
-    
-    switch(data.category) {
-        case 'wedding':
-            title = `Свадьба ${data.organizerName || ''}`;
-            description = data.eventMessage || 'Приглашаем на свадебное торжество';
-            imageUrl = '/images/og-wedding.jpg';
-            break;
-        case 'birthday':
-            title = `День рождения ${data.organizerName || ''}`;
-            description = data.eventMessage || 'Приглашаем на празднование дня рождения';
-            imageUrl = '/images/og-birthday.jpg';
-            break;
-        default:
-            title = `${data.organizerName || 'Мероприятие'}`;
-            description = data.eventMessage || 'Приглашаем вас на мероприятие';
-            imageUrl = '/images/og-event.jpg';
-    }
-    
-    if (data.eventDate) {
-        const date = new Date(data.eventDate + 'T12:00:00');
-        const formattedDate = date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' });
-        description += ` | ${formattedDate}`;
-    }
-    
-    const tags = {
-        'title': title,
-        'description': description,
-        'og:title': title,
-        'og:description': description,
-        'og:image': imageUrl,
-        'og:url': window.location.href,
-        'twitter:card': 'summary_large_image',
-        'twitter:title': title,
-        'twitter:description': description,
-        'twitter:image': imageUrl
-    };
-    
-    Object.entries(tags).forEach(([property, content]) => {
-        let meta = document.querySelector(`meta[property="${property}"]`) || 
-                   document.querySelector(`meta[name="${property}"]`);
-        
-        if (!meta) {
-            meta = document.createElement('meta');
-            if (property.startsWith('og:')) {
-                meta.setAttribute('property', property);
-            } else {
-                meta.setAttribute('name', property);
-            }
-            document.head.appendChild(meta);
-        }
-        meta.setAttribute('content', content);
-    });
-    
-    document.title = `${title} - InviteMaster`;
-}
-
 function displayInvitation(data) {
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('invitationWrapper').style.display = 'block';
 
-    const category = data.category || 'other';
-    const templateFunction = STYLES[category] || STYLES.other;
+    const patternBg = document.querySelector('.pattern-bg');
+    if (patternBg) {
+        patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'abstract-1.jpg'}')`;
+        patternBg.style.opacity = data.bgOpacity || 0.2;
+    }
 
-    let formattedDate = formatDate(data.eventDate);
+    const containerBgColor = data.containerBgColor || '#FFFFFF';
+    const containerBgOpacity = data.containerBgOpacity || 0.95;
+    const rgb = hexToRgb(containerBgColor);
 
-    const templateData = {
-        organizerName: data.organizerName,
-        eventDate: data.eventDate,
-        eventTime: data.eventTime,
-        eventPlace: data.eventPlace,
-        eventMessage: data.eventMessage,
-        formattedDate: formattedDate,
-    };
+    const decorHtml = (data.decor || []).map(d => `
+        <div style="
+            position: absolute;
+            left: ${d.x}px;
+            top: ${d.y}px;
+            width: ${d.width}px;
+            height: ${d.height}px;
+            transform: translate(-50%, -50%) rotate(${d.rotation || 0}deg);
+            pointer-events: none;
+        ">
+            <img src="/images/decor/${d.file}" style="width: 100%; height: 100%; object-fit: contain;">
+        </div>
+    `).join('');
 
     const content = document.getElementById('invitationContent');
-    content.innerHTML = templateFunction(templateData);
-
-    if (window.setPatternBg) {
-        setPatternBg(data.theme?.pattern || 'default-pattern.png');
-    }
+    content.innerHTML = `
+        <div class="invitation-card" style="
+            border: ${data.borderWidth || 2}px solid ${data.borderColor || '#D4AF37'};
+            border-radius: ${data.borderRadius || 30}px;
+            background-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${containerBgOpacity});
+            color: ${data.textColor || '#475569'};
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 2.5rem 2rem;
+            position: relative;
+        ">
+            <div class="card-header" style="text-align: ${data.textAlign || 'center'}; margin-bottom: 1rem;">
+                <div class="decor-line" style="width: 80px; height: 2px; background: currentColor; margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem auto'}; opacity: 0.5;"></div>
+                <h2 class="event-type" style="font-size: 1rem; letter-spacing: 2px; text-transform: uppercase; margin: 0.5rem 0;">${data.eventType || 'Приглашение'}</h2>
+                <div class="decor-line" style="width: 80px; height: 2px; background: currentColor; margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem auto'}; opacity: 0.5;"></div>
+            </div>
+            <div class="card-body" style="text-align: ${data.textAlign || 'center'};">
+                <h1 class="names" style="font-family: ${data.fontNames || "'Great Vibes', cursive"}; font-size: ${data.namesSize || 48}px; margin: 0.5rem 0; line-height: 1.2;">${data.names || 'Александр & Елена'}</h1>
+                <p class="greeting" style="font-size: 1.1rem; margin-bottom: 2rem; font-style: italic;">${data.greeting || 'приглашают вас разделить с ними радость'}</p>
+                <div class="details" style="margin: 0.3rem 0;">
+                    <p class="date" style="font-size: 1.1rem;">${data.dateText || '15 июня 2026'}</p>
+                    <p class="time" style="font-size: 1.1rem;">${data.timeText || 'в 16:00'}</p>
+                    <p class="place" style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">${data.placeText || 'ЗАГС, г. Москва'}</p>
+                </div>
+                <div class="message" style="margin-top: 2rem; font-size: 1rem; line-height: 1.5; white-space: pre-line;">${data.messageText || 'Будем рады видеть вас!'}</div>
+            </div>
+            <div class="card-footer" style="text-align: ${data.textAlign || 'center'}; margin-top: 1rem;">
+                <div class="decor-line" style="width: 80px; height: 2px; background: currentColor; margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem auto'}; opacity: 0.5;"></div>
+            </div>
+            ${decorHtml}
+        </div>
+    `;
 }
 
-function formatDate(dateString) {
-    if (!dateString) return 'Дата не указана';
-    try {
-        const date = new Date(dateString + 'T12:00:00');
-        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' }).replace(' г.', '');
-    } catch (e) {
-        return dateString;
-    }
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 255, g: 255, b: 255 };
 }
 
 function showError() {
-    const spinner = document.getElementById('loadingSpinner');
-    const errorPage = document.getElementById('errorPage');
-    
-    if (spinner) spinner.style.display = 'none';
-    if (errorPage) errorPage.style.display = 'block';
+    document.getElementById('loadingSpinner').style.display = 'none';
+    document.getElementById('errorPage').style.display = 'block';
 }
 
 function copyInvitationLink() {
@@ -268,11 +114,5 @@ function copyInvitationLink() {
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="material-symbols-outlined">check</span><span>Скопировано!</span>';
         setTimeout(() => { btn.innerHTML = originalText; }, 2000);
-    }).catch(() => {
-        alert('Не удалось скопировать ссылку');
     });
 }
-
-window.displayInvitation = displayInvitation;
-window.loadInvitationById = loadInvitationById;
-window.loadInvitationBySlug = loadInvitationBySlug;

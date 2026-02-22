@@ -4,20 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Приглашение - invitation-online</title>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&family=Great+Vibes&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&family=Dancing+Script:wght@700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/invitation.css">
 </head>
 <body>
-    <div class="pattern-bg"></div>
+    <div class="pattern-bg" id="patternBg"></div>
 
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg class="logo-svg" viewBox="0 0 24 24">
                     <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
                     <path d="M16 10l-4 4-4-4"/>
                 </svg>
@@ -30,9 +28,7 @@
             </button>
             <div class="nav-links" id="navLinks">
                 <a href="/">Главная</a>
-                <a href="/wedding/">Свадьба</a>
-                <a href="/birthday/">День рождения</a>
-                <a href="/other/">Другое</a>
+                <a href="/editor/">Редактор</a>
             </div>
         </div>
     </nav>
@@ -46,12 +42,10 @@
         <div class="invitation-wrapper" id="invitationWrapper" style="display: none;">
             <div class="invitation-content" id="invitationContent"></div>
             <div class="invitation-actions">
-                <div class="actions-bar">
-                    <button class="action-btn" id="copyLinkBtn">
-                        <span class="material-symbols-outlined">link</span>
-                        <span>Копировать ссылку</span>
-                    </button>
-                </div>
+                <button class="action-btn" id="copyLinkBtn">
+                    <span class="material-symbols-outlined">link</span>
+                    <span>Копировать ссылку</span>
+                </button>
             </div>
         </div>
 
@@ -60,8 +54,7 @@
                 <div class="error-card">
                     <div class="error-icon">😕</div>
                     <h2>Приглашение не найдено</h2>
-                    <p>Возможно, оно было удалено или ссылка недействительна</p>
-                    <a href="/" class="btn btn-primary">Создать своё приглашение</a>
+                    <a href="/" class="btn btn-primary">Создать своё</a>
                 </div>
             </div>
         </div>
@@ -74,12 +67,7 @@
         if (window.location.hash) {
             window.invitationSlug = window.location.hash.substring(1);
         }
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.has('id')) {
-            window.invitationId = urlParams.get('id');
-        }
     </script>
-    <script src="../js/script.js"></script>
     <script src="../js/invitation.js"></script>
 </body>
 </html>

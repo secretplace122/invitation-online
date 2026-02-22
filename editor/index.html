@@ -2,19 +2,18 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Редактор приглашения - invitation-online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Редактор - invitation-online</title>
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-    <div class="pattern-bg"></div>
-
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <svg class="logo-svg" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <svg class="logo-svg" viewBox="0 0 24 24">
                     <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
                     <path d="M16 10l-4 4-4-4"/>
                 </svg>
@@ -27,65 +26,245 @@
             </button>
             <div class="nav-links" id="navLinks">
                 <a href="/">Главная</a>
-                <a href="/wedding/">Свадьба</a>
-                <a href="/birthday/">День рождения</a>
-                <a href="/other/">Другое</a>
+                <a href="/editor/" class="active">Редактор</a>
             </div>
         </div>
     </nav>
 
-    <main>
-        <section class="editor-section">
-            <div class="editor-container">
-                <div class="selected-template-info" id="selectedTemplateInfo"></div>
-                <div class="editor-form">
-                    <form id="invitationForm">
-                        <div class="form-group">
-                            <label for="customSlug">Ваша уникальная ссылка</label>
-                            <div class="slug-input-wrapper">
-                                <span class="slug-domain">invitation-online.ru/invitation/#</span>
-                                <input type="text" id="customSlug" placeholder="moya-svadba-2026" required pattern="[a-z0-9-]+" title="Только латинские буквы, цифры и дефисы">
+    <main class="editor-main">
+        <!-- Мобильное переключение между вкладками -->
+        <div class="editor-mobile-tabs">
+            <button class="mobile-tab active" data-tab="settings">⚙️ Настройки</button>
+            <button class="mobile-tab" data-tab="preview">👁️ Просмотр</button>
+        </div>
+
+        <div class="editor-layout">
+            <!-- Левая панель с настройками -->
+            <div class="editor-sidebar" id="editorSidebar">
+                <div class="sidebar-header">
+                    <h2>Настройки приглашения</h2>
+                </div>
+
+                <div class="sidebar-content">
+                    <div class="accordion">
+                        <div class="accordion-item active">
+                            <button class="accordion-header">
+                                <span>🎨 Фон страницы</span>
+                                <span class="material-symbols-outlined">expand_less</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="setting-group">
+                                    <label>Паттерн</label>
+                                    <div class="pattern-grid" id="patternGrid"></div>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Прозрачность <span id="bgOpacityValue">0.2</span></label>
+                                    <input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.2">
+                                </div>
                             </div>
-                            <small class="slug-hint">Например: svadba-aleksandra-2026</small>
                         </div>
 
-                        <div class="form-group">
-                            <label for="organizerName">Ваше имя / Имена</label>
-                            <input type="text" id="organizerName" placeholder="Александр и Елена" required>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="eventDate">Дата</label>
-                                <input type="date" id="eventDate" required>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>🖼️ Рамка контейнера</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="setting-group">
+                                    <label>Цвет</label>
+                                    <input type="color" id="borderColor" value="#D4AF37">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Толщина <span id="borderWidthValue">2</span>px</label>
+                                    <input type="range" id="borderWidth" min="0" max="10" step="1" value="2">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Скругление <span id="borderRadiusValue">30</span>px</label>
+                                    <input type="range" id="borderRadius" min="0" max="50" step="5" value="30">
+                                </div>
                             </div>
-                            <div class="form-group">
-                                <label for="eventTime">Время</label>
-                                <input type="time" id="eventTime" required>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>🎨 Внутренний фон</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="setting-group">
+                                    <label>Цвет</label>
+                                    <input type="color" id="containerBgColor" value="#FFFFFF">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Прозрачность <span id="containerBgOpacityValue">0.95</span></label>
+                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05" value="0.95">
+                                </div>
                             </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="eventPlace">Место проведения</label>
-                            <input type="text" id="eventPlace" placeholder="Адрес, название заведения" required>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>📝 Текст</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="setting-group">
+                                    <label>Тип мероприятия</label>
+                                    <input type="text" id="eventType" value="Свадебное приглашение">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Имена</label>
+                                    <input type="text" id="names" value="Александр & Елена">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Приветствие</label>
+                                    <input type="text" id="greeting" value="приглашают вас разделить с ними радость">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Дата</label>
+                                    <input type="text" id="dateText" value="15 июня 2026">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Время</label>
+                                    <input type="text" id="timeText" value="в 16:00">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Место</label>
+                                    <input type="text" id="placeText" value="ЗАГС, г. Москва">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Доп. текст</label>
+                                    <textarea id="messageText" rows="4" placeholder="Программа:
+1. Сбор гостей - 15:00
+2. Церемония - 16:00
+3. Фуршет - 17:00
+4. Танцы - 18:00"></textarea>
+                                </div>
+                            </div>
                         </div>
 
-                        <div class="form-group">
-                            <label for="eventMessage">Текст приглашения</label>
-                            <textarea id="eventMessage" rows="3" placeholder="Дорогие гости, приглашаем вас..."></textarea>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>✍️ Шрифты</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="setting-group">
+                                    <label>Шрифт для имен</label>
+                                    <select id="fontNames">
+                                        <option value="'Great Vibes', cursive">Great Vibes</option>
+                                        <option value="'Dancing Script', cursive">Dancing Script</option>
+                                        <option value="'Playfair Display', serif">Playfair Display</option>
+                                        <option value="'Inter', sans-serif">Inter</option>
+                                    </select>
+                                </div>
+                                <div class="setting-group">
+                                    <label>Размер <span id="namesSizeValue">48</span>px</label>
+                                    <input type="range" id="namesSize" min="24" max="72" step="2" value="48">
+                                </div>
+                                <div class="setting-group">
+                                    <label>Цвет текста</label>
+                                    <input type="color" id="textColor" value="#475569">
+                                </div>
+                            </div>
                         </div>
 
-                        <button type="submit" class="btn btn-primary">Создать приглашение</button>
-                    </form>
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>📏 Выравнивание описания</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="setting-group">
+                                    <label>Текст описания (message)</label>
+                                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="radio" name="messageAlign" id="messageAlignCenter" value="center" checked> По центру
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="radio" name="messageAlign" id="messageAlignLeft" value="left"> По левому краю
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>✨ Декорации</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content" style="display: none;">
+                                <div class="decor-grid" id="decorGrid"></div>
+                                <div style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;">
+                                    <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">info</span> 
+                                        Нажмите на декорацию, чтобы добавить. Перетаскивайте, меняйте размер, нажмите Delete для удаления.
+                                    </p>
+                                </div>
+                                <div class="selected-decor-info" id="selectedDecorInfo" style="display: none; margin-top: 1rem; padding: 0.5rem; background: #e6f3ff; border-radius: 8px;">
+                                    <p><strong>Выбрано:</strong> <span id="selectedDecorName"></span></p>
+                                    <div class="setting-group">
+                                        <label>Размер <span id="decorSizeValue">50</span>px</label>
+                                        <input type="range" id="decorSize" min="30" max="120" step="5" value="50">
+                                    </div>
+                                    <button class="btn btn-secondary" id="deleteSelectedDecor" style="width: 100%; margin-top: 0.5rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span> Удалить
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="sidebar-footer">
+                    <button class="btn btn-primary" id="saveInvitationBtn">Сохранить</button>
+                    <div class="slug-input">
+                        <label>Ссылка: /invitation/#</label>
+                        <input type="text" id="customSlug" placeholder="moya-svadba" pattern="[a-z0-9-]+">
+                    </div>
                 </div>
             </div>
-        </section>
+
+            <!-- Правая панель с предпросмотром -->
+            <div class="editor-preview" id="editorPreview">
+                <div class="preview-header">
+                    <h3>Предпросмотр</h3>
+                    <button class="btn btn-secondary" id="copyPreviewLink">Копировать ссылку</button>
+                </div>
+                <div class="preview-container" id="previewContainer">
+                    <div class="preview-bg-layer" id="previewBgLayer"></div>
+                    <div class="preview-content-layer">
+                        <div class="invitation-card" id="previewCard">
+                            <div class="card-header">
+                                <div class="decor-line"></div>
+                                <h2 class="event-type" id="previewEventType">Свадебное приглашение</h2>
+                                <div class="decor-line"></div>
+                            </div>
+                            <div class="card-body" id="previewCardBody">
+                                <h1 class="names" id="previewNames">Александр & Елена</h1>
+                                <p class="greeting" id="previewGreeting">приглашают вас разделить с ними радость</p>
+                                <div class="details">
+                                    <p class="date" id="previewDate">15 июня 2026</p>
+                                    <p class="time" id="previewTime">в 16:00</p>
+                                    <p class="place" id="previewPlace">ЗАГС, г. Москва</p>
+                                </div>
+                                <div class="message" id="previewMessage" style="white-space: pre-line;"></div>
+                            </div>
+                            <div class="card-footer">
+                                <div class="decor-line"></div>
+                            </div>
+                            <div class="decor-layer" id="decorLayer"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </main>
 
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="../js/firebase-config.js"></script>
-    <script src="../js/script.js"></script>
     <script src="../js/editor.js"></script>
 </body>
 </html>

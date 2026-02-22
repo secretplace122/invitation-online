@@ -20,7 +20,7 @@
     width: 50px;
     height: 50px;
     border: 4px solid #f3f3f3;
-    border-top: 4px solid var(--gold);
+    border-top: 4px solid #D4AF37;
     border-radius: 50%;
     animation: spin 1s linear infinite;
     margin-bottom: 1rem;
@@ -38,128 +38,20 @@
     margin-bottom: 2rem;
 }
 
-.invitation-themed {
-    width: 100%;
-    min-height: calc(100vh - 250px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 1.5rem;
-    box-sizing: border-box;
-}
-
 .invitation-card {
-    width: 100%;
     max-width: 600px;
+    width: 100%;
     margin: 0 auto;
-    border-radius: 30px;
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
     padding: 2.5rem 2rem;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    background: rgba(255, 255, 255, 0.9);
-    backdrop-filter: blur(5px);
-    border: 2px solid rgba(255,255,255,0.5);
-}
-
-.card-header, .card-footer {
-    text-align: center;
-    margin-bottom: 1rem;
-}
-
-.card-footer {
-    margin-top: 1rem;
-    margin-bottom: 0;
-}
-
-.event-type {
-    font-size: 1rem;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    font-weight: 400;
-    margin: 0.5rem 0;
-}
-
-.card-body {
-    text-align: center;
-    flex: 1;
-}
-
-.names {
-    font-size: clamp(2rem, 8vw, 3.5rem);
-    font-weight: 700;
-    margin: 0.5rem 0;
-    line-height: 1.2;
-}
-
-.greeting {
-    font-size: 1.1rem;
-    margin-bottom: 2rem;
-    font-style: italic;
-}
-
-.details p {
-    margin: 0.3rem 0;
-    font-size: 1.1rem;
-}
-
-.place {
-    font-weight: 600;
-    margin-top: 0.5rem;
-}
-
-.message {
-    margin-top: 2rem;
-    font-size: 1rem;
-    line-height: 1.5;
-}
-
-.decor-line {
-    width: 80px;
-    height: 2px;
-    background: currentColor;
-    margin: 0.5rem auto;
-    opacity: 0.5;
-}
-
-.wedding-theme .invitation-card {
-    background: rgba(255, 240, 245, 0.9);
-    color: #9d6b6b;
-    border-color: #d4b6b6;
-}
-
-.birthday-theme .invitation-card {
-    background: rgba(255, 235, 215, 0.9);
-    color: #c97e5b;
-    border-color: #f3c7a5;
-}
-
-.other-theme .invitation-card {
-    background: rgba(235, 245, 255, 0.9);
-    color: #2c5282;
-    border-color: #a3bffa;
-}
-
-.wedding-theme .names {
-    font-family: 'Great Vibes', cursive;
-}
-
-.birthday-theme .names {
-    font-family: 'Dancing Script', cursive;
-}
-
-.other-theme .names {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-weight: 600;
+    transition: all 0.3s;
 }
 
 .invitation-actions {
     width: 100%;
     max-width: 600px;
-    margin: 1rem auto 0;
+    margin: 0 auto;
     text-align: center;
 }
 
@@ -176,10 +68,12 @@
     font-weight: 500;
     color: white;
     box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    transition: all 0.3s;
 }
 
-.action-btn .material-symbols-outlined {
-    font-size: 1.2rem;
+.action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 15px 25px -5px rgba(0,0,0,0.2);
 }
 
 .error-page {
@@ -206,49 +100,22 @@
 
 .error-card h2 {
     font-size: 2rem;
-    margin-bottom: 1rem;
+    margin-bottom: 2rem;
     color: #475569;
 }
 
-.error-card p {
-    color: #94a3b8;
-    margin-bottom: 2rem;
-}
-
 @media (max-width: 640px) {
-    .invitation-themed {
-        padding: 1rem;
-    }
-    
     .invitation-card {
-        max-width: 100%;
         padding: 2rem 1.5rem;
-    }
-    
-    .action-btn {
-        padding: 0.6rem 1.5rem;
-        font-size: 0.9rem;
     }
 }
 
 @media (max-width: 480px) {
     .invitation-card {
         padding: 1.5rem 1rem;
-        border-radius: 20px;
     }
     
     .action-btn span:last-child {
         display: none;
-    }
-    
-    .action-btn .material-symbols-outlined {
-        font-size: 1.5rem;
-    }
-}
-
-@media print {
-    .invitation-actions,
-    .action-btn {
-        display: none !important;
     }
 }
