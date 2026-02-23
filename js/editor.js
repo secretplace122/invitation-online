@@ -23,7 +23,7 @@ const EditorState = {
 };
 
 const patterns = [
-    { id: 'abstract-1', file: 'wedding-gradient.png' },
+    { id: 'abstract-1', file: 'wedding-flower-1.png' },
     { id: 'abstract-2', file: 'wedding-watercolor.png' },
     { id: 'wedding', file: 'wedding-royal.png' },
     { id: 'birthday', file: 'wedding-rose.png' },
@@ -672,27 +672,67 @@ function initMobileTabs() {
 
     if (!mobileTabs || !sidebar || !preview) return;
 
-    if (window.innerWidth <= 768) {
-        preview.classList.add('hidden');
-        sidebar.classList.remove('hidden');
+    // Функция для переключения табов
+    function switchToTab(tabName) {
+        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+
+        if (tabName === 'settings') {
+            document.querySelector('.mobile-tab[data-tab="settings"]').classList.add('active');
+            sidebar.classList.remove('hidden');
+            preview.classList.add('hidden');
+
+            // Важно: принудительно обновляем скролл после показа
+            setTimeout(() => {
+                const sidebarContent = document.getElementById('sidebarContent');
+                if (sidebarContent) {
+                    sidebarContent.style.overflowY = 'auto';
+                }
+            }, 50);
+        } else {
+            document.querySelector('.mobile-tab[data-tab="preview"]').classList.add('active');
+            sidebar.classList.add('hidden');
+            preview.classList.remove('hidden');
+            setTimeout(() => {
+                renderDecor();
+                // Обновляем скролл preview если нужно
+                const previewContainer = document.querySelector('.preview-container');
+                if (previewContainer) {
+                    previewContainer.style.overflowY = 'auto';
+                }
+            }, 100);
+        }
     }
 
+    // Устанавливаем начальное состояние в зависимости от размера экрана
+    if (window.innerWidth <= 768) {
+        switchToTab('settings'); // Показываем настройки по умолчанию
+    }
+
+    // Обработчики для табов
     document.querySelectorAll('.mobile-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             const tabName = tab.dataset.tab;
-
-            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
-            tab.classList.add('active');
-
-            if (tabName === 'settings') {
-                sidebar.classList.remove('hidden');
-                preview.classList.add('hidden');
-            } else {
-                sidebar.classList.add('hidden');
-                preview.classList.remove('hidden');
-                setTimeout(() => renderDecor(), 100);
-            }
+            switchToTab(tabName);
         });
+    });
+
+    // Обработчик изменения размера окна
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            if (window.innerWidth <= 768) {
+                // На мобильных показываем активный таб
+                const activeTab = document.querySelector('.mobile-tab.active');
+                if (activeTab) {
+                    switchToTab(activeTab.dataset.tab);
+                }
+            } else {
+                // На десктопе показываем всё
+                sidebar.classList.remove('hidden');
+                preview.classList.remove('hidden');
+            }
+        }, 150);
     });
 }
 
