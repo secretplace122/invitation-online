@@ -162,8 +162,10 @@ function initDecorGrid() {
 
 function addDecor(file, name) {
     const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-    const centerX = containerRect.width / 2;
-    const centerY = containerRect.height / 2;
+
+    // Сохраняем координаты в процентах
+    const centerX = 50; // 50% от ширины
+    const centerY = 50; // 50% от высоты
 
     const id = EditorState.nextDecorId++;
 
@@ -175,7 +177,10 @@ function addDecor(file, name) {
         y: centerY,
         width: 80,
         height: 80,
-        rotation: 0
+        rotation: 0,
+        // Добавляем информацию о размере контейнера для пропорций
+        containerWidth: containerRect.width,
+        containerHeight: containerRect.height
     });
 
     renderDecor();
@@ -184,17 +189,41 @@ function addDecor(file, name) {
 
 function renderDecor() {
     const layer = document.getElementById('decorLayer');
-    if (!layer) return;
+    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+    if (!layer || !containerRect.width) return;
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
+
+        // Если есть сохраненные размеры контейнера, пересчитываем позицию
+        let x = d.x;
+        let y = d.y;
+
+        // Если координаты в пикселях (старый формат), конвертируем в проценты
+        if (d.containerWidth) {
+            // Уже в процентах или есть информация о контейнере
+            if (d.x > 1 && d.containerWidth) {
+                // Конвертируем пиксели в проценты если нужно
+                x = (d.x / d.containerWidth) * 100;
+                y = (d.y / d.containerHeight) * 100;
+            }
+        } else if (d.x > 1) {
+            // Старый формат - конвертируем пиксели в проценты
+            x = (d.x / containerRect.width) * 100;
+            y = (d.y / containerRect.height) * 100;
+        }
+
+        // Вычисляем позицию в пикселях для текущего контейнера
+        const posX = (x / 100) * containerRect.width;
+        const posY = (y / 100) * containerRect.height;
+
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
              data-id="${d.id}"
              style="
                 position: absolute;
-                left: ${d.x - d.width / 2}px;
-                top: ${d.y - d.height / 2}px;
+                left: ${posX - d.width / 2}px;
+                top: ${posY - d.height / 2}px;
                 width: ${d.width}px;
                 height: ${d.height}px;
                 transform: rotate(${d.rotation || 0}deg);
@@ -212,40 +241,8 @@ function renderDecor() {
                 user-select: none;
             ">
             ${isSelected ? `
-                <div class="decor-resize" style="
-                    position: absolute;
-                    bottom: -10px;
-                    right: -10px;
-                    width: 20px;
-                    height: 20px;
-                    background: white;
-                    border: 2px solid #D4AF37;
-                    border-radius: 50%;
-                    cursor: se-resize;
-                    z-index: 1001;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    pointer-events: all;
-                "></div>
-                <div class="decor-rotate" style="
-                    position: absolute;
-                    top: -30px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 30px;
-                    height: 30px;
-                    background: white;
-                    border: 2px solid #D4AF37;
-                    border-radius: 50%;
-                    cursor: grab;
-                    z-index: 1001;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 18px;
-                    color: #D4AF37;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    pointer-events: all;
-                ">↻</div>
+                <div class="decor-resize"></div>
+                <div class="decor-rotate">↻</div>
             ` : ''}
         </div>
     `}).join('');
@@ -300,8 +297,8 @@ function startDrag(e, id) {
     selectDecor(id);
 
     const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const rect = el.getBoundingClientRect();
     const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+    const rect = el.getBoundingClientRect();
 
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -368,25 +365,32 @@ function handleMove(e) {
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
     if (!clientX && !clientY) return;
+
     if (isDragging && selectedDecorId) {
         e.preventDefault();
 
         const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-        let newCenterX = e.clientX - containerRect.left - dragOffset.x;
-        let newCenterY = e.clientY - containerRect.top - dragOffset.y;
+        let newCenterX = clientX - containerRect.left - dragOffset.x;
+        let newCenterY = clientY - containerRect.top - dragOffset.y;
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
         if (decor) {
+            // Ограничиваем перемещение в пикселях
             newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
             newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
 
-            decor.x = newCenterX;
-            decor.y = newCenterY;
+            // Сохраняем в процентах
+            decor.x = (newCenterX / containerRect.width) * 100;
+            decor.y = (newCenterY / containerRect.height) * 100;
+
+            // Сохраняем размеры контейнера для пропорций
+            decor.containerWidth = containerRect.width;
+            decor.containerHeight = containerRect.height;
 
             const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
             if (el) {
-                el.style.left = (decor.x - decor.width / 2) + 'px';
-                el.style.top = (decor.y - decor.height / 2) + 'px';
+                el.style.left = (newCenterX - decor.width / 2) + 'px';
+                el.style.top = (newCenterY - decor.height / 2) + 'px';
             }
         }
     }
@@ -394,7 +398,7 @@ function handleMove(e) {
     if (isResizing && selectedDecorId) {
         e.preventDefault();
 
-        const dx = e.clientX - startDecorState.x;
+        const dx = clientX - startDecorState.x;
         const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
@@ -406,8 +410,14 @@ function handleMove(e) {
             if (el) {
                 el.style.width = newSize + 'px';
                 el.style.height = newSize + 'px';
-                el.style.left = (decor.x - newSize / 2) + 'px';
-                el.style.top = (decor.y - newSize / 2) + 'px';
+
+                // Пересчитываем позицию в пикселях
+                const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+                const posX = (decor.x / 100) * containerRect.width;
+                const posY = (decor.y / 100) * containerRect.height;
+
+                el.style.left = (posX - newSize / 2) + 'px';
+                el.style.top = (posY - newSize / 2) + 'px';
             }
 
             const sizeInput = document.getElementById('decorSize');
@@ -425,10 +435,10 @@ function handleMove(e) {
         const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
 
         if (decor && el) {
-            const centerX = containerRect.left + decor.x;
-            const centerY = containerRect.top + decor.y;
+            const centerX = containerRect.left + (decor.x / 100) * containerRect.width;
+            const centerY = containerRect.top + (decor.y / 100) * containerRect.height;
 
-            const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
+            const currentAngle = Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
             const deltaAngle = currentAngle - startDecorState.startAngle;
 
             decor.rotation = startDecorState.rotation + deltaAngle;
