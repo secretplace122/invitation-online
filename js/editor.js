@@ -59,7 +59,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     updatePreview();
     updateAllText();
-    
+
     // Добавляем обработчик изменения размера окна с debounce
     let resizeTimeout;
     window.addEventListener('resize', () => {
@@ -190,14 +190,20 @@ function addDecor(file, name) {
 
 function renderDecor() {
     const layer = document.getElementById('decorLayer');
-    const containerRect = document.getElementById('previewCard')?.getBoundingClientRect();
+    const card = document.getElementById('previewCard');
+    const containerRect = card?.getBoundingClientRect();
     if (!layer || !containerRect) return;
+
+    // Получаем реальные размеры карточки без учета трансформации
+    const cardWidth = card.offsetWidth;
+    const cardHeight = card.offsetHeight;
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
-        const posX = (d.x / 100) * containerRect.width;
-        const posY = (d.y / 100) * containerRect.height;
+        // Вычисляем позицию в пикселях на основе процентов от реальных размеров
+        const posX = (d.x / 100) * cardWidth;
+        const posY = (d.y / 100) * cardHeight;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
