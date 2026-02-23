@@ -3,7 +3,6 @@ let invitationSlug = null;
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Invitation page loaded');
     
-    // Получаем slug из hash
     if (window.location.hash) {
         invitationSlug = window.location.hash.substring(1);
         console.log('Loading invitation:', invitationSlug);
@@ -13,20 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
         showError();
     }
     
-    // Кнопка копирования ссылки
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
 });
 
 async function loadInvitation() {
     try {
-        // Показываем спиннер, скрываем остальное
         document.getElementById('loadingSpinner').style.display = 'flex';
         document.getElementById('invitationWrapper').style.display = 'none';
         document.getElementById('errorPage').style.display = 'none';
         
         console.log('Searching for slug:', invitationSlug);
         
-        // Ищем приглашение по slug
         const query = await db.collection('invitations')
             .where('slug', '==', invitationSlug)
             .limit(1)
@@ -52,24 +48,20 @@ async function loadInvitation() {
 function displayInvitation(data) {
     console.log('Displaying invitation');
     
-    // Скрываем спиннер, показываем контент
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('invitationWrapper').style.display = 'block';
     document.getElementById('errorPage').style.display = 'none';
 
-    // Устанавливаем фоновый паттерн
     const patternBg = document.querySelector('.pattern-bg');
     if (patternBg) {
         patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'abstract-1.jpg'}')`;
         patternBg.style.opacity = data.bgOpacity || 0.2;
     }
 
-    // Конвертируем цвет фона в RGB
     const containerBgColor = data.containerBgColor || '#FFFFFF';
     const containerBgOpacity = data.containerBgOpacity || 0.95;
     const rgb = hexToRgb(containerBgColor);
 
-    // Создаем HTML для декораций
     const decorHtml = (data.decor || []).map(d => {
         return `
         <div style="
@@ -86,10 +78,8 @@ function displayInvitation(data) {
         </div>
     `}).join('');
 
-    // Форматируем текст сообщения (заменяем переносы строк на <br>)
     const messageText = (data.messageText || '').replace(/\n/g, '<br>');
 
-    // Создаем HTML приглашения
     const content = document.getElementById('invitationContent');
     content.innerHTML = `
         <div class="invitation-card" style="
@@ -104,7 +94,6 @@ function displayInvitation(data) {
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
         ">
-            <!-- Верхняя декоративная линия -->
             <div class="card-header" style="text-align: ${data.textAlign || 'center'}; margin-bottom: 1rem;">
                 <div class="decor-line" style="
                     width: 80px; 
@@ -115,7 +104,6 @@ function displayInvitation(data) {
                     display: ${data.showDecorLines !== false ? 'block' : 'none'};
                 "></div>
                 
-                <!-- Тип мероприятия -->
                 <h2 class="event-type" style="
                     font-size: 1rem; 
                     letter-spacing: 2px; 
@@ -123,7 +111,6 @@ function displayInvitation(data) {
                     margin: 0.5rem 0;
                 ">${data.eventType || 'Приглашение'}</h2>
                 
-                <!-- Нижняя декоративная линия -->
                 <div class="decor-line" style="
                     width: 80px; 
                     height: 2px; 
@@ -134,9 +121,7 @@ function displayInvitation(data) {
                 "></div>
             </div>
             
-            <!-- Основной контент -->
             <div class="card-body" style="text-align: ${data.textAlign || 'center'};">
-                <!-- Имена -->
                 <h1 class="names" style="
                     font-family: ${data.fontNames || "'Great Vibes', cursive"}; 
                     font-size: ${data.namesSize || 48}px; 
@@ -144,21 +129,18 @@ function displayInvitation(data) {
                     line-height: 1.2;
                 ">${data.names || 'Александр & Елена'}</h1>
                 
-                <!-- Приветствие -->
                 <p class="greeting" style="
                     font-size: 1.1rem; 
                     margin-bottom: 2rem; 
                     font-style: italic;
                 ">${data.greeting || 'приглашают вас разделить с ними радость'}</p>
                 
-                <!-- Детали -->
                 <div class="details" style="margin: 0.3rem 0;">
                     <p class="date" style="font-size: 1.1rem;">${data.dateText || '15 июня 2026'}</p>
                     <p class="time" style="font-size: 1.1rem;">${data.timeText || 'в 16:00'}</p>
                     <p class="place" style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">${data.placeText || 'ЗАГС, г. Москва'}</p>
                 </div>
                 
-                <!-- Дополнительный текст -->
                 <div class="message" style="
                     margin-top: 2rem; 
                     font-size: 1rem; 
@@ -166,7 +148,6 @@ function displayInvitation(data) {
                 ">${messageText}</div>
             </div>
             
-            <!-- Нижняя декоративная линия -->
             <div class="card-footer" style="text-align: ${data.textAlign || 'center'}; margin-top: 1rem;">
                 <div class="decor-line" style="
                     width: 80px; 
@@ -178,7 +159,6 @@ function displayInvitation(data) {
                 "></div>
             </div>
             
-            <!-- Декорации -->
             ${decorHtml}
         </div>
     `;

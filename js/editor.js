@@ -23,7 +23,7 @@ const EditorState = {
 };
 
 const patterns = [
-    { id: 'abstract-1', file: '123.jpg' },
+    { id: 'abstract-1', file: 'abstract-1.jpg' },
     { id: 'abstract-2', file: 'wedding-watercolor.png' },
     { id: 'wedding', file: 'wedding-royal.png' },
     { id: 'birthday', file: 'wedding-rose.png' },
@@ -54,13 +54,11 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalEvents();
     initMobileTabs();
     initColorPresets();
-    initMobileDecor();
     initAccordion();
     initMobileMenu();
     updatePreview();
     updateAllText();
 
-    // Добавляем обработчик изменения размера окна с debounce
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -135,7 +133,7 @@ function initPatternGrid() {
     grid.innerHTML = patterns.map(p => `
         <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
              data-pattern="${p.file}"
-             style="background-image: url('../images/patterns/${p.file}')">
+             style="background-image: url('/images/patterns/${p.file}')">
         </div>
     `).join('');
 
@@ -155,7 +153,7 @@ function initDecorGrid() {
 
     grid.innerHTML = decorItems.map(d => `
         <div class="decor-item" data-decor="${d.file}" data-name="${d.name}">
-            <img src="../images/decor/${d.file}" alt="${d.name}">
+            <img src="/images/decor/${d.file}" alt="${d.name}">
         </div>
     `).join('');
 
@@ -169,8 +167,6 @@ function initDecorGrid() {
 }
 
 function addDecor(file, name) {
-    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-
     const id = EditorState.nextDecorId++;
 
     EditorState.decor.push({
@@ -191,17 +187,14 @@ function addDecor(file, name) {
 function renderDecor() {
     const layer = document.getElementById('decorLayer');
     const card = document.getElementById('previewCard');
-    const containerRect = card?.getBoundingClientRect();
-    if (!layer || !containerRect) return;
+    if (!layer || !card) return;
 
-    // Получаем реальные размеры карточки без учета трансформации
     const cardWidth = card.offsetWidth;
     const cardHeight = card.offsetHeight;
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
-        // Вычисляем позицию в пикселях на основе процентов от реальных размеров
         const posX = (d.x / 100) * cardWidth;
         const posY = (d.y / 100) * cardHeight;
 
@@ -221,7 +214,7 @@ function renderDecor() {
                 touch-action: none;
                 -webkit-tap-highlight-color: transparent;
              ">
-            <img src="../images/decor/${d.file}" draggable="false" style="
+            <img src="/images/decor/${d.file}" draggable="false" style="
                 width: 100%;
                 height: 100%;
                 object-fit: contain;
@@ -613,7 +606,6 @@ function initEventListeners() {
 
     document.getElementById('deleteSelectedDecor')?.addEventListener('click', deleteSelectedDecor);
     document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
-    document.getElementById('copyPreviewLink')?.addEventListener('click', copyPreviewLink);
 }
 
 function updateDecorLines() {
@@ -641,7 +633,7 @@ function updateAllText() {
 function updatePreview() {
     const bgLayer = document.getElementById('previewBgLayer');
     if (bgLayer) {
-        bgLayer.style.backgroundImage = `url('../images/patterns/${EditorState.pattern}')`;
+        bgLayer.style.backgroundImage = `url('/images/patterns/${EditorState.pattern}')`;
         bgLayer.style.opacity = EditorState.bgOpacity;
     }
 
@@ -702,9 +694,6 @@ function initMobileTabs() {
             }
         });
     });
-}
-
-function initMobileDecor() {
 }
 
 function initColorPresets() {
@@ -810,11 +799,4 @@ async function saveInvitation() {
         btn.textContent = originalText;
         btn.disabled = false;
     }
-}
-
-function copyPreviewLink() {
-    const slug = document.getElementById('customSlug')?.value || 'preview';
-    const url = `${window.location.origin}/invitation/#${slug}`;
-    navigator.clipboard.writeText(url);
-    alert('Ссылка скопирована');
 }
