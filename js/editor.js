@@ -49,6 +49,10 @@ let startDecorState = {};
 let activeAccordion = null;
 
 document.addEventListener('DOMContentLoaded', () => {
+    const previewCard = document.getElementById('previewCard');
+    if (previewCard) {
+        previewCard.style.position = 'relative';
+    }
     initPatternGrid();
     initDecorGrid();
     initEventListeners();
@@ -67,7 +71,7 @@ function initAccordion() {
         header.addEventListener('click', () => {
             const item = header.closest('.accordion-item');
             const wasActive = item.classList.contains('active');
-            
+
             document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
                 if (activeItem !== item) {
                     activeItem.classList.remove('active');
@@ -75,7 +79,7 @@ function initAccordion() {
                     if (prevIcon) prevIcon.textContent = 'expand_more';
                 }
             });
-            
+
             if (!wasActive) {
                 item.classList.add('active');
                 const icon = header.querySelector('.material-symbols-outlined');
@@ -97,7 +101,7 @@ function initMobileMenu() {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             navLinks.classList.toggle('active');
-            
+
             const spans = menuBtn.querySelectorAll('span');
             spans.forEach(span => span.classList.toggle('active'));
         });
@@ -297,15 +301,19 @@ function startRotate(e, id) {
 
 function initGlobalEvents() {
     document.addEventListener('mousemove', handleMove);
+    document.addEventListener('mouseup', stopInteraction);
+
     document.addEventListener('touchmove', (e) => {
-        e.preventDefault();
-        handleMove(e.touches[0]);
+        if (isDragging || isResizing || isRotating) {
+            e.preventDefault();
+            handleMove(e.touches[0]);
+        }
     }, { passive: false });
 
-    document.addEventListener('mouseup', stopInteraction);
     document.addEventListener('touchend', stopInteraction);
     document.addEventListener('touchcancel', stopInteraction);
 
+    // Клавиатура
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Delete' && selectedDecorId) {
             deleteSelectedDecor();
@@ -325,16 +333,17 @@ function handleMove(e) {
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
         if (decor) {
-            newCenterX = Math.max(decor.width/2, Math.min(containerRect.width - decor.width/2, newCenterX));
-            newCenterY = Math.max(decor.height/2, Math.min(containerRect.height - decor.height/2, newCenterY));
+            // Ограничиваем перемещение в пределах контейнера
+            newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
+            newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
 
             decor.x = newCenterX;
             decor.y = newCenterY;
 
             const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
             if (el) {
-                el.style.left = (decor.x - decor.width/2) + 'px';
-                el.style.top = (decor.y - decor.height/2) + 'px';
+                el.style.left = (decor.x - decor.width / 2) + 'px';
+                el.style.top = (decor.y - decor.height / 2) + 'px';
             }
         }
     }
@@ -354,8 +363,8 @@ function handleMove(e) {
             if (el) {
                 el.style.width = newSize + 'px';
                 el.style.height = newSize + 'px';
-                el.style.left = (decor.x - newSize/2) + 'px';
-                el.style.top = (decor.y - newSize/2) + 'px';
+                el.style.left = (decor.x - newSize / 2) + 'px';
+                el.style.top = (decor.y - newSize / 2) + 'px';
             }
 
             const sizeInput = document.getElementById('decorSize');
@@ -408,10 +417,10 @@ function selectDecor(id) {
     if (decor) {
         const info = document.getElementById('selectedDecorInfo');
         if (info) info.style.display = 'block';
-        
+
         const nameSpan = document.getElementById('selectedDecorName');
         if (nameSpan) nameSpan.textContent = decor.name;
-        
+
         const sizeInput = document.getElementById('decorSize');
         const sizeValue = document.getElementById('decorSizeValue');
         if (sizeInput) sizeInput.value = decor.width;
@@ -425,10 +434,10 @@ function deleteSelectedDecor() {
     if (selectedDecorId) {
         EditorState.decor = EditorState.decor.filter(d => d.id !== selectedDecorId);
         selectedDecorId = null;
-        
+
         const info = document.getElementById('selectedDecorInfo');
         if (info) info.style.display = 'none';
-        
+
         renderDecor();
     }
 }
@@ -554,8 +563,8 @@ function initEventListeners() {
                 if (el) {
                     el.style.width = size + 'px';
                     el.style.height = size + 'px';
-                    el.style.left = (decor.x - size/2) + 'px';
-                    el.style.top = (decor.y - size/2) + 'px';
+                    el.style.left = (decor.x - size / 2) + 'px';
+                    el.style.top = (decor.y - size / 2) + 'px';
                 }
             }
         }
@@ -656,14 +665,46 @@ function initMobileDecor() {
     if (window.innerWidth > 768) return;
 
     const previewCard = document.getElementById('previewCard');
-    if (previewCard) {
-        previewCard.addEventListener('touchstart', (e) => {
-            if (e.target.classList.contains('decor-element') || 
-                e.target.closest('.decor-element')) {
-                e.preventDefault();
+    if (!previewCard) return;
+
+    previewCard.addEventListener('touchstart', (e) => {
+        const decorElement = e.target.closest('.decor-element');
+        if (decorElement) {
+            e.preventDefault();
+
+            const id = parseInt(decorElement.dataset.id);
+            selectDecor(id);
+
+            if (e.target.classList.contains('decor-resize')) {
+                startResize(e.touches[0], id);
+            } else if (e.target.classList.contains('decor-rotate')) {
+                startRotate(e.touches[0], id);
+            } else {
+                startDrag(e.touches[0], id);
             }
-        }, { passive: false });
-    }
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging || isResizing || isRotating) {
+            e.preventDefault();
+            handleMove(e.touches[0]);
+        }
+    }, { passive: false });
+
+    document.addEventListener('touchend', (e) => {
+        if (isDragging || isResizing || isRotating) {
+            e.preventDefault();
+            stopInteraction();
+        }
+    });
+
+    document.addEventListener('touchcancel', (e) => {
+        if (isDragging || isResizing || isRotating) {
+            e.preventDefault();
+            stopInteraction();
+        }
+    });
 }
 
 function initColorPresets() {
