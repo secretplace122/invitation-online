@@ -634,3 +634,108 @@ document.querySelectorAll('.mobile-tab').forEach(tab => {
 if (window.innerWidth <= 768) {
     document.getElementById('editorPreview').classList.add('hidden');
 }
+// Добавить после initEventListeners:
+
+function initColorPresets() {
+    // Цвет рамки
+    document.querySelectorAll('#borderColorPresets .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('borderColor').value = color;
+            EditorState.borderColor = color;
+            updatePreview();
+
+            document.querySelectorAll('#borderColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+
+    // Цвет внутреннего фона
+    document.querySelectorAll('#containerBgColorPresets .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('containerBgColor').value = color;
+            EditorState.containerBgColor = color;
+            updatePreview();
+
+            document.querySelectorAll('#containerBgColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+
+    // Цвет текста
+    document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('textColor').value = color;
+            EditorState.textColor = color;
+            updatePreview();
+
+            document.querySelectorAll('#textColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+}
+
+// Мобильное переключение вкладок
+function initMobileTabs() {
+    const mobileTabs = document.getElementById('mobileTabs');
+    const sidebar = document.getElementById('editorSidebar');
+    const preview = document.getElementById('editorPreview');
+
+    if (!mobileTabs || !sidebar || !preview) return;
+
+    // При загрузке показываем настройки на мобильных
+    if (window.innerWidth <= 768) {
+        preview.classList.add('hidden');
+        sidebar.classList.remove('hidden');
+    }
+
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+            const tabName = tab.dataset.tab;
+
+            document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+            tab.classList.add('active');
+
+            if (tabName === 'settings') {
+                sidebar.classList.remove('hidden');
+                preview.classList.add('hidden');
+            } else {
+                sidebar.classList.add('hidden');
+                preview.classList.remove('hidden');
+            }
+        });
+    });
+}
+
+// Адаптация декораций для мобильных
+function initMobileDecor() {
+    if (window.innerWidth > 768) return;
+
+    // Добавляем touch-события для декораций
+    document.addEventListener('touchstart', (e) => {
+        const decorElement = e.target.closest('.decor-element');
+        if (!decorElement) return;
+
+        const id = parseInt(decorElement.dataset.id);
+        selectDecor(id);
+
+        if (e.target.classList.contains('decor-resize')) {
+            // Логика ресайза для тача
+            startResize(e.touches[0]);
+        } else if (e.target.classList.contains('decor-rotate')) {
+            // Логика поворота для тача
+            startRotate(e.touches[0]);
+        } else {
+            // Логика перетаскивания для тача
+            startDrag(e.touches[0]);
+        }
+    }, { passive: false });
+}
+
+// Вызвать новые функции в DOMContentLoaded
+// Добавить в конец функции:
+initColorPresets();
+initMobileTabs();
+initMobileDecor();

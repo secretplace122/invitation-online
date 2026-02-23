@@ -32,8 +32,8 @@
     </nav>
 
     <main class="editor-main">
-        <!-- Мобильное переключение между вкладками -->
-        <div class="editor-mobile-tabs">
+        <!-- Мобильное переключение между вкладками (липкое) -->
+        <div class="editor-mobile-tabs" id="mobileTabs">
             <button class="mobile-tab active" data-tab="settings">⚙️ Настройки</button>
             <button class="mobile-tab" data-tab="preview">👁️ Просмотр</button>
         </div>
@@ -45,8 +45,9 @@
                     <h2>Настройки приглашения</h2>
                 </div>
 
-                <div class="sidebar-content">
+                <div class="sidebar-content" id="sidebarContent">
                     <div class="accordion">
+                        <!-- Фон страницы -->
                         <div class="accordion-item active">
                             <button class="accordion-header">
                                 <span>🎨 Фон страницы</span>
@@ -55,7 +56,7 @@
                             <div class="accordion-content">
                                 <div class="setting-group">
                                     <label>Паттерн</label>
-                                    <div class="pattern-grid" id="patternGrid"></div>
+                                    <div class="pattern-grid scrollable-grid" id="patternGrid"></div>
                                 </div>
                                 <div class="setting-group">
                                     <label>Прозрачность <span id="bgOpacityValue">0.2</span></label>
@@ -64,6 +65,7 @@
                             </div>
                         </div>
 
+                        <!-- Рамка контейнера -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>🖼️ Рамка контейнера</span>
@@ -72,7 +74,15 @@
                             <div class="accordion-content" style="display: none;">
                                 <div class="setting-group">
                                     <label>Цвет</label>
-                                    <input type="color" id="borderColor" value="#D4AF37">
+                                    <div class="color-presets" id="borderColorPresets">
+                                        <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37" title="Золото"></div>
+                                        <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0" title="Серебро"></div>
+                                        <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32" title="Бронза"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Дерево"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
+                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
+                                    </div>
+                                    <input type="color" id="borderColor" value="#D4AF37" style="margin-top: 0.5rem;">
                                 </div>
                                 <div class="setting-group">
                                     <label>Толщина <span id="borderWidthValue">2</span>px</label>
@@ -85,6 +95,7 @@
                             </div>
                         </div>
 
+                        <!-- Внутренний фон -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>🎨 Внутренний фон</span>
@@ -93,7 +104,15 @@
                             <div class="accordion-content" style="display: none;">
                                 <div class="setting-group">
                                     <label>Цвет</label>
-                                    <input type="color" id="containerBgColor" value="#FFFFFF">
+                                    <div class="color-presets" id="containerBgColorPresets">
+                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
+                                        <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6" title="Слоновая кость"></div>
+                                        <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0" title="Светло-серый"></div>
+                                        <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5" title="Розовый"></div>
+                                        <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF" title="Голубой"></div>
+                                        <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC" title="Бежевый"></div>
+                                    </div>
+                                    <input type="color" id="containerBgColor" value="#FFFFFF" style="margin-top: 0.5rem;">
                                 </div>
                                 <div class="setting-group">
                                     <label>Прозрачность <span id="containerBgOpacityValue">0.95</span></label>
@@ -102,6 +121,7 @@
                             </div>
                         </div>
 
+                        <!-- Текст -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>📝 Текст</span>
@@ -143,6 +163,7 @@
                             </div>
                         </div>
 
+                        <!-- Шрифты -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>✍️ Шрифты</span>
@@ -164,11 +185,20 @@
                                 </div>
                                 <div class="setting-group">
                                     <label>Цвет текста</label>
-                                    <input type="color" id="textColor" value="#475569">
+                                    <div class="color-presets" id="textColorPresets">
+                                        <div class="color-preset" style="background: #475569;" data-color="#475569" title="Темно-серый"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Коричневый"></div>
+                                        <div class="color-preset" style="background: #B8860B;" data-color="#B8860B" title="Золотой"></div>
+                                        <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57" title="Зеленый"></div>
+                                        <div class="color-preset" style="background: #8B0000;" data-color="#8B0000" title="Бордовый"></div>
+                                    </div>
+                                    <input type="color" id="textColor" value="#475569" style="margin-top: 0.5rem;">
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Выравнивание описания -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>📏 Выравнивание описания</span>
@@ -189,13 +219,14 @@
                             </div>
                         </div>
 
+                        <!-- Декорации -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>✨ Декорации</span>
                                 <span class="material-symbols-outlined">expand_more</span>
                             </button>
                             <div class="accordion-content" style="display: none;">
-                                <div class="decor-grid" id="decorGrid"></div>
+                                <div class="decor-grid scrollable-grid" id="decorGrid"></div>
                                 <div style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;">
                                     <p style="font-size: 0.9rem; color: var(--text-light); margin-bottom: 0.5rem;">
                                         <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">info</span> 
@@ -230,7 +261,6 @@
             <div class="editor-preview" id="editorPreview">
                 <div class="preview-header">
                     <h3>Предпросмотр</h3>
-                    <button class="btn btn-secondary" id="copyPreviewLink">Копировать ссылку</button>
                 </div>
                 <div class="preview-container" id="previewContainer">
                     <div class="preview-bg-layer" id="previewBgLayer"></div>
