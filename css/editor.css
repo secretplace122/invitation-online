@@ -731,3 +731,43 @@
         max-width: 260px;
     }
 }
+
+/* Обеспечиваем скролл в предпросмотре */
+.editor-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.preview-container {
+    position: relative;
+    flex: 1;
+    overflow: auto !important;
+    background: #e5e7eb;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+.preview-content-layer {
+    position: relative;
+    width: 100%;
+    min-height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    z-index: 2;
+}
+
+@media (max-width: 768px) {
+    .preview-container {
+        min-height: 60vh;
+        max-height: 70vh;
+        overflow: auto !important;
+    }
+}

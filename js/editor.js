@@ -49,10 +49,6 @@ let startDecorState = {};
 let activeAccordion = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    const previewCard = document.getElementById('previewCard');
-    if (previewCard) {
-        previewCard.style.position = 'relative';
-    }
     initPatternGrid();
     initDecorGrid();
     initEventListeners();
@@ -61,9 +57,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPresets();
     initMobileDecor();
     initAccordion();
+    initMobileMenu();
     updatePreview();
     updateAllText();
-    initMobileMenu();
 });
 
 function initAccordion() {
@@ -109,12 +105,16 @@ function initMobileMenu() {
         document.addEventListener('click', (e) => {
             if (!navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
                 navLinks.classList.remove('active');
+                const spans = menuBtn?.querySelectorAll('span');
+                spans?.forEach(span => span.classList.remove('active'));
             }
         });
 
         document.querySelectorAll('#navLinks a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
+                const spans = menuBtn?.querySelectorAll('span');
+                spans?.forEach(span => span.classList.remove('active'));
             });
         });
     }
@@ -163,24 +163,17 @@ function initDecorGrid() {
 function addDecor(file, name) {
     const containerRect = document.getElementById('previewCard').getBoundingClientRect();
 
-    // Сохраняем координаты в процентах
-    const centerX = 50; // 50% от ширины
-    const centerY = 50; // 50% от высоты
-
     const id = EditorState.nextDecorId++;
 
     EditorState.decor.push({
         id: id,
         file: file,
         name: name,
-        x: centerX,
-        y: centerY,
+        x: 50, // проценты
+        y: 50, // проценты
         width: 80,
         height: 80,
-        rotation: 0,
-        // Добавляем информацию о размере контейнера для пропорций
-        containerWidth: containerRect.width,
-        containerHeight: containerRect.height
+        rotation: 0
     });
 
     renderDecor();
@@ -189,33 +182,15 @@ function addDecor(file, name) {
 
 function renderDecor() {
     const layer = document.getElementById('decorLayer');
-    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-    if (!layer || !containerRect.width) return;
+    const containerRect = document.getElementById('previewCard')?.getBoundingClientRect();
+    if (!layer || !containerRect) return;
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
-        // Если есть сохраненные размеры контейнера, пересчитываем позицию
-        let x = d.x;
-        let y = d.y;
-
-        // Если координаты в пикселях (старый формат), конвертируем в проценты
-        if (d.containerWidth) {
-            // Уже в процентах или есть информация о контейнере
-            if (d.x > 1 && d.containerWidth) {
-                // Конвертируем пиксели в проценты если нужно
-                x = (d.x / d.containerWidth) * 100;
-                y = (d.y / d.containerHeight) * 100;
-            }
-        } else if (d.x > 1) {
-            // Старый формат - конвертируем пиксели в проценты
-            x = (d.x / containerRect.width) * 100;
-            y = (d.y / containerRect.height) * 100;
-        }
-
-        // Вычисляем позицию в пикселях для текущего контейнера
-        const posX = (x / 100) * containerRect.width;
-        const posY = (y / 100) * containerRect.height;
+        // Вычисляем позицию в пикселях на основе процентов
+        const posX = (d.x / 100) * containerRect.width;
+        const posY = (d.y / 100) * containerRect.height;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
@@ -241,11 +216,45 @@ function renderDecor() {
                 user-select: none;
             ">
             ${isSelected ? `
-                <div class="decor-resize"></div>
-                <div class="decor-rotate">↻</div>
+                <div class="decor-resize" style="
+                    position: absolute;
+                    bottom: -10px;
+                    right: -10px;
+                    width: 20px;
+                    height: 20px;
+                    background: white;
+                    border: 2px solid #D4AF37;
+                    border-radius: 50%;
+                    cursor: se-resize;
+                    z-index: 1001;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    pointer-events: all;
+                "></div>
+                <div class="decor-rotate" style="
+                    position: absolute;
+                    top: -30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 30px;
+                    height: 30px;
+                    background: white;
+                    border: 2px solid #D4AF37;
+                    border-radius: 50%;
+                    cursor: grab;
+                    z-index: 1001;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    color: #D4AF37;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    pointer-events: all;
+                ">↻</div>
             ` : ''}
         </div>
     `}).join('');
+
+    attachDecorEvents();
 }
 
 function attachDecorEvents() {
@@ -280,6 +289,11 @@ function attachDecorEvents() {
                 e.preventDefault();
                 startResize(e, id);
             });
+
+            resizeHandle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startResize(e.touches[0], id);
+            }, { passive: false });
         }
 
         const rotateHandle = el.querySelector('.decor-rotate');
@@ -288,6 +302,11 @@ function attachDecorEvents() {
                 e.preventDefault();
                 startRotate(e, id);
             });
+
+            rotateHandle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                startRotate(e.touches[0], id);
+            }, { passive: false });
         }
     });
 }
@@ -297,8 +316,8 @@ function startDrag(e, id) {
     selectDecor(id);
 
     const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
     const rect = el.getBoundingClientRect();
+    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
 
     const centerX = rect.left + rect.width / 2;
     const centerY = rect.top + rect.height / 2;
@@ -341,18 +360,10 @@ function startRotate(e, id) {
 function initGlobalEvents() {
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', stopInteraction);
-
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging || isResizing || isRotating) {
-            e.preventDefault();
-            handleMove(e.touches[0]);
-        }
-    }, { passive: false });
-
+    document.addEventListener('touchmove', handleMove, { passive: false });
     document.addEventListener('touchend', stopInteraction);
     document.addEventListener('touchcancel', stopInteraction);
 
-    // Клавиатура
     document.addEventListener('keydown', (e) => {
         if (e.key === 'Delete' && selectedDecorId) {
             deleteSelectedDecor();
@@ -362,30 +373,26 @@ function initGlobalEvents() {
 
 function handleMove(e) {
     if (!e) return;
+
+    e.preventDefault();
+
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+
     if (!clientX && !clientY) return;
 
     if (isDragging && selectedDecorId) {
-        e.preventDefault();
-
         const containerRect = document.getElementById('previewCard').getBoundingClientRect();
         let newCenterX = clientX - containerRect.left - dragOffset.x;
         let newCenterY = clientY - containerRect.top - dragOffset.y;
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
         if (decor) {
-            // Ограничиваем перемещение в пикселях
             newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
             newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
 
-            // Сохраняем в процентах
             decor.x = (newCenterX / containerRect.width) * 100;
             decor.y = (newCenterY / containerRect.height) * 100;
-
-            // Сохраняем размеры контейнера для пропорций
-            decor.containerWidth = containerRect.width;
-            decor.containerHeight = containerRect.height;
 
             const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
             if (el) {
@@ -396,8 +403,6 @@ function handleMove(e) {
     }
 
     if (isResizing && selectedDecorId) {
-        e.preventDefault();
-
         const dx = clientX - startDecorState.x;
         const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
 
@@ -411,7 +416,6 @@ function handleMove(e) {
                 el.style.width = newSize + 'px';
                 el.style.height = newSize + 'px';
 
-                // Пересчитываем позицию в пикселях
                 const containerRect = document.getElementById('previewCard').getBoundingClientRect();
                 const posX = (decor.x / 100) * containerRect.width;
                 const posY = (decor.y / 100) * containerRect.height;
@@ -428,8 +432,6 @@ function handleMove(e) {
     }
 
     if (isRotating && selectedDecorId) {
-        e.preventDefault();
-
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
         const containerRect = document.getElementById('previewCard').getBoundingClientRect();
         const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
@@ -616,8 +618,13 @@ function initEventListeners() {
                 if (el) {
                     el.style.width = size + 'px';
                     el.style.height = size + 'px';
-                    el.style.left = (decor.x - size / 2) + 'px';
-                    el.style.top = (decor.y - size / 2) + 'px';
+
+                    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+                    const posX = (decor.x / 100) * containerRect.width;
+                    const posY = (decor.y / 100) * containerRect.height;
+
+                    el.style.left = (posX - size / 2) + 'px';
+                    el.style.top = (posY - size / 2) + 'px';
                 }
             }
         }
@@ -673,6 +680,7 @@ function updatePreview() {
     }
 
     updateDecorLines();
+    renderDecor();
 }
 
 function hexToRgb(hex) {
@@ -709,142 +717,15 @@ function initMobileTabs() {
             } else {
                 sidebar.classList.add('hidden');
                 preview.classList.remove('hidden');
+                // Обновляем позиции декораций при переключении на просмотр
+                setTimeout(() => renderDecor(), 100);
             }
         });
     });
 }
 
 function initMobileDecor() {
-    // Добавляем обработчики для мобильных устройств
-    if (window.innerWidth > 768) return;
-
-    const previewContainer = document.getElementById('previewContainer');
-    const previewCard = document.getElementById('previewCard');
-
-    if (!previewContainer || !previewCard) return;
-
-    // Делаем контейнер preview доступным для touch-событий
-    previewContainer.style.touchAction = 'none';
-    previewCard.style.touchAction = 'none';
-
-    // Обработчик touchstart на контейнере
-    previewContainer.addEventListener('touchstart', (e) => {
-        const decorElement = e.target.closest('.decor-element');
-
-        if (decorElement) {
-            e.preventDefault();
-            e.stopPropagation();
-
-            const id = parseInt(decorElement.dataset.id);
-            selectDecor(id);
-
-            // Определяем тип действия
-            if (e.target.classList.contains('decor-resize')) {
-                startResize(e.touches[0], id);
-            } else if (e.target.classList.contains('decor-rotate')) {
-                startRotate(e.touches[0], id);
-            } else {
-                startDrag(e.touches[0], id);
-            }
-        }
-    }, { passive: false });
-
-    // Глобальные обработчики для перемещения
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging || isResizing || isRotating) {
-            e.preventDefault();
-
-            const touch = e.touches[0];
-            if (!touch) return;
-
-            if (isDragging && selectedDecorId) {
-                const containerRect = previewCard.getBoundingClientRect();
-                let newCenterX = touch.clientX - containerRect.left - dragOffset.x;
-                let newCenterY = touch.clientY - containerRect.top - dragOffset.y;
-
-                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-                if (decor) {
-                    // Ограничиваем перемещение
-                    newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
-                    newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
-
-                    decor.x = newCenterX;
-                    decor.y = newCenterY;
-
-                    const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-                    if (el) {
-                        el.style.left = (decor.x - decor.width / 2) + 'px';
-                        el.style.top = (decor.y - decor.height / 2) + 'px';
-                    }
-                }
-            }
-
-            if (isResizing && selectedDecorId) {
-                const dx = touch.clientX - startDecorState.x;
-                const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
-
-                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-                if (decor) {
-                    decor.width = newSize;
-                    decor.height = newSize;
-
-                    const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-                    if (el) {
-                        el.style.width = newSize + 'px';
-                        el.style.height = newSize + 'px';
-                        el.style.left = (decor.x - newSize / 2) + 'px';
-                        el.style.top = (decor.y - newSize / 2) + 'px';
-                    }
-
-                    const sizeInput = document.getElementById('decorSize');
-                    const sizeValue = document.getElementById('decorSizeValue');
-                    if (sizeInput) sizeInput.value = newSize;
-                    if (sizeValue) sizeValue.textContent = newSize;
-                }
-            }
-
-            if (isRotating && selectedDecorId) {
-                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-                const containerRect = previewCard.getBoundingClientRect();
-                const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-
-                if (decor && el) {
-                    const centerX = containerRect.left + decor.x;
-                    const centerY = containerRect.top + decor.y;
-
-                    const currentAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX) * 180 / Math.PI;
-                    const deltaAngle = currentAngle - startDecorState.startAngle;
-
-                    decor.rotation = startDecorState.rotation + deltaAngle;
-                    el.style.transform = `rotate(${decor.rotation}deg)`;
-                }
-            }
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', (e) => {
-        if (isDragging || isResizing || isRotating) {
-            e.preventDefault();
-            isDragging = false;
-            isResizing = false;
-            isRotating = false;
-
-            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-            if (el) {
-                el.style.cursor = 'move';
-                el.style.transition = '';
-            }
-        }
-    });
-
-    document.addEventListener('touchcancel', (e) => {
-        if (isDragging || isResizing || isRotating) {
-            e.preventDefault();
-            isDragging = false;
-            isResizing = false;
-            isRotating = false;
-        }
-    });
+    // Функция больше не нужна, так как события привязаны в attachDecorEvents
 }
 
 function initColorPresets() {
@@ -899,34 +780,59 @@ async function saveInvitation() {
     }
 
     const btn = document.getElementById('saveInvitationBtn');
+    const originalText = btn.textContent;
     btn.textContent = 'Сохранение...';
     btn.disabled = true;
 
     try {
+        // Проверяем, не занят ли slug
         const existing = await db.collection('invitations')
             .where('slug', '==', slug)
             .get();
 
         if (!existing.empty) {
-            alert('Ссылка занята');
-            btn.textContent = 'Сохранить';
+            alert('Эта ссылка уже занята. Придумайте другую');
+            btn.textContent = originalText;
             btn.disabled = false;
             return;
         }
 
+        // Подготавливаем данные
         const invitationData = {
             slug: slug,
-            ...EditorState,
+            pattern: EditorState.pattern,
+            bgOpacity: EditorState.bgOpacity,
+            borderColor: EditorState.borderColor,
+            borderWidth: EditorState.borderWidth,
+            borderRadius: EditorState.borderRadius,
+            containerBgColor: EditorState.containerBgColor,
+            containerBgOpacity: EditorState.containerBgOpacity,
+            eventType: EditorState.eventType,
+            names: EditorState.names,
+            greeting: EditorState.greeting,
+            dateText: EditorState.dateText,
+            timeText: EditorState.timeText,
+            placeText: EditorState.placeText,
+            messageText: EditorState.messageText,
+            fontNames: EditorState.fontNames,
+            namesSize: EditorState.namesSize,
+            textColor: EditorState.textColor,
+            textAlign: EditorState.textAlign,
+            showDecorLines: EditorState.showDecorLines,
+            decor: EditorState.decor,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
+        // Сохраняем в Firebase
         await db.collection('invitations').add(invitationData);
+
+        // Перенаправляем на страницу приглашения
         window.location.href = `/invitation/#${slug}`;
 
     } catch (error) {
         console.error('Save error:', error);
-        alert('Ошибка');
-        btn.textContent = 'Сохранить';
+        alert('Ошибка при сохранении: ' + error.message);
+        btn.textContent = originalText;
         btn.disabled = false;
     }
 }
@@ -937,3 +843,8 @@ function copyPreviewLink() {
     navigator.clipboard.writeText(url);
     alert('Ссылка скопирована');
 }
+
+// Добавляем обработчик изменения размера окна
+window.addEventListener('resize', () => {
+    renderDecor();
+});
