@@ -23,7 +23,7 @@ const EditorState = {
 };
 
 const patterns = [
-    { id: 'abstract-1', file: 'abstract-1.jpg' },
+    { id: 'abstract-1', file: 'wedding-gradient.png' },
     { id: 'abstract-2', file: 'wedding-watercolor.png' },
     { id: 'wedding', file: 'wedding-royal.png' },
     { id: 'birthday', file: 'wedding-rose.png' },
