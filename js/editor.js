@@ -189,14 +189,14 @@ function renderDecor() {
     const card = document.getElementById('previewCard');
     if (!layer || !card) return;
 
-    const cardWidth = card.offsetWidth;
-    const cardHeight = card.offsetHeight;
+    const cardWidth = 500; // Фиксированная ширина
+    const cardHeight = 500; // Высота будет зависеть от контента, но для позиционирования используем пропорции
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
         const posX = (d.x / 100) * cardWidth;
-        const posY = (d.y / 100) * cardHeight;
+        const posY = (d.y / 100) * 800; // Используем большую высоту для расчета, но позиция будет относительной
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
@@ -204,10 +204,10 @@ function renderDecor() {
              style="
                 position: absolute;
                 left: ${posX - d.width / 2}px;
-                top: ${posY - d.height / 2}px;
+                top: ${d.y}%;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                transform: rotate(${d.rotation || 0}deg);
+                transform: translateY(-50%) rotate(${d.rotation || 0}deg);
                 cursor: move;
                 z-index: ${isSelected ? 1000 : 10};
                 user-select: none;

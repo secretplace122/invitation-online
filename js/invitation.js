@@ -87,8 +87,9 @@ function displayInvitation(data) {
             border-radius: ${data.borderRadius || 30}px;
             background-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${containerBgOpacity});
             color: ${data.textColor || '#475569'};
-            max-width: 600px;
-            width: 100%;
+            width: 500px;
+            min-width: 500px;
+            max-width: 500px;
             margin: 0 auto;
             padding: 2.5rem 2rem;
             position: relative;

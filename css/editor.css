@@ -83,7 +83,6 @@
     position: relative;
 }
 
-/* Бэкграунд ТОЛЬКО внутри preview-container */
 .preview-container .preview-bg-layer {
     position: absolute;
     top: 0;
@@ -109,7 +108,8 @@
 /* ===== КАРТОЧКА ПРИГЛАШЕНИЯ ===== */
 .invitation-card {
     width: 500px;
-    max-width: 90vw;
+    min-width: 500px;
+    max-width: 500px;
     margin: 0 auto;
     padding: 2.5rem 2rem;
     position: relative;
@@ -438,13 +438,11 @@
 }
 
 /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
-
 @media (max-width: 768px) {
     .editor-mobile-tabs {
         display: flex;
         position: sticky;
         top: 70px;
-        /* Высота навбара */
         z-index: 99;
         background: white;
         border-bottom: 1px solid rgba(168, 216, 234, 0.3);
@@ -453,7 +451,6 @@
         gap: 0.5rem;
         box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
         flex-shrink: 0;
-        /* Важно: табы не сжимаются */
     }
 
     .mobile-tab {
@@ -468,6 +465,11 @@
         font-size: 0.9rem;
     }
 
+    .mobile-tab.active {
+        background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+        color: #475569;
+    }
+
     .editor-main {
         height: 100vh;
         overflow: hidden;
@@ -477,12 +479,10 @@
 
     .editor-layout {
         flex: 1;
-        /* Занимает все оставшееся место */
         display: flex;
         flex-direction: column;
         overflow: hidden;
         min-height: 0;
-        /* Важно для Firefox */
     }
 
     .editor-sidebar {
@@ -492,7 +492,6 @@
         flex-direction: column;
         overflow: hidden;
         min-height: 0;
-        /* Важно для Firefox */
     }
 
     .editor-sidebar.hidden {
@@ -501,31 +500,20 @@
 
     .sidebar-header {
         padding: 1rem;
-        border-bottom: 1px solid rgba(168, 216, 234, 0.3);
-        background: white;
         flex-shrink: 0;
-        /* Заголовок не сжимается */
     }
 
     .sidebar-content {
         flex: 1;
-        overflow-y: auto !important;
-        /* Принудительно включаем скролл */
+        overflow-y: auto;
         -webkit-overflow-scrolling: touch;
-        /* Плавный скролл на iOS */
         padding: 1rem;
         min-height: 0;
-        /* Критически важно для Firefox */
-        max-height: none;
-        /* Убираем ограничения */
     }
 
     .sidebar-footer {
         padding: 1rem;
-        border-top: 1px solid rgba(168, 216, 234, 0.3);
-        background: #fafafa;
         flex-shrink: 0;
-        /* Футер не сжимается */
     }
 
     .editor-preview {
@@ -552,12 +540,21 @@
         -webkit-overflow-scrolling: touch;
         padding: 1rem;
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: center;
         min-height: 0;
     }
 
-    /* Исправляем аккордеон для мобильных */
+    .invitation-card {
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
+        margin: 0 auto;
+        padding: 2.5rem 2rem;
+        transform: scale(1);
+        flex-shrink: 0;
+    }
+
     .accordion {
         display: flex;
         flex-direction: column;
@@ -572,11 +569,9 @@
     .accordion-content {
         max-height: 300px;
         overflow-y: auto;
-        /* Скролл внутри аккордеона если нужно */
         -webkit-overflow-scrolling: touch;
     }
 
-    /* Сетки с прокруткой */
     .pattern-grid,
     .decor-grid {
         max-height: 150px;
@@ -590,53 +585,50 @@
         -webkit-overflow-scrolling: touch;
         grid-template-columns: repeat(4, 1fr);
     }
+
+    .decor-resize,
+    .decor-rotate {
+        width: 30px;
+        height: 30px;
+        opacity: 0.9;
+    }
+
+    .decor-resize {
+        bottom: -15px;
+        right: -15px;
+    }
+
+    .decor-rotate {
+        top: -40px;
+    }
+
+    .setting-group input[type="text"],
+    .setting-group input[type="number"],
+    .setting-group select,
+    .setting-group textarea,
+    .slug-input input {
+        font-size: 16px;
+    }
 }
 
-/* Увеличиваем область касания */
-.decor-resize,
-.decor-rotate {
-    width: 30px;
-    height: 30px;
-    opacity: 0.9;
+@media (max-width: 520px) {
+    .preview-container {
+        padding: 0.5rem;
+    }
+    
+    .invitation-card {
+        transform: scale(0.9);
+        transform-origin: center center;
+    }
 }
 
-.decor-resize {
-    bottom: -15px;
-    right: -15px;
+@media (max-width: 450px) {
+    .invitation-card {
+        transform: scale(0.8);
+    }
 }
-
-.decor-rotate {
-    top: -40px;
-}
-
-/* Предотвращаем зум на iOS */
-.setting-group input[type="text"],
-.setting-group input[type="number"],
-.setting-group select,
-.setting-group textarea,
-.slug-input input {
-    font-size: 16px;
-}
-
 
 @media (max-width: 480px) {
-    .invitation-card {
-        width: 95vw;
-        padding: 1.2rem 0.8rem;
-    }
-
-    .names {
-        font-size: 1.8rem;
-    }
-
-    .event-type {
-        font-size: 0.85rem;
-    }
-
-    .decor-line {
-        width: 60px;
-    }
-
     .pattern-grid {
         grid-template-columns: repeat(2, 1fr);
     }

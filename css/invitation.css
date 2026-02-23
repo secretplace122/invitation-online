@@ -37,10 +37,10 @@
     margin-bottom: 2rem;
 }
 
-/* Используем те же размеры, что и в редакторе */
 .invitation-card {
     width: 500px;
-    max-width: 95%;
+    min-width: 500px;
+    max-width: 500px;
     margin: 0 auto;
     padding: 2.5rem 2rem;
     position: relative;
@@ -104,20 +104,15 @@
     color: #475569;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 520px) {
     .invitation-card {
-        width: 450px;
-        padding: 2rem 1.5rem;
+        transform: scale(0.9);
+        transform-origin: center center;
     }
 }
 
-@media (max-width: 480px) {
+@media (max-width: 450px) {
     .invitation-card {
-        width: 95%;
-        padding: 1.5rem 1rem;
-    }
-    
-    .action-btn span:last-child {
-        display: none;
+        transform: scale(0.8);
     }
 }
