@@ -23,7 +23,7 @@ const EditorState = {
 };
 
 const patterns = [
-    { id: 'abstract-1', file: 'wedding-flower-1.png' },
+    { id: 'abstract-1', file: 'wedding-classic.png' },
     { id: 'abstract-2', file: 'wedding-watercolor.png' },
     { id: 'wedding', file: 'wedding-royal.png' },
     { id: 'birthday', file: 'wedding-rose.png' },
@@ -247,12 +247,14 @@ function attachDecorEvents() {
         });
 
         el.addEventListener('touchstart', (e) => {
-            e.preventDefault();
             if (e.target.classList.contains('decor-resize')) {
+                e.preventDefault();
                 startResize(e.touches[0], id);
             } else if (e.target.classList.contains('decor-rotate')) {
+                e.preventDefault();
                 startRotate(e.touches[0], id);
             } else {
+                e.preventDefault();
                 startDrag(e.touches[0], id);
             }
         }, { passive: false });
@@ -334,7 +336,8 @@ function startRotate(e, id) {
 function initGlobalEvents() {
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', stopInteraction);
-    document.addEventListener('touchmove', handleMove, { passive: false });
+
+    document.addEventListener('touchmove', handleTouchMove, { passive: false });
     document.addEventListener('touchend', stopInteraction);
     document.addEventListener('touchcancel', stopInteraction);
 
@@ -345,10 +348,19 @@ function initGlobalEvents() {
     });
 }
 
+function handleTouchMove(e) {
+    if (!e.touches || e.touches.length === 0) return;
+
+    const touch = e.touches[0];
+
+    if (isDragging || isResizing || isRotating) {
+        e.preventDefault();
+        handleMove(e);
+    }
+}
+
 function handleMove(e) {
     if (!e) return;
-
-    e.preventDefault();
 
     const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
     const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
@@ -672,7 +684,6 @@ function initMobileTabs() {
 
     if (!mobileTabs || !sidebar || !preview) return;
 
-    // Функция для переключения табов
     function switchToTab(tabName) {
         document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
 
@@ -681,7 +692,6 @@ function initMobileTabs() {
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
 
-            // Важно: принудительно обновляем скролл после показа
             setTimeout(() => {
                 const sidebarContent = document.getElementById('sidebarContent');
                 if (sidebarContent) {
@@ -694,7 +704,6 @@ function initMobileTabs() {
             preview.classList.remove('hidden');
             setTimeout(() => {
                 renderDecor();
-                // Обновляем скролл preview если нужно
                 const previewContainer = document.querySelector('.preview-container');
                 if (previewContainer) {
                     previewContainer.style.overflowY = 'auto';
@@ -703,12 +712,10 @@ function initMobileTabs() {
         }
     }
 
-    // Устанавливаем начальное состояние в зависимости от размера экрана
     if (window.innerWidth <= 768) {
-        switchToTab('settings'); // Показываем настройки по умолчанию
+        switchToTab('settings');
     }
 
-    // Обработчики для табов
     document.querySelectorAll('.mobile-tab').forEach(tab => {
         tab.addEventListener('click', () => {
             const tabName = tab.dataset.tab;
@@ -716,19 +723,16 @@ function initMobileTabs() {
         });
     });
 
-    // Обработчик изменения размера окна
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             if (window.innerWidth <= 768) {
-                // На мобильных показываем активный таб
                 const activeTab = document.querySelector('.mobile-tab.active');
                 if (activeTab) {
                     switchToTab(activeTab.dataset.tab);
                 }
             } else {
-                // На десктопе показываем всё
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
             }
