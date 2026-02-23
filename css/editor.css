@@ -552,6 +552,7 @@
         margin: 0 auto;
         padding: 2.5rem 2rem;
         transform: scale(0.95);
+        transform-origin: center center;
         flex-shrink: 0;
     }
 
@@ -615,10 +616,9 @@
     .preview-container {
         padding: 0.5rem;
     }
-    
+
     .invitation-card {
-        transform: scale(0.85);
-        transform-origin: center center;
+        transform: scale(0.9);
     }
 }
 
@@ -639,5 +639,11 @@
 
     .color-presets {
         grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+@media (max-width: 360px) {
+    .invitation-card {
+        transform: scale(0.75);
     }
 }

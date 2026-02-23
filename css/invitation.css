@@ -26,8 +26,13 @@
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .invitation-content {
@@ -67,13 +72,13 @@
     font-size: 1rem;
     font-weight: 500;
     color: white;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1);
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
     transition: all 0.3s;
 }
 
 .action-btn:hover {
     transform: translateY(-2px);
-    box-shadow: 0 15px 25px -5px rgba(0,0,0,0.2);
+    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 .error-page {
@@ -105,6 +110,10 @@
 }
 
 @media (max-width: 520px) {
+    .invitation-wrapper {
+        padding: 1rem 0.5rem;
+    }
+
     .invitation-card {
         transform: scale(0.9);
         transform-origin: center center;
@@ -112,6 +121,12 @@
 }
 
 @media (max-width: 450px) {
+    .invitation-card {
+        transform: scale(0.8);
+    }
+}
+
+@media (max-width: 360px) {
     .invitation-card {
         transform: scale(0.75);
     }

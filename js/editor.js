@@ -194,22 +194,33 @@ function renderDecor() {
     const cardWidth = cardRect.width;
     const cardHeight = cardRect.height;
 
+    // Получаем текущий scale карточки
+    const cardTransform = window.getComputedStyle(card).transform;
+    let scale = 1;
+    if (cardTransform && cardTransform !== 'none') {
+        const matrix = new DOMMatrix(cardTransform);
+        scale = matrix.a;
+    }
+
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
+        // Корректируем позицию с учетом scale
         const posX = (d.x / 100) * cardWidth;
         const posY = (d.y / 100) * cardHeight;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
              data-id="${d.id}"
+             data-scale="${scale}"
              style="
                 position: absolute;
-                left: ${posX - d.width / 2}px;
-                top: ${posY - d.height / 2}px;
+                left: ${posX - (d.width * scale) / 2}px;
+                top: ${posY - (d.height * scale) / 2}px;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                transform: rotate(${d.rotation || 0}deg);
+                transform: rotate(${d.rotation || 0}deg) scale(${1 / scale});
+                transform-origin: center center;
                 cursor: move;
                 z-index: ${isSelected ? 1000 : 10};
                 user-select: none;
@@ -224,8 +235,8 @@ function renderDecor() {
                 user-select: none;
             ">
             ${isSelected ? `
-                <div class="decor-resize"></div>
-                <div class="decor-rotate">↻</div>
+                <div class="decor-resize" style="transform: scale(${scale}); transform-origin: bottom right;"></div>
+                <div class="decor-rotate" style="transform: translateX(-50%) scale(${scale});">↻</div>
             ` : ''}
         </div>
     `}).join('');
@@ -348,6 +359,12 @@ function updateDecorPositions() {
     if (!card) return;
 
     const cardRect = card.getBoundingClientRect();
+    const cardTransform = window.getComputedStyle(card).transform;
+    let scale = 1;
+    if (cardTransform && cardTransform !== 'none') {
+        const matrix = new DOMMatrix(cardTransform);
+        scale = matrix.a;
+    }
 
     EditorState.decor.forEach(decor => {
         const el = document.querySelector(`.decor-element[data-id="${decor.id}"]`);
@@ -355,8 +372,9 @@ function updateDecorPositions() {
             const posX = (decor.x / 100) * cardRect.width;
             const posY = (decor.y / 100) * cardRect.height;
 
-            el.style.left = (posX - decor.width / 2) + 'px';
-            el.style.top = (posY - decor.height / 2) + 'px';
+            el.style.left = (posX - (decor.width * scale) / 2) + 'px';
+            el.style.top = (posY - (decor.height * scale) / 2) + 'px';
+            el.style.transform = `rotate(${decor.rotation}deg) scale(${1 / scale})`;
         }
     });
 }
