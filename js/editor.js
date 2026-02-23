@@ -249,15 +249,15 @@ function attachDecorEvents() {
         });
 
         el.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            const touch = e.touches[0];
+
             if (e.target.classList.contains('decor-resize')) {
-                e.preventDefault();
-                startResize(e.touches[0], id);
+                startResize(touch, id);
             } else if (e.target.classList.contains('decor-rotate')) {
-                e.preventDefault();
-                startRotate(e.touches[0], id);
+                startRotate(touch, id);
             } else {
-                e.preventDefault();
-                startDrag(e.touches[0], id);
+                startDrag(touch, id);
             }
         }, { passive: false });
 
@@ -379,8 +379,6 @@ function initGlobalEvents() {
 function handleTouchMove(e) {
     if (!e.touches || e.touches.length === 0) return;
 
-    const touch = e.touches[0];
-
     if (isDragging || isResizing || isRotating) {
         e.preventDefault();
         handleMove(e);
@@ -390,8 +388,15 @@ function handleTouchMove(e) {
 function handleMove(e) {
     if (!e) return;
 
-    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
-    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    let clientX, clientY;
+
+    if (e.touches) {
+        clientX = e.touches[0].clientX;
+        clientY = e.touches[0].clientY;
+    } else {
+        clientX = e.clientX;
+        clientY = e.clientY;
+    }
 
     if (!clientX && !clientY) return;
 
