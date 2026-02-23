@@ -551,7 +551,7 @@
         max-width: 500px;
         margin: 0 auto;
         padding: 2.5rem 2rem;
-        transform: scale(1);
+        transform: scale(0.95);
         flex-shrink: 0;
     }
 
@@ -617,7 +617,7 @@
     }
     
     .invitation-card {
-        transform: scale(0.9);
+        transform: scale(0.85);
         transform-origin: center center;
     }
 }
