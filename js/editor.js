@@ -46,7 +46,6 @@ let isResizing = false;
 let isRotating = false;
 let dragOffset = { x: 0, y: 0 };
 let startDecorState = {};
-let activeAccordion = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initPatternGrid();
@@ -60,6 +59,15 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     updatePreview();
     updateAllText();
+    
+    // Добавляем обработчик изменения размера окна с debounce
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            renderDecor();
+        }, 100);
+    });
 });
 
 function initAccordion() {
@@ -169,8 +177,8 @@ function addDecor(file, name) {
         id: id,
         file: file,
         name: name,
-        x: 50, // проценты
-        y: 50, // проценты
+        x: 50,
+        y: 50,
         width: 80,
         height: 80,
         rotation: 0
@@ -188,7 +196,6 @@ function renderDecor() {
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
-        // Вычисляем позицию в пикселях на основе процентов
         const posX = (d.x / 100) * containerRect.width;
         const posY = (d.y / 100) * containerRect.height;
 
@@ -216,40 +223,8 @@ function renderDecor() {
                 user-select: none;
             ">
             ${isSelected ? `
-                <div class="decor-resize" style="
-                    position: absolute;
-                    bottom: -10px;
-                    right: -10px;
-                    width: 20px;
-                    height: 20px;
-                    background: white;
-                    border: 2px solid #D4AF37;
-                    border-radius: 50%;
-                    cursor: se-resize;
-                    z-index: 1001;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    pointer-events: all;
-                "></div>
-                <div class="decor-rotate" style="
-                    position: absolute;
-                    top: -30px;
-                    left: 50%;
-                    transform: translateX(-50%);
-                    width: 30px;
-                    height: 30px;
-                    background: white;
-                    border: 2px solid #D4AF37;
-                    border-radius: 50%;
-                    cursor: grab;
-                    z-index: 1001;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    font-size: 18px;
-                    color: #D4AF37;
-                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
-                    pointer-events: all;
-                ">↻</div>
+                <div class="decor-resize"></div>
+                <div class="decor-rotate">↻</div>
             ` : ''}
         </div>
     `}).join('');
@@ -717,7 +692,6 @@ function initMobileTabs() {
             } else {
                 sidebar.classList.add('hidden');
                 preview.classList.remove('hidden');
-                // Обновляем позиции декораций при переключении на просмотр
                 setTimeout(() => renderDecor(), 100);
             }
         });
@@ -725,7 +699,6 @@ function initMobileTabs() {
 }
 
 function initMobileDecor() {
-    // Функция больше не нужна, так как события привязаны в attachDecorEvents
 }
 
 function initColorPresets() {
@@ -785,7 +758,6 @@ async function saveInvitation() {
     btn.disabled = true;
 
     try {
-        // Проверяем, не занят ли slug
         const existing = await db.collection('invitations')
             .where('slug', '==', slug)
             .get();
@@ -797,7 +769,6 @@ async function saveInvitation() {
             return;
         }
 
-        // Подготавливаем данные
         const invitationData = {
             slug: slug,
             pattern: EditorState.pattern,
@@ -823,10 +794,8 @@ async function saveInvitation() {
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 
-        // Сохраняем в Firebase
         await db.collection('invitations').add(invitationData);
 
-        // Перенаправляем на страницу приглашения
         window.location.href = `/invitation/#${slug}`;
 
     } catch (error) {
@@ -843,8 +812,3 @@ function copyPreviewLink() {
     navigator.clipboard.writeText(url);
     alert('Ссылка скопирована');
 }
-
-// Добавляем обработчик изменения размера окна
-window.addEventListener('resize', () => {
-    renderDecor();
-});

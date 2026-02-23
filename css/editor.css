@@ -54,6 +54,7 @@
     padding: 1.5rem;
     border-bottom: 1px solid rgba(168, 216, 234, 0.3);
     background: white;
+    flex-shrink: 0;
 }
 
 .sidebar-header h2 {
@@ -67,25 +68,14 @@
     padding: 1rem;
 }
 
-.sidebar-content::-webkit-scrollbar {
-    width: 6px;
-}
-
-.sidebar-content::-webkit-scrollbar-track {
-    background: #f0f0f0;
-}
-
-.sidebar-content::-webkit-scrollbar-thumb {
-    background: #A8D8EA;
-    border-radius: 3px;
-}
-
 .sidebar-footer {
     padding: 1.5rem;
     border-top: 1px solid rgba(168, 216, 234, 0.3);
     background: #fafafa;
+    flex-shrink: 0;
 }
 
+/* Аккордеон */
 .accordion-item {
     border: 1px solid rgba(168, 216, 234, 0.3);
     border-radius: 12px;
@@ -118,19 +108,15 @@
     border-top: 1px solid rgba(168, 216, 234, 0.3);
 }
 
-/* Стили для открытого/закрытого аккордеона */
-.accordion-item .accordion-content {
-    display: block;
+.accordion-item:not(.active) .accordion-content {
+    display: none;
 }
 
 .accordion-item.active .accordion-content {
     display: block;
 }
 
-.accordion-item:not(.active) .accordion-content {
-    display: none;
-}
-
+/* Настройки */
 .setting-group {
     margin-bottom: 1.2rem;
 }
@@ -185,6 +171,7 @@
     cursor: pointer;
 }
 
+/* Сетки */
 .pattern-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -243,6 +230,7 @@
     object-fit: contain;
 }
 
+/* Предпросмотр */
 .editor-preview {
     flex: 1;
     display: flex;
@@ -258,6 +246,7 @@
     align-items: center;
     border-bottom: 1px solid rgba(168, 216, 234, 0.3);
     background: white;
+    flex-shrink: 0;
 }
 
 .preview-header h3 {
@@ -300,6 +289,7 @@
     z-index: 2;
 }
 
+/* Карточка приглашения */
 .invitation-card {
     max-width: 500px;
     width: 100%;
@@ -368,6 +358,7 @@
     opacity: 0.5;
 }
 
+/* Декорации */
 .decor-layer {
     position: absolute;
     top: 0;
@@ -381,7 +372,7 @@
     position: absolute;
     pointer-events: all;
     transition: box-shadow 0.2s;
-    cursor: pointer;
+    cursor: move;
     user-select: none;
     touch-action: none;
     -webkit-tap-highlight-color: transparent;
@@ -437,6 +428,7 @@
     pointer-events: all;
 }
 
+/* Элементы управления */
 .slug-input {
     margin-top: 1rem;
 }
@@ -490,12 +482,7 @@
     border-radius: 8px;
 }
 
-@media (min-width: 1025px) {
-    .invitation-card {
-        max-width: 500px;
-    }
-}
-
+/* Медиа-запросы */
 @media (max-width: 1024px) {
     .editor-layout {
         flex-direction: column;
@@ -534,7 +521,6 @@
         position: sticky;
         top: 70px;
         z-index: 99;
-        background: white;
     }
 
     .navbar {
@@ -553,10 +539,10 @@
         width: 100%;
         height: auto;
         max-height: calc(100vh - 140px);
-        overflow-y: auto !important;
-        -webkit-overflow-scrolling: touch;
+        overflow-y: auto;
         border-right: none;
         display: block;
+        -webkit-overflow-scrolling: touch;
     }
 
     .editor-sidebar.hidden {
@@ -579,12 +565,18 @@
 
     .preview-container {
         min-height: 60vh;
+        max-height: 70vh;
+        overflow: auto;
         padding: 0.5rem;
+        -webkit-overflow-scrolling: touch;
     }
 
+    /* Фиксируем размер карточки на мобильных для сохранения пропорций */
     .invitation-card {
         max-width: 350px;
         padding: 1.5rem 1rem;
+        transform: scale(0.95);
+        margin: -5% auto;
     }
 
     .names {
@@ -620,7 +612,6 @@
     .sidebar-content {
         padding: 0.8rem;
         overflow-y: visible;
-        max-height: none;
     }
 
     .sidebar-footer {
@@ -630,11 +621,6 @@
     .accordion-header {
         padding: 0.8rem;
         font-size: 0.95rem;
-    }
-
-    .accordion-content {
-        max-height: none !important;
-        overflow: visible !important;
     }
 
     .scrollable-grid {
@@ -649,11 +635,6 @@
 
     .decor-grid.scrollable-grid {
         max-height: 200px;
-    }
-
-    .decor-layer .decor-element {
-        touch-action: none;
-        -webkit-tap-highlight-color: transparent;
     }
 
     .decor-resize,
@@ -688,6 +669,8 @@
     .invitation-card {
         max-width: 300px;
         padding: 1.2rem 0.8rem;
+        transform: scale(0.9);
+        margin: -10% auto;
     }
 
     .names {
@@ -729,45 +712,7 @@
 @media (max-width: 360px) {
     .invitation-card {
         max-width: 260px;
-    }
-}
-
-/* Обеспечиваем скролл в предпросмотре */
-.editor-preview {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    background: #f8fafc;
-    overflow: hidden;
-}
-
-.preview-container {
-    position: relative;
-    flex: 1;
-    overflow: auto !important;
-    background: #e5e7eb;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 1rem;
-    -webkit-overflow-scrolling: touch;
-}
-
-.preview-content-layer {
-    position: relative;
-    width: 100%;
-    min-height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: transparent;
-    z-index: 2;
-}
-
-@media (max-width: 768px) {
-    .preview-container {
-        min-height: 60vh;
-        max-height: 70vh;
-        overflow: auto !important;
+        transform: scale(0.85);
+        margin: -15% auto;
     }
 }
