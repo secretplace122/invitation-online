@@ -274,6 +274,7 @@
     align-items: center;
     justify-content: center;
     padding: 1rem;
+    touch-action: pan-x pan-y;
 }
 
 .preview-bg-layer {
@@ -380,9 +381,10 @@
     position: absolute;
     pointer-events: all;
     transition: box-shadow 0.2s;
-    cursor: move;
+    cursor: pointer;
     user-select: none;
     touch-action: none;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .decor-layer .decor-element.selected {
@@ -658,6 +660,23 @@
     .decor-rotate {
         width: 30px !important;
         height: 30px !important;
+        opacity: 0.8;
+    }
+
+    .decor-resize:active,
+    .decor-rotate:active {
+        transform: scale(1.1);
+    }
+
+    .decor-resize::after,
+    .decor-rotate::after {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: transparent;
     }
 
     .color-presets {

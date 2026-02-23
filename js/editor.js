@@ -192,21 +192,63 @@ function renderDecor() {
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
              data-id="${d.id}"
              style="
+                position: absolute;
                 left: ${d.x - d.width / 2}px;
                 top: ${d.y - d.height / 2}px;
                 width: ${d.width}px;
                 height: ${d.height}px;
                 transform: rotate(${d.rotation || 0}deg);
+                cursor: move;
+                z-index: ${isSelected ? 1000 : 10};
+                user-select: none;
+                touch-action: none;
+                -webkit-tap-highlight-color: transparent;
              ">
-            <img src="../images/decor/${d.file}" draggable="false">
+            <img src="../images/decor/${d.file}" draggable="false" style="
+                width: 100%;
+                height: 100%;
+                object-fit: contain;
+                pointer-events: none;
+                user-select: none;
+            ">
             ${isSelected ? `
-                <div class="decor-resize"></div>
-                <div class="decor-rotate">↻</div>
+                <div class="decor-resize" style="
+                    position: absolute;
+                    bottom: -10px;
+                    right: -10px;
+                    width: 20px;
+                    height: 20px;
+                    background: white;
+                    border: 2px solid #D4AF37;
+                    border-radius: 50%;
+                    cursor: se-resize;
+                    z-index: 1001;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    pointer-events: all;
+                "></div>
+                <div class="decor-rotate" style="
+                    position: absolute;
+                    top: -30px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    width: 30px;
+                    height: 30px;
+                    background: white;
+                    border: 2px solid #D4AF37;
+                    border-radius: 50%;
+                    cursor: grab;
+                    z-index: 1001;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 18px;
+                    color: #D4AF37;
+                    box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+                    pointer-events: all;
+                ">↻</div>
             ` : ''}
         </div>
     `}).join('');
-
-    attachDecorEvents();
 }
 
 function attachDecorEvents() {
@@ -323,7 +365,9 @@ function initGlobalEvents() {
 
 function handleMove(e) {
     if (!e) return;
-
+    const clientX = e.clientX || (e.touches && e.touches[0] ? e.touches[0].clientX : 0);
+    const clientY = e.clientY || (e.touches && e.touches[0] ? e.touches[0].clientY : 0);
+    if (!clientX && !clientY) return;
     if (isDragging && selectedDecorId) {
         e.preventDefault();
 
@@ -333,7 +377,6 @@ function handleMove(e) {
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
         if (decor) {
-            // Ограничиваем перемещение в пределах контейнера
             newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
             newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
 
@@ -662,19 +705,30 @@ function initMobileTabs() {
 }
 
 function initMobileDecor() {
+    // Добавляем обработчики для мобильных устройств
     if (window.innerWidth > 768) return;
 
+    const previewContainer = document.getElementById('previewContainer');
     const previewCard = document.getElementById('previewCard');
-    if (!previewCard) return;
 
-    previewCard.addEventListener('touchstart', (e) => {
+    if (!previewContainer || !previewCard) return;
+
+    // Делаем контейнер preview доступным для touch-событий
+    previewContainer.style.touchAction = 'none';
+    previewCard.style.touchAction = 'none';
+
+    // Обработчик touchstart на контейнере
+    previewContainer.addEventListener('touchstart', (e) => {
         const decorElement = e.target.closest('.decor-element');
+
         if (decorElement) {
             e.preventDefault();
+            e.stopPropagation();
 
             const id = parseInt(decorElement.dataset.id);
             selectDecor(id);
 
+            // Определяем тип действия
             if (e.target.classList.contains('decor-resize')) {
                 startResize(e.touches[0], id);
             } else if (e.target.classList.contains('decor-rotate')) {
@@ -685,24 +739,100 @@ function initMobileDecor() {
         }
     }, { passive: false });
 
+    // Глобальные обработчики для перемещения
     document.addEventListener('touchmove', (e) => {
         if (isDragging || isResizing || isRotating) {
             e.preventDefault();
-            handleMove(e.touches[0]);
+
+            const touch = e.touches[0];
+            if (!touch) return;
+
+            if (isDragging && selectedDecorId) {
+                const containerRect = previewCard.getBoundingClientRect();
+                let newCenterX = touch.clientX - containerRect.left - dragOffset.x;
+                let newCenterY = touch.clientY - containerRect.top - dragOffset.y;
+
+                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
+                if (decor) {
+                    // Ограничиваем перемещение
+                    newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
+                    newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
+
+                    decor.x = newCenterX;
+                    decor.y = newCenterY;
+
+                    const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+                    if (el) {
+                        el.style.left = (decor.x - decor.width / 2) + 'px';
+                        el.style.top = (decor.y - decor.height / 2) + 'px';
+                    }
+                }
+            }
+
+            if (isResizing && selectedDecorId) {
+                const dx = touch.clientX - startDecorState.x;
+                const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
+
+                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
+                if (decor) {
+                    decor.width = newSize;
+                    decor.height = newSize;
+
+                    const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+                    if (el) {
+                        el.style.width = newSize + 'px';
+                        el.style.height = newSize + 'px';
+                        el.style.left = (decor.x - newSize / 2) + 'px';
+                        el.style.top = (decor.y - newSize / 2) + 'px';
+                    }
+
+                    const sizeInput = document.getElementById('decorSize');
+                    const sizeValue = document.getElementById('decorSizeValue');
+                    if (sizeInput) sizeInput.value = newSize;
+                    if (sizeValue) sizeValue.textContent = newSize;
+                }
+            }
+
+            if (isRotating && selectedDecorId) {
+                const decor = EditorState.decor.find(d => d.id === selectedDecorId);
+                const containerRect = previewCard.getBoundingClientRect();
+                const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+
+                if (decor && el) {
+                    const centerX = containerRect.left + decor.x;
+                    const centerY = containerRect.top + decor.y;
+
+                    const currentAngle = Math.atan2(touch.clientY - centerY, touch.clientX - centerX) * 180 / Math.PI;
+                    const deltaAngle = currentAngle - startDecorState.startAngle;
+
+                    decor.rotation = startDecorState.rotation + deltaAngle;
+                    el.style.transform = `rotate(${decor.rotation}deg)`;
+                }
+            }
         }
     }, { passive: false });
 
     document.addEventListener('touchend', (e) => {
         if (isDragging || isResizing || isRotating) {
             e.preventDefault();
-            stopInteraction();
+            isDragging = false;
+            isResizing = false;
+            isRotating = false;
+
+            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+            if (el) {
+                el.style.cursor = 'move';
+                el.style.transition = '';
+            }
         }
     });
 
     document.addEventListener('touchcancel', (e) => {
         if (isDragging || isResizing || isRotating) {
             e.preventDefault();
-            stopInteraction();
+            isDragging = false;
+            isResizing = false;
+            isRotating = false;
         }
     });
 }
