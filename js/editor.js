@@ -64,6 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             renderDecor();
+            updateDecorPositions();
         }, 100);
     });
 });
@@ -189,14 +190,15 @@ function renderDecor() {
     const card = document.getElementById('previewCard');
     if (!layer || !card) return;
 
-    const cardWidth = 500; // Фиксированная ширина
-    const cardHeight = 500; // Высота будет зависеть от контента, но для позиционирования используем пропорции
+    const cardRect = card.getBoundingClientRect();
+    const cardWidth = cardRect.width;
+    const cardHeight = cardRect.height;
 
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
 
         const posX = (d.x / 100) * cardWidth;
-        const posY = (d.y / 100) * 800; // Используем большую высоту для расчета, но позиция будет относительной
+        const posY = (d.y / 100) * cardHeight;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
@@ -204,10 +206,10 @@ function renderDecor() {
              style="
                 position: absolute;
                 left: ${posX - d.width / 2}px;
-                top: ${d.y}%;
+                top: ${posY - d.height / 2}px;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                transform: translateY(-50%) rotate(${d.rotation || 0}deg);
+                transform: rotate(${d.rotation || 0}deg);
                 cursor: move;
                 z-index: ${isSelected ? 1000 : 10};
                 user-select: none;
@@ -288,15 +290,17 @@ function attachDecorEvents() {
 }
 
 function startDrag(e, id) {
+    e.preventDefault();
     isDragging = true;
     selectDecor(id);
 
     const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const rect = el.getBoundingClientRect();
-    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+    const card = document.getElementById('previewCard');
+    const cardRect = card.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
 
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const centerX = elRect.left + elRect.width / 2;
+    const centerY = elRect.top + elRect.height / 2;
 
     dragOffset.x = e.clientX - centerX;
     dragOffset.y = e.clientY - centerY;
@@ -306,6 +310,7 @@ function startDrag(e, id) {
 }
 
 function startResize(e, id) {
+    e.preventDefault();
     isResizing = true;
     selectDecor(id);
 
@@ -317,20 +322,43 @@ function startResize(e, id) {
 }
 
 function startRotate(e, id) {
+    e.preventDefault();
     isRotating = true;
     selectDecor(id);
 
     const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const rect = el.getBoundingClientRect();
-    const centerX = rect.left + rect.width / 2;
-    const centerY = rect.top + rect.height / 2;
+    const card = document.getElementById('previewCard');
+    const cardRect = card.getBoundingClientRect();
+    const elRect = el.getBoundingClientRect();
+
+    const centerX = elRect.left + elRect.width / 2;
+    const centerY = elRect.top + elRect.height / 2;
 
     const decor = EditorState.decor.find(d => d.id === id);
     startDecorState = {
         rotation: decor.rotation || 0,
         startAngle: Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI,
-        centerX, centerY
+        centerX,
+        centerY
     };
+}
+
+function updateDecorPositions() {
+    const card = document.getElementById('previewCard');
+    if (!card) return;
+
+    const cardRect = card.getBoundingClientRect();
+
+    EditorState.decor.forEach(decor => {
+        const el = document.querySelector(`.decor-element[data-id="${decor.id}"]`);
+        if (el) {
+            const posX = (decor.x / 100) * cardRect.width;
+            const posY = (decor.y / 100) * cardRect.height;
+
+            el.style.left = (posX - decor.width / 2) + 'px';
+            el.style.top = (posY - decor.height / 2) + 'px';
+        }
+    });
 }
 
 function initGlobalEvents() {
@@ -368,23 +396,30 @@ function handleMove(e) {
     if (!clientX && !clientY) return;
 
     if (isDragging && selectedDecorId) {
-        const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-        let newCenterX = clientX - containerRect.left - dragOffset.x;
-        let newCenterY = clientY - containerRect.top - dragOffset.y;
+        const card = document.getElementById('previewCard');
+        const cardRect = card.getBoundingClientRect();
 
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-        if (decor) {
-            newCenterX = Math.max(decor.width / 2, Math.min(containerRect.width - decor.width / 2, newCenterX));
-            newCenterY = Math.max(decor.height / 2, Math.min(containerRect.height - decor.height / 2, newCenterY));
+        if (!decor) return;
 
-            decor.x = (newCenterX / containerRect.width) * 100;
-            decor.y = (newCenterY / containerRect.height) * 100;
+        let newCenterX = clientX - cardRect.left - dragOffset.x;
+        let newCenterY = clientY - cardRect.top - dragOffset.y;
 
-            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-            if (el) {
-                el.style.left = (newCenterX - decor.width / 2) + 'px';
-                el.style.top = (newCenterY - decor.height / 2) + 'px';
-            }
+        const minX = decor.width / 2;
+        const maxX = cardRect.width - decor.width / 2;
+        const minY = decor.height / 2;
+        const maxY = cardRect.height - decor.height / 2;
+
+        newCenterX = Math.max(minX, Math.min(maxX, newCenterX));
+        newCenterY = Math.max(minY, Math.min(maxY, newCenterY));
+
+        decor.x = (newCenterX / cardRect.width) * 100;
+        decor.y = (newCenterY / cardRect.height) * 100;
+
+        const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+        if (el) {
+            el.style.left = (newCenterX - decor.width / 2) + 'px';
+            el.style.top = (newCenterY - decor.height / 2) + 'px';
         }
     }
 
@@ -402,9 +437,10 @@ function handleMove(e) {
                 el.style.width = newSize + 'px';
                 el.style.height = newSize + 'px';
 
-                const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-                const posX = (decor.x / 100) * containerRect.width;
-                const posY = (decor.y / 100) * containerRect.height;
+                const card = document.getElementById('previewCard');
+                const cardRect = card.getBoundingClientRect();
+                const posX = (decor.x / 100) * cardRect.width;
+                const posY = (decor.y / 100) * cardRect.height;
 
                 el.style.left = (posX - newSize / 2) + 'px';
                 el.style.top = (posY - newSize / 2) + 'px';
@@ -419,12 +455,13 @@ function handleMove(e) {
 
     if (isRotating && selectedDecorId) {
         const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-        const containerRect = document.getElementById('previewCard').getBoundingClientRect();
+        const card = document.getElementById('previewCard');
+        const cardRect = card.getBoundingClientRect();
         const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
 
         if (decor && el) {
-            const centerX = containerRect.left + (decor.x / 100) * containerRect.width;
-            const centerY = containerRect.top + (decor.y / 100) * containerRect.height;
+            const centerX = cardRect.left + (decor.x / 100) * cardRect.width;
+            const centerY = cardRect.top + (decor.y / 100) * cardRect.height;
 
             const currentAngle = Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
             const deltaAngle = currentAngle - startDecorState.startAngle;
