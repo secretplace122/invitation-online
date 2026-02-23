@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="ru">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -8,11 +7,8 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 </head>
-
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -42,6 +38,7 @@
         </div>
 
         <div class="editor-layout">
+            <!-- САЙДБАР С НАСТРОЙКАМИ -->
             <div class="editor-sidebar" id="editorSidebar">
                 <div class="sidebar-header">
                     <h2>Настройки приглашения</h2>
@@ -49,6 +46,7 @@
 
                 <div class="sidebar-content" id="sidebarContent">
                     <div class="accordion">
+                        <!-- Фон страницы -->
                         <div class="accordion-item active">
                             <button class="accordion-header">
                                 <span>🎨 Фон страницы</span>
@@ -66,6 +64,7 @@
                             </div>
                         </div>
 
+                        <!-- Рамка контейнера -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>🖼️ Рамка контейнера</span>
@@ -75,24 +74,15 @@
                                 <div class="setting-group">
                                     <label>Цвет</label>
                                     <div class="color-presets" id="borderColorPresets">
-                                        <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37"
-                                            title="Золото"></div>
-                                        <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0"
-                                            title="Серебро"></div>
-                                        <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32"
-                                            title="Бронза"></div>
-                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513"
-                                            title="Дерево"></div>
-                                        <div class="color-preset" style="background: #000000;" data-color="#000000"
-                                            title="Черный"></div>
-                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;"
-                                            data-color="#FFFFFF" title="Белый"></div>
-                                        <div class="color-preset" style="background: #FF1493;" data-color="#FF1493"
-                                            title="Розовый"></div>
-                                        <div class="color-preset" style="background: #4169E1;" data-color="#4169E1"
-                                            title="Синий"></div>
-                                        <div class="color-preset" style="background: #32CD32;" data-color="#32CD32"
-                                            title="Зеленый"></div>
+                                        <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37" title="Золото"></div>
+                                        <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0" title="Серебро"></div>
+                                        <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32" title="Бронза"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Дерево"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
+                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
+                                        <div class="color-preset" style="background: #FF1493;" data-color="#FF1493" title="Розовый"></div>
+                                        <div class="color-preset" style="background: #4169E1;" data-color="#4169E1" title="Синий"></div>
+                                        <div class="color-preset" style="background: #32CD32;" data-color="#32CD32" title="Зеленый"></div>
                                     </div>
                                     <input type="color" id="borderColor" value="#D4AF37" style="margin-top: 0.5rem;">
                                 </div>
@@ -107,6 +97,7 @@
                             </div>
                         </div>
 
+                        <!-- Внутренний фон -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>🎨 Внутренний фон</span>
@@ -116,34 +107,25 @@
                                 <div class="setting-group">
                                     <label>Цвет</label>
                                     <div class="color-presets" id="containerBgColorPresets">
-                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;"
-                                            data-color="#FFFFFF" title="Белый"></div>
-                                        <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6"
-                                            title="Слоновая кость"></div>
-                                        <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0"
-                                            title="Светло-серый"></div>
-                                        <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5"
-                                            title="Розовый"></div>
-                                        <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF"
-                                            title="Голубой"></div>
-                                        <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC"
-                                            title="Бежевый"></div>
-                                        <div class="color-preset" style="background: #E6E6FA;" data-color="#E6E6FA"
-                                            title="Лаванда"></div>
-                                        <div class="color-preset" style="background: #FAF0E6;" data-color="#FAF0E6"
-                                            title="Лен"></div>
+                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
+                                        <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6" title="Слоновая кость"></div>
+                                        <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0" title="Светло-серый"></div>
+                                        <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5" title="Розовый"></div>
+                                        <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF" title="Голубой"></div>
+                                        <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC" title="Бежевый"></div>
+                                        <div class="color-preset" style="background: #E6E6FA;" data-color="#E6E6FA" title="Лаванда"></div>
+                                        <div class="color-preset" style="background: #FAF0E6;" data-color="#FAF0E6" title="Лен"></div>
                                     </div>
-                                    <input type="color" id="containerBgColor" value="#FFFFFF"
-                                        style="margin-top: 0.5rem;">
+                                    <input type="color" id="containerBgColor" value="#FFFFFF" style="margin-top: 0.5rem;">
                                 </div>
                                 <div class="setting-group">
                                     <label>Прозрачность <span id="containerBgOpacityValue">0.95</span></label>
-                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05"
-                                        value="0.95">
+                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05" value="0.95">
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Текст -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>📝 Текст</span>
@@ -185,6 +167,7 @@
                             </div>
                         </div>
 
+                        <!-- Шрифты и стили -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>✍️ Шрифты и стили</span>
@@ -207,20 +190,13 @@
                                 <div class="setting-group">
                                     <label>Цвет текста</label>
                                     <div class="color-presets" id="textColorPresets">
-                                        <div class="color-preset" style="background: #475569;" data-color="#475569"
-                                            title="Темно-серый"></div>
-                                        <div class="color-preset" style="background: #000000;" data-color="#000000"
-                                            title="Черный"></div>
-                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513"
-                                            title="Коричневый"></div>
-                                        <div class="color-preset" style="background: #B8860B;" data-color="#B8860B"
-                                            title="Золотой"></div>
-                                        <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57"
-                                            title="Зеленый"></div>
-                                        <div class="color-preset" style="background: #8B0000;" data-color="#8B0000"
-                                            title="Бордовый"></div>
-                                        <div class="color-preset" style="background: #483D8B;" data-color="#483D8B"
-                                            title="Темно-синий"></div>
+                                        <div class="color-preset" style="background: #475569;" data-color="#475569" title="Темно-серый"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Коричневый"></div>
+                                        <div class="color-preset" style="background: #B8860B;" data-color="#B8860B" title="Золотой"></div>
+                                        <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57" title="Зеленый"></div>
+                                        <div class="color-preset" style="background: #8B0000;" data-color="#8B0000" title="Бордовый"></div>
+                                        <div class="color-preset" style="background: #483D8B;" data-color="#483D8B" title="Темно-синий"></div>
                                     </div>
                                     <input type="color" id="textColor" value="#475569" style="margin-top: 0.5rem;">
                                 </div>
@@ -234,6 +210,7 @@
                             </div>
                         </div>
 
+                        <!-- Выравнивание описания -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>📏 Выравнивание описания</span>
@@ -244,18 +221,17 @@
                                     <label>Текст описания (message)</label>
                                     <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
                                         <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="radio" name="messageAlign" id="messageAlignCenter"
-                                                value="center" checked> По центру
+                                            <input type="radio" name="messageAlign" id="messageAlignCenter" value="center" checked> По центру
                                         </label>
                                         <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="radio" name="messageAlign" id="messageAlignLeft" value="left">
-                                            По левому краю
+                                            <input type="radio" name="messageAlign" id="messageAlignLeft" value="left"> По левому краю
                                         </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
+                        <!-- Декорации -->
                         <div class="accordion-item">
                             <button class="accordion-header">
                                 <span>✨ Декорации</span>
@@ -263,26 +239,20 @@
                             </button>
                             <div class="accordion-content">
                                 <div class="decor-grid scrollable-grid" id="decorGrid"></div>
-                                <div
-                                    style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;">
+                                <div style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;">
                                     <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem;">
-                                        <span class="material-symbols-outlined"
-                                            style="font-size: 1rem; vertical-align: middle;">info</span>
-                                        Нажмите на декорацию, чтобы добавить. Перетаскивайте, меняйте размер, нажмите
-                                        Delete для удаления.
+                                        <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">info</span>
+                                        Нажмите на декорацию, чтобы добавить. Перетаскивайте, меняйте размер, нажмите Delete для удаления.
                                     </p>
                                 </div>
-                                <div class="selected-decor-info" id="selectedDecorInfo"
-                                    style="display: none; margin-top: 1rem; padding: 0.5rem; background: #e6f3ff; border-radius: 8px;">
+                                <div class="selected-decor-info" id="selectedDecorInfo" style="display: none; margin-top: 1rem; padding: 0.5rem; background: #e6f3ff; border-radius: 8px;">
                                     <p><strong>Выбрано:</strong> <span id="selectedDecorName"></span></p>
                                     <div class="setting-group">
                                         <label>Размер <span id="decorSizeValue">50</span>px</label>
                                         <input type="range" id="decorSize" min="30" max="500" step="5" value="50">
                                     </div>
-                                    <button class="btn btn-secondary" id="deleteSelectedDecor"
-                                        style="width: 100%; margin-top: 0.5rem;">
-                                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span>
-                                        Удалить
+                                    <button class="btn btn-secondary" id="deleteSelectedDecor" style="width: 100%; margin-top: 0.5rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span> Удалить
                                     </button>
                                 </div>
                             </div>
@@ -299,6 +269,7 @@
                 </div>
             </div>
 
+            <!-- ПРЕДПРОСМОТР -->
             <div class="editor-preview" id="editorPreview">
                 <div class="preview-header">
                     <h3>Предпросмотр</h3>
@@ -312,7 +283,7 @@
                                 <h2 class="event-type" id="previewEventType">Свадебное приглашение</h2>
                                 <div class="decor-line"></div>
                             </div>
-                            <div class="card-body" id="previewCardBody">
+                            <div class="card-body">
                                 <h1 class="names" id="previewNames">Александр & Елена</h1>
                                 <p class="greeting" id="previewGreeting">приглашают вас разделить с ними радость</p>
                                 <div class="details">
@@ -338,5 +309,4 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/editor.js"></script>
 </body>
-
 </html>
