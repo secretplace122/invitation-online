@@ -511,6 +511,7 @@
         color: #94a3b8;
         cursor: pointer;
         font-size: 0.9rem;
+        -webkit-tap-highlight-color: transparent;
     }
 
     .mobile-tab.active {
@@ -528,14 +529,22 @@
         height: calc(100vh - 130px);
         margin-top: 60px;
         overflow: hidden;
+        position: relative;
     }
 
+    /* Сайдбар с настройками */
     .editor-sidebar {
         width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: white;
     }
 
     .editor-sidebar.hidden {
@@ -546,14 +555,19 @@
         height: 70px;
         padding: 1rem;
         flex-shrink: 0;
+        background: white;
+        border-bottom: 1px solid rgba(168, 216, 234, 0.3);
     }
 
     .sidebar-content {
         flex: 1;
-        overflow-y: auto !important;
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
         padding: 1rem;
-        -webkit-overflow-scrolling: touch;
+        padding-bottom: 2rem;
+        height: auto;
         max-height: calc(100% - 140px);
+        background: white;
     }
 
     .sidebar-footer {
@@ -561,14 +575,23 @@
         min-height: 140px;
         padding: 1rem;
         flex-shrink: 0;
+        background: #fafafa;
+        border-top: 1px solid rgba(168, 216, 234, 0.3);
     }
 
+    /* Область предпросмотра */
     .editor-preview {
         width: 100%;
         height: 100%;
         display: flex;
         flex-direction: column;
         overflow: hidden;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: #f8fafc;
     }
 
     .editor-preview.hidden {
@@ -579,64 +602,190 @@
         height: 60px;
         padding: 1rem;
         flex-shrink: 0;
+        background: white;
+        border-bottom: 1px solid rgba(168, 216, 234, 0.3);
     }
 
     .preview-container {
         flex: 1;
-        overflow-y: auto !important;
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
         padding: 1rem;
-        -webkit-overflow-scrolling: touch;
         height: calc(100% - 60px);
+        background: #e5e7eb;
         display: flex;
-        align-items: center;
+        align-items: flex-start;
         justify-content: center;
     }
 
     .invitation-card {
         width: 450px !important;
         max-width: 95vw !important;
-        margin: auto !important;
+        margin: 1rem auto !important;
         transform: none !important;
         position: relative !important;
+        flex-shrink: 0;
     }
 
+    /* Аккордеон и настройки */
+    .accordion {
+        width: 100%;
+    }
+
+    .accordion-item {
+        margin-bottom: 1rem;
+        border-radius: 12px;
+        overflow: hidden;
+    }
+
+    .accordion-header {
+        padding: 1rem;
+        font-size: 1rem;
+        min-height: 50px;
+    }
+
+    .accordion-content {
+        padding: 1rem;
+        max-height: none;
+    }
+
+    /* Сетки с прокруткой */
+    .pattern-grid,
+    .decor-grid {
+        max-height: 200px;
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 0.5rem;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    .pattern-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .decor-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    /* Цветовые пресеты */
+    .color-presets {
+        grid-template-columns: repeat(4, 1fr);
+        max-height: 150px;
+        overflow-y: scroll !important;
+        -webkit-overflow-scrolling: touch !important;
+        padding: 0.5rem;
+        background: #f8fafc;
+        border-radius: 8px;
+    }
+
+    /* Поля ввода */
+    .setting-group {
+        margin-bottom: 1rem;
+    }
+
+    .setting-group input[type="text"],
+    .setting-group input[type="number"],
+    .setting-group select,
+    .setting-group textarea {
+        font-size: 16px !important;
+        /* Предотвращает зум на iOS */
+        padding: 0.8rem;
+    }
+
+    /* Декорации */
     .decor-element {
         transform: none !important;
     }
 
     .decor-resize,
     .decor-rotate {
-        width: 30px !important;
-        height: 30px !important;
+        width: 40px !important;
+        height: 40px !important;
         opacity: 0.9;
+        background: white;
+        border: 3px solid #D4AF37;
+    }
+
+    .decor-resize {
+        bottom: -15px;
+        right: -15px;
+    }
+
+    .decor-rotate {
+        top: -40px;
+        width: 40px !important;
+        height: 40px !important;
+        font-size: 24px;
     }
 
     .decor-resize::after,
     .decor-rotate::after {
         content: '';
         position: absolute;
-        top: -15px;
-        left: -15px;
-        right: -15px;
-        bottom: -15px;
+        top: -20px;
+        left: -20px;
+        right: -20px;
+        bottom: -20px;
         background: transparent;
     }
 
-    .pattern-grid,
-    .decor-grid {
-        max-height: 150px;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-    }
-
-    .color-presets {
-        grid-template-columns: repeat(4, 1fr);
-    }
-
+    /* Slug input */
     .slug-input {
         margin-top: 0.5rem;
         position: relative;
         z-index: 10;
+    }
+
+    .slug-input input {
+        font-size: 16px !important;
+        padding: 0.8rem;
+    }
+
+    /* Кнопки */
+    .btn {
+        padding: 0.8rem 1.5rem;
+        font-size: 1rem;
+        min-height: 44px;
+        /* Минимальный размер для тач-целей */
+    }
+
+    /* Исправляем скролл для Firefox */
+    .sidebar-content,
+    .preview-container,
+    .pattern-grid,
+    .decor-grid,
+    .color-presets {
+        scrollbar-width: thin;
+        scrollbar-color: #A8D8EA #f0f2f5;
+    }
+
+    /* Стили для скроллбара на WebKit */
+    .sidebar-content::-webkit-scrollbar,
+    .preview-container::-webkit-scrollbar,
+    .pattern-grid::-webkit-scrollbar,
+    .decor-grid::-webkit-scrollbar,
+    .color-presets::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track,
+    .preview-container::-webkit-scrollbar-track,
+    .pattern-grid::-webkit-scrollbar-track,
+    .decor-grid::-webkit-scrollbar-track,
+    .color-presets::-webkit-scrollbar-track {
+        background: #f0f2f5;
+        border-radius: 10px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb,
+    .preview-container::-webkit-scrollbar-thumb,
+    .pattern-grid::-webkit-scrollbar-thumb,
+    .decor-grid::-webkit-scrollbar-thumb,
+    .color-presets::-webkit-scrollbar-thumb {
+        background: #A8D8EA;
+        border-radius: 10px;
     }
 }
 
@@ -659,7 +808,7 @@
     }
 
     .pattern-grid {
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(2, 1fr);
     }
 
     .decor-grid {
@@ -667,6 +816,14 @@
     }
 
     .color-presets {
-        grid-template-columns: repeat(4, 1fr);
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .sidebar-header h2 {
+        font-size: 1.1rem;
+    }
+
+    .preview-header h3 {
+        font-size: 1rem;
     }
 }
