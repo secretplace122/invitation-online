@@ -13,7 +13,6 @@
     align-items: center;
     justify-content: center;
     min-height: 400px;
-    text-align: center;
 }
 
 .spinner {
@@ -38,19 +37,20 @@
     margin-bottom: 2rem;
 }
 
+/* Используем те же размеры, что и в редакторе */
 .invitation-card {
-    max-width: 600px;
-    width: 100%;
+    width: 500px;
+    max-width: 95%;
     margin: 0 auto;
     padding: 2.5rem 2rem;
     position: relative;
     box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-    transition: all 0.3s;
+    background: white;
 }
 
 .invitation-actions {
     width: 100%;
-    max-width: 600px;
+    max-width: 500px;
     margin: 0 auto;
     text-align: center;
 }
@@ -104,14 +104,16 @@
     color: #475569;
 }
 
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .invitation-card {
+        width: 450px;
         padding: 2rem 1.5rem;
     }
 }
 
 @media (max-width: 480px) {
     .invitation-card {
+        width: 95%;
         padding: 1.5rem 1rem;
     }
     

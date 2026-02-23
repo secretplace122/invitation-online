@@ -654,3 +654,435 @@
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.editor-main {
+    height: 100vh;
+    overflow: hidden;
+    background: #f5f7fa;
+}
+
+.editor-mobile-tabs {
+    display: none;
+}
+
+.editor-layout {
+    display: flex;
+    height: 100%;
+    background: white;
+}
+
+/* Сайдбар */
+.editor-sidebar {
+    width: 380px;
+    background: white;
+    border-right: 1px solid rgba(168, 216, 234, 0.3);
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    overflow: hidden;
+}
+
+.sidebar-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(168, 216, 234, 0.3);
+    background: white;
+    flex-shrink: 0;
+    height: 80px;
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    height: calc(100% - 220px);
+    /* header(80px) + footer(140px) */
+}
+
+.sidebar-footer {
+    padding: 1.5rem;
+    border-top: 1px solid rgba(168, 216, 234, 0.3);
+    background: #fafafa;
+    flex-shrink: 0;
+    height: 140px;
+}
+
+/* Предпросмотр */
+.editor-preview {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background: #f8fafc;
+    overflow: hidden;
+}
+
+.preview-header {
+    padding: 1.5rem;
+    border-bottom: 1px solid rgba(168, 216, 234, 0.3);
+    background: white;
+    flex-shrink: 0;
+    height: 80px;
+}
+
+.preview-container {
+    flex: 1;
+    overflow: auto;
+    background: #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    height: calc(100% - 80px);
+}
+
+.preview-bg-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-repeat: repeat;
+    pointer-events: none;
+}
+
+.preview-content-layer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Аккордеон */
+.accordion-item {
+    border: 1px solid rgba(168, 216, 234, 0.3);
+    border-radius: 12px;
+    margin-bottom: 0.8rem;
+    overflow: hidden;
+}
+
+.accordion-header {
+    width: 100%;
+    padding: 1rem;
+    background: #f8fafc;
+    border: none;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #475569;
+    cursor: pointer;
+}
+
+.accordion-content {
+    padding: 1rem;
+    background: white;
+    border-top: 1px solid rgba(168, 216, 234, 0.3);
+}
+
+.accordion-item:not(.active) .accordion-content {
+    display: none;
+}
+
+/* Настройки */
+.setting-group {
+    margin-bottom: 1.2rem;
+}
+
+.setting-group label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-size: 0.9rem;
+    color: #94a3b8;
+}
+
+.setting-group input[type="text"],
+.setting-group input[type="number"],
+.setting-group select,
+.setting-group textarea {
+    width: 100%;
+    padding: 0.6rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+}
+
+.setting-group input[type="range"] {
+    width: 100%;
+}
+
+.setting-group input[type="color"] {
+    width: 100%;
+    height: 40px;
+}
+
+/* Сетки */
+.pattern-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.pattern-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background-size: cover;
+}
+
+.pattern-item.selected {
+    border-color: #A8D8EA;
+    box-shadow: 0 0 0 2px #A8D8EA;
+}
+
+.decor-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.5rem;
+}
+
+.decor-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.5rem;
+    background: white;
+}
+
+.decor-item img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Декорации */
+.decor-layer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.decor-layer .decor-element {
+    position: absolute;
+    pointer-events: all;
+    cursor: move;
+    user-select: none;
+    touch-action: none;
+}
+
+.decor-layer .decor-element.selected {
+    box-shadow: 0 0 0 2px #D4AF37;
+    z-index: 1000;
+}
+
+.decor-resize {
+    position: absolute;
+    bottom: -10px;
+    right: -10px;
+    width: 20px;
+    height: 20px;
+    background: white;
+    border: 2px solid #D4AF37;
+    border-radius: 50%;
+    cursor: se-resize;
+}
+
+.decor-rotate {
+    position: absolute;
+    top: -30px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30px;
+    height: 30px;
+    background: white;
+    border: 2px solid #D4AF37;
+    border-radius: 50%;
+    cursor: grab;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Цвета */
+.color-presets {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+.color-preset {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    cursor: pointer;
+    border: 2px solid transparent;
+}
+
+.color-preset.selected {
+    border-color: #A8D8EA;
+    box-shadow: 0 0 0 2px #A8D8EA;
+}
+
+/* Мобильная версия - исправленный скролл */
+@media (max-width: 768px) {
+    .editor-mobile-tabs {
+        display: flex;
+        position: fixed;
+        top: 70px;
+        left: 0;
+        right: 0;
+        z-index: 100;
+        background: white;
+        padding: 0.5rem;
+        gap: 0.5rem;
+        border-bottom: 1px solid rgba(168, 216, 234, 0.3);
+        height: 60px;
+    }
+
+    .mobile-tab {
+        flex: 1;
+        padding: 0.75rem;
+        border: none;
+        background: #f0f2f5;
+        border-radius: 30px;
+        font-weight: 600;
+        color: #94a3b8;
+        cursor: pointer;
+    }
+
+    .mobile-tab.active {
+        background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+        color: #475569;
+    }
+
+    .editor-main {
+        height: 100vh;
+        overflow: hidden;
+        padding-top: 70px;
+        /* высота навбара */
+    }
+
+    .editor-layout {
+        height: calc(100vh - 130px);
+        /* 70px (навбар) + 60px (табы) */
+        margin-top: 60px;
+        /* высота табов */
+        overflow: hidden;
+    }
+
+    .editor-sidebar {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .editor-sidebar.hidden {
+        display: none;
+    }
+
+    .sidebar-header {
+        height: 70px;
+        padding: 1rem;
+        flex-shrink: 0;
+    }
+
+    .sidebar-content {
+        flex: 1;
+        overflow-y: auto !important;
+        padding: 1rem;
+        -webkit-overflow-scrolling: touch;
+        max-height: calc(100% - 140px);
+        /* header(70px) + footer(70px) */
+    }
+
+    .sidebar-footer {
+        height: auto;
+        min-height: 120px;
+        padding: 1rem;
+        flex-shrink: 0;
+    }
+
+    .editor-preview {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .editor-preview.hidden {
+        display: none;
+    }
+
+    .preview-header {
+        height: 60px;
+        padding: 1rem;
+        flex-shrink: 0;
+    }
+
+    .preview-container {
+        flex: 1;
+        overflow-y: auto !important;
+        padding: 1rem;
+        -webkit-overflow-scrolling: touch;
+        height: calc(100% - 60px);
+    }
+
+    .invitation-card {
+        width: 450px !important;
+        margin: 0 auto;
+        transform: none !important;
+    }
+
+    /* Убираем все трансформации */
+    .decor-element {
+        transform: none !important;
+    }
+
+    /* Увеличиваем область касания для мобильных */
+    .decor-resize,
+    .decor-rotate {
+        width: 30px !important;
+        height: 30px !important;
+        opacity: 0.9;
+    }
+
+    .decor-resize::after,
+    .decor-rotate::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+        background: transparent;
+    }
+}
+
+@media (max-width: 480px) {
+    .invitation-card {
+        width: 95% !important;
+        padding: 1.2rem 1rem;
+    }
+
+    .pattern-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .decor-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .color-presets {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
