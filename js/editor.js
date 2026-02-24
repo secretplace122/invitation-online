@@ -45,24 +45,73 @@ const EditorState = {
     showDecorLines: true
 };
 
-// Паттерны с категориями для фильтрации
 const patterns = [
-    // Свадьба (6 паттернов)
-    { id: 'wedding-1', file: 'bg1.png', category: 'wedding', name: 'Классическая свадьба' },
-    { id: 'wedding-2', file: 'bg2.png', category: 'wedding', name: 'Акварель' },
-    { id: 'wedding-3', file: 'bg3.png', category: 'wedding', name: 'Королевская' },
-    { id: 'wedding-4', file: 'bg4.png', category: 'wedding', name: 'С розой' },
-    { id: 'wedding-5', file: 'bg5.png', category: 'wedding', name: 'Золотая' },
-    { id: 'wedding-6', file: 'bg6.png', category: 'wedding', name: 'Винтаж' },
-
-    // День рождения (6 паттернов)
-    { id: 'birthday-1', file: 'bg7.png', category: 'birthday', name: 'С шариками' },
-    { id: 'birthday-2', file: 'bg8.png', category: 'birthday', name: 'С тортом' },
-    { id: 'birthday-3', file: 'bg9.png', category: 'birthday', name: 'Конфетти' },
-    { id: 'birthday-4', file: 'bg10.png', category: 'birthday', name: 'Со свечами' },
-    { id: 'birthday-5', file: 'bg11.png', category: 'birthday', name: 'Подарки' },
-    { id: 'birthday-6', file: 'bg12.png', category: 'birthday', name: 'Звезды' },
-
+    // Свадьба
+    { id: 'wedding-1', file: 'wedding1.png', category: 'wedding', name: '1' },
+    { id: 'wedding-2', file: 'wedding2.png', category: 'wedding', name: '2' },
+    { id: 'wedding-3', file: 'wedding3.png', category: 'wedding', name: '3' },
+    { id: 'wedding-4', file: 'wedding4.png', category: 'wedding', name: '4' },
+    { id: 'wedding-5', file: 'wedding5.png', category: 'wedding', name: '5' },
+    { id: 'wedding-6', file: 'wedding6.png', category: 'wedding', name: '6' },
+    { id: 'wedding-7', file: 'wedding7.png', category: 'wedding', name: '7' },
+    { id: 'wedding-8', file: 'wedding8.png', category: 'wedding', name: '8' },
+    { id: 'wedding-9', file: 'wedding9.png', category: 'wedding', name: '9' },
+    { id: 'wedding-10', file: 'wedding10.png', category: 'wedding', name: '10' },
+    { id: 'wedding-11', file: 'wedding11.png', category: 'wedding', name: '11' },
+    { id: 'wedding-12', file: 'wedding12.png', category: 'wedding', name: '12' },
+    { id: 'wedding-13', file: 'wedding13.png', category: 'wedding', name: '13' },
+    { id: 'wedding-14', file: 'wedding14.png', category: 'wedding', name: '14' },
+    { id: 'wedding-15', file: 'wedding15.png', category: 'wedding', name: '15' },
+    { id: 'wedding-16', file: 'wedding16.png', category: 'wedding', name: '16' },
+    { id: 'wedding-17', file: 'wedding17.png', category: 'wedding', name: '17' },
+    { id: 'wedding-18', file: 'wedding18.png', category: 'wedding', name: '18' },
+    { id: 'wedding-19', file: 'wedding19.png', category: 'wedding', name: '19' },
+    { id: 'wedding-20', file: 'wedding20.png', category: 'wedding', name: '20' },
+    { id: 'wedding-21', file: 'wedding21.png', category: 'wedding', name: '21' },
+    { id: 'wedding-22', file: 'wedding22.png', category: 'wedding', name: '22' },
+    { id: 'wedding-23', file: 'wedding23.png', category: 'wedding', name: '23' },
+    { id: 'wedding-24', file: 'wedding24.png', category: 'wedding', name: '24' },
+    { id: 'wedding-25', file: 'wedding25.png', category: 'wedding', name: '25' },
+    { id: 'wedding-26', file: 'wedding26.png', category: 'wedding', name: '26' },
+    { id: 'wedding-27', file: 'wedding27.png', category: 'wedding', name: '27' },
+    { id: 'wedding-28', file: 'wedding28.png', category: 'wedding', name: '28' },
+    { id: 'wedding-29', file: 'wedding29.png', category: 'wedding', name: '29' },// замена
+    { id: 'wedding-30', file: 'wedding30.png', category: 'wedding', name: '30' },// замена
+    { id: 'wedding-31', file: 'wedding31.png', category: 'wedding', name: '31' },// замена
+    { id: 'wedding-32', file: 'wedding32.png', category: 'wedding', name: '32' },
+    // День рождения
+    { id: 'birthday-1', file: 'birthday1.png', category: 'birthday', name: '1' },
+    { id: 'birthday-2', file: 'birthday2.png', category: 'birthday', name: '2' },
+    { id: 'birthday-3', file: 'birthday3.png', category: 'birthday', name: '3' },
+    { id: 'birthday-4', file: 'birthday4.png', category: 'birthday', name: '4' },
+    { id: 'birthday-5', file: 'birthday5.png', category: 'birthday', name: '5' },
+    { id: 'birthday-6', file: 'birthday6.png', category: 'birthday', name: '6' },
+    { id: 'birthday-7', file: 'birthday7.png', category: 'birthday', name: '7' },
+    { id: 'birthday-8', file: 'birthday8.png', category: 'birthday', name: '8' },
+    { id: 'birthday-9', file: 'birthday9.png', category: 'birthday', name: '9' },
+    { id: 'birthday-10', file: 'birthday10.png', category: 'birthday', name: '10' },
+    { id: 'birthday-11', file: 'birthday11.png', category: 'birthday', name: '11' },
+    { id: 'birthday-12', file: 'birthday12.png', category: 'birthday', name: '12' },
+    { id: 'birthday-13', file: 'birthday13.png', category: 'birthday', name: '13' },
+    { id: 'birthday-14', file: 'birthday14.png', category: 'birthday', name: '14' },
+    { id: 'birthday-15', file: 'birthday15.png', category: 'birthday', name: '15' },
+    // Другое
+    { id: 'other-1', file: 'other1.png', category: 'other', name: '1' },
+    { id: 'other-2', file: 'other2.png', category: 'other', name: '2' },
+    { id: 'other-3', file: 'other3.png', category: 'other', name: '3' },// замена
+    { id: 'other-4', file: 'other4.png', category: 'other', name: '4' },
+    { id: 'other-5', file: 'other5.png', category: 'other', name: '5' },
+    { id: 'other-6', file: 'other6.png', category: 'other', name: '6' },
+    { id: 'other-7', file: 'other7.png', category: 'other', name: '7' },
+    { id: 'other-8', file: 'other8.png', category: 'other', name: '8' },
+    { id: 'other-9', file: 'other9.png', category: 'other', name: '9' },
+    { id: 'other-10', file: 'other10.png', category: 'other', name: '10' },
+    { id: 'other-11', file: 'other11.png', category: 'other', name: '11' },
+    { id: 'other-12', file: 'other12.png', category: 'other', name: '12' },// замена
+    { id: 'other-13', file: 'other13.png', category: 'other', name: '13' },
+    { id: 'other-14', file: 'other14.png', category: 'other', name: '14' },
+    { id: 'other-15', file: 'other15.png', category: 'other', name: '15' },
+    { id: 'other-16', file: 'other16.png', category: 'other', name: '16' },// замена
 ];
 
 const fonts = [
