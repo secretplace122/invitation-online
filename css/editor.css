@@ -450,7 +450,7 @@
         top: 0;
         z-index: 1000;
         background: white;
-        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
 
     .editor-mobile-tabs {
@@ -691,4 +691,72 @@
 
 .preview-container .preview-content-layer {
     z-index: 2;
+}
+
+/* Добавьте в конец файла */
+
+/* Улучшенная обработка касаний для мобильных */
+@media (max-width: 768px) {
+
+    /* Убеждаемся, что декорации получают события */
+    .decor-layer {
+        pointer-events: none;
+    }
+
+    .decor-layer .decor-element {
+        pointer-events: auto !important;
+        touch-action: none;
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+
+    /* Увеличиваем зону захвата для мобильных */
+    .decor-element {
+        min-width: 44px;
+        min-height: 44px;
+    }
+
+    /* Делаем ручки больше и заметнее */
+    .decor-resize,
+    .decor-rotate {
+        opacity: 1 !important;
+        background: rgba(255, 255, 255, 0.95) !important;
+        border: 3px solid #D4AF37 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+
+    /* Добавляем подсказку для мобильных */
+    .decor-element.selected::after {
+        content: '';
+        position: absolute;
+        top: -15px;
+        left: -15px;
+        right: -15px;
+        bottom: -15px;
+        border: 2px dashed rgba(212, 175, 55, 0.3);
+        border-radius: 8px;
+        pointer-events: none;
+        z-index: 999;
+    }
+
+    /* Улучшаем отображение в режиме предпросмотра */
+    .editor-preview:not(.hidden) .decor-layer {
+        display: block !important;
+    }
+
+    /* Фикс для скролла */
+    .preview-container {
+        overscroll-behavior: contain;
+    }
+}
+
+/* Анимация для обратной связи при касании */
+.decor-element:active {
+    opacity: 0.9;
+    transition: opacity 0.1s;
+}
+
+.decor-element.selected:active {
+    opacity: 1;
 }
