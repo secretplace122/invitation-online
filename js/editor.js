@@ -364,17 +364,10 @@ function startRotate(e, id) {
     const cardRect = card.getBoundingClientRect();
     const decor = EditorState.decor.find(d => d.id === id);
 
-    let centerX, centerY;
-
-    if (isMobileView && activeTab === 'preview') {
-        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-        const elRect = el.getBoundingClientRect();
-        centerX = elRect.left + elRect.width / 2;
-        centerY = elRect.top + elRect.height / 2;
-    } else {
-        centerX = cardRect.left + (decor.x / 100) * cardRect.width;
-        centerY = cardRect.top + (decor.y / 100) * cardRect.height;
-    }
+    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+    const elRect = el.getBoundingClientRect();
+    const centerX = elRect.left + elRect.width / 2;
+    const centerY = elRect.top + elRect.height / 2;
 
     startDecorState = {
         rotation: decor.rotation || 0,
@@ -418,7 +411,6 @@ function handleDrag(e, id) {
     let newCenterY = e.clientY - cardRect.top - dragOffset.y;
 
     // Правильные границы: элемент не должен выходить за пределы карточки
-    // Центр элемента может двигаться от половины ширины до (ширина карточки - половина ширины)
     const minX = decor.width / 2;
     const maxX = cardRect.width - decor.width / 2;
     const minY = decor.height / 2;
@@ -470,28 +462,18 @@ function handleRotate(e, id) {
     if (!isRotating || !selectedDecorId) return;
 
     const decor = EditorState.decor.find(d => d.id === id);
-    const card = document.getElementById('previewCard');
-    const cardRect = card.getBoundingClientRect();
-
+    
     if (decor) {
-        let centerX, centerY;
-
-        if (isMobileView && activeTab === 'preview') {
-            const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-            const elRect = el.getBoundingClientRect();
-            centerX = elRect.left + elRect.width / 2;
-            centerY = elRect.top + elRect.height / 2;
-        } else {
-            centerX = cardRect.left + (decor.x / 100) * cardRect.width;
-            centerY = cardRect.top + (decor.y / 100) * cardRect.height;
-        }
+        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+        const elRect = el.getBoundingClientRect();
+        const centerX = elRect.left + elRect.width / 2;
+        const centerY = elRect.top + elRect.height / 2;
 
         const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
         const deltaAngle = currentAngle - startDecorState.startAngle;
 
         decor.rotation = startDecorState.rotation + deltaAngle;
 
-        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
         if (el) {
             el.style.transform = `translate(-50%, -50%) rotate(${decor.rotation}deg)`;
         }
@@ -762,6 +744,7 @@ function initMobileTabs() {
     const mobileTabs = document.getElementById('mobileTabs');
     const sidebar = document.getElementById('editorSidebar');
     const preview = document.getElementById('editorPreview');
+    const card = document.getElementById('previewCard');
 
     if (!mobileTabs || !sidebar || !preview) return;
 
@@ -773,22 +756,25 @@ function initMobileTabs() {
             document.querySelector('.mobile-tab[data-tab="settings"]').classList.add('active');
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
-
+            
+            // В режиме настроек можно оставить scale для компактности
+            if (card) {
+                card.classList.remove('edit-mode');
+            }
+            
             isDragging = false;
             isResizing = false;
             isRotating = false;
-
-            setTimeout(() => {
-                const sidebarContent = document.getElementById('sidebarContent');
-                if (sidebarContent) {
-                    sidebarContent.style.overflowY = 'auto';
-                }
-            }, 50);
         } else {
             document.querySelector('.mobile-tab[data-tab="preview"]').classList.add('active');
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
-
+            
+            // В режиме предпросмотра (редактирования) убираем scale
+            if (card) {
+                card.classList.add('edit-mode');
+            }
+            
             setTimeout(() => {
                 renderDecor();
                 const previewContainer = document.querySelector('.preview-container');
@@ -826,6 +812,9 @@ function initMobileTabs() {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
                 activeTab = 'settings';
+                if (card) {
+                    card.classList.remove('edit-mode');
+                }
             }
             renderDecor();
         }, 150);
