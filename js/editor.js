@@ -195,36 +195,26 @@ function renderDecor() {
     if (!layer || !card) return;
 
     const cardRect = card.getBoundingClientRect();
-    
+
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
-        
-        let posX, posY;
-        
-        if (isMobileView && activeTab === 'preview') {
-            // На мобильном в режиме предпросмотра используем пиксели
-            posX = (d.x / 100) * cardRect.width;
-            posY = (d.y / 100) * cardRect.height;
-        } else {
-            // На десктопе и в режиме настроек используем проценты
-            posX = d.x + '%';
-            posY = d.y + '%';
-        }
+
+        // ВСЕГДА используем пиксели для позиционирования в редакторе
+        const posX = (d.x / 100) * cardRect.width;
+        const posY = (d.y / 100) * cardRect.height;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
              data-id="${d.id}"
              data-width="${d.width}"
              data-height="${d.height}"
-             data-x="${d.x}"
-             data-y="${d.y}"
              style="
                 position: absolute;
-                left: ${posX}${isMobileView && activeTab === 'preview' ? 'px' : ''};
-                top: ${posY}${isMobileView && activeTab === 'preview' ? 'px' : ''};
+                left: ${posX}px;
+                top: ${posY}px;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                transform: translate(${isMobileView && activeTab === 'preview' ? '-50%, -50%' : '-50%, -50%'}) rotate(${d.rotation || 0}deg);
+                transform: translate(-50%, -50%) rotate(${d.rotation || 0}deg);
                 cursor: move;
                 z-index: ${isSelected ? 1000 : 10};
                 user-select: none;
@@ -338,28 +328,18 @@ function startDrag(e, id) {
 
     const card = document.getElementById('previewCard');
     const cardRect = card.getBoundingClientRect();
-    const decor = EditorState.decor.find(d => d.id === id);
+    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+    const elRect = el.getBoundingClientRect();
     
-    let centerX, centerY;
-
-    if (isMobileView && activeTab === 'preview') {
-        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-        const elRect = el.getBoundingClientRect();
-        centerX = elRect.left + elRect.width / 2;
-        centerY = elRect.top + elRect.height / 2;
-    } else {
-        centerX = cardRect.left + (decor.x / 100) * cardRect.width;
-        centerY = cardRect.top + (decor.y / 100) * cardRect.height;
-    }
+    // Центр элемента
+    const centerX = elRect.left + elRect.width / 2;
+    const centerY = elRect.top + elRect.height / 2;
 
     dragOffset.x = e.clientX - centerX;
     dragOffset.y = e.clientY - centerY;
 
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    if (el) {
-        el.style.cursor = 'grabbing';
-        el.style.transition = 'none';
-    }
+    el.style.cursor = 'grabbing';
+    el.style.transition = 'none';
 }
 
 function startResize(e, id) {
@@ -433,37 +413,30 @@ function handleDrag(e, id) {
     const decor = EditorState.decor.find(d => d.id === id);
     if (!decor) return;
 
-    let newCenterX, newCenterY;
+    // Вычисляем новую позицию центра
+    let newCenterX = e.clientX - cardRect.left - dragOffset.x;
+    let newCenterY = e.clientY - cardRect.top - dragOffset.y;
 
-    if (isMobileView && activeTab === 'preview') {
-        newCenterX = e.clientX - cardRect.left - dragOffset.x;
-        newCenterY = e.clientY - cardRect.top - dragOffset.y;
-    } else {
-        newCenterX = e.clientX - cardRect.left - dragOffset.x;
-        newCenterY = e.clientY - cardRect.top - dragOffset.y;
-    }
-
+    // Правильные границы: элемент не должен выходить за пределы карточки
+    // Центр элемента может двигаться от половины ширины до (ширина карточки - половина ширины)
     const minX = decor.width / 2;
     const maxX = cardRect.width - decor.width / 2;
     const minY = decor.height / 2;
     const maxY = cardRect.height - decor.height / 2;
 
+    // Применяем ограничения
     newCenterX = Math.max(minX, Math.min(maxX, newCenterX));
     newCenterY = Math.max(minY, Math.min(maxY, newCenterY));
 
-    // Сохраняем в процентах
+    // Сохраняем в процентах (для базы данных)
     decor.x = (newCenterX / cardRect.width) * 100;
     decor.y = (newCenterY / cardRect.height) * 100;
 
+    // Обновляем позицию в DOM
     const el = document.querySelector(`.decor-element[data-id="${id}"]`);
     if (el) {
-        if (isMobileView && activeTab === 'preview') {
-            el.style.left = newCenterX + 'px';
-            el.style.top = newCenterY + 'px';
-        } else {
-            el.style.left = decor.x + '%';
-            el.style.top = decor.y + '%';
-        }
+        el.style.left = newCenterX + 'px';
+        el.style.top = newCenterY + 'px';
     }
 }
 
@@ -517,7 +490,7 @@ function handleRotate(e, id) {
         const deltaAngle = currentAngle - startDecorState.startAngle;
 
         decor.rotation = startDecorState.rotation + deltaAngle;
-        
+
         const el = document.querySelector(`.decor-element[data-id="${id}"]`);
         if (el) {
             el.style.transform = `translate(-50%, -50%) rotate(${decor.rotation}deg)`;
@@ -800,11 +773,11 @@ function initMobileTabs() {
             document.querySelector('.mobile-tab[data-tab="settings"]').classList.add('active');
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
-            
+
             isDragging = false;
             isResizing = false;
             isRotating = false;
-            
+
             setTimeout(() => {
                 const sidebarContent = document.getElementById('sidebarContent');
                 if (sidebarContent) {
@@ -815,7 +788,7 @@ function initMobileTabs() {
             document.querySelector('.mobile-tab[data-tab="preview"]').classList.add('active');
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
-            
+
             setTimeout(() => {
                 renderDecor();
                 const previewContainer = document.querySelector('.preview-container');
@@ -827,7 +800,7 @@ function initMobileTabs() {
     }
 
     isMobileView = window.innerWidth <= 768;
-    
+
     if (isMobileView) {
         switchToTab('settings');
     }
