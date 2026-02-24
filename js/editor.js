@@ -1,5 +1,5 @@
 const EditorState = {
-    pattern: 'abstract-1.jpg',
+    pattern: 'bg1.png',
     bgOpacity: 0.2,
     borderColor: '#D4AF37',
     borderWidth: 2,
@@ -45,15 +45,24 @@ const EditorState = {
     showDecorLines: true
 };
 
+// Паттерны с категориями для фильтрации
 const patterns = [
-    { id: 'abstract-1', file: 'bg1.png' },
-    { id: 'abstract-2', file: 'abstract-2.jpg' },
-    { id: 'wedding', file: 'wedding-classic.png' },
-    { id: 'wedding2', file: 'wedding-watercolor.png' },
-    { id: 'wedding3', file: 'wedding-royal.png' },
-    { id: 'wedding4', file: 'wedding-rose.png' },
-    { id: 'corporate', file: 'corporate-pattern.jpg' },
-    { id: 'floral', file: 'floral-pattern.jpg' }
+    // Свадьба (6 паттернов)
+    { id: 'wedding-1', file: 'bg1.png', category: 'wedding', name: 'Классическая свадьба' },
+    { id: 'wedding-2', file: 'bg2.png', category: 'wedding', name: 'Акварель' },
+    { id: 'wedding-3', file: 'bg3.png', category: 'wedding', name: 'Королевская' },
+    { id: 'wedding-4', file: 'bg4.png', category: 'wedding', name: 'С розой' },
+    { id: 'wedding-5', file: 'bg5.png', category: 'wedding', name: 'Золотая' },
+    { id: 'wedding-6', file: 'bg6.png', category: 'wedding', name: 'Винтаж' },
+
+    // День рождения (6 паттернов)
+    { id: 'birthday-1', file: 'bg7.png', category: 'birthday', name: 'С шариками' },
+    { id: 'birthday-2', file: 'bg8.png', category: 'birthday', name: 'С тортом' },
+    { id: 'birthday-3', file: 'bg9.png', category: 'birthday', name: 'Конфетти' },
+    { id: 'birthday-4', file: 'bg10.png', category: 'birthday', name: 'Со свечами' },
+    { id: 'birthday-5', file: 'bg11.png', category: 'birthday', name: 'Подарки' },
+    { id: 'birthday-6', file: 'bg12.png', category: 'birthday', name: 'Звезды' },
+
 ];
 
 const fonts = [
@@ -71,8 +80,10 @@ const fonts = [
 
 let isMobileView = window.innerWidth <= 768;
 let activeTab = 'settings';
+let currentFilter = 'all';
 
 document.addEventListener('DOMContentLoaded', () => {
+    initPatternFilters();
     initPatternGrid();
     initEventListeners();
     initMobileTabs();
@@ -92,12 +103,27 @@ document.addEventListener('DOMContentLoaded', () => {
             isMobileView = window.innerWidth <= 768;
             applyMobileScale();
             fixMobileTabsPosition();
+            fixBackgroundScroll();
         }, 100);
     });
 
     applyMobileScale();
     fixMobileTabsPosition();
+    fixBackgroundScroll();
 });
+
+// Функция для фикса проблемы с бэкграундом при скролле
+function fixBackgroundScroll() {
+    const previewContainer = document.getElementById('previewContainer');
+    const bgLayer = document.getElementById('previewBgLayer');
+
+    if (previewContainer && bgLayer && isMobileView) {
+        // При скролле бэкграунд остается на месте
+        previewContainer.addEventListener('scroll', () => {
+            bgLayer.style.transform = `translateY(${previewContainer.scrollTop}px)`;
+        });
+    }
+}
 
 function fixMobileTabsPosition() {
     const navbar = document.querySelector('.navbar');
@@ -115,7 +141,7 @@ function applyMobileScale() {
         cards.forEach(card => {
             card.style.transform = 'scale(0.7)';
             card.style.transformOrigin = 'center top';
-            card.style.margin = '0 auto';
+            card.style.margin = '20px auto';
         });
     } else {
         cards.forEach(card => {
@@ -125,7 +151,6 @@ function applyMobileScale() {
 }
 
 function initFontSelectors() {
-    // Заполняем все выпадающие списки шрифтов
     document.querySelectorAll('.font-select').forEach(select => {
         select.innerHTML = fonts.map(f =>
             `<option value="${f.value}" style="font-family: ${f.value}">${f.name}</option>`
@@ -134,7 +159,6 @@ function initFontSelectors() {
 }
 
 function setInitialFonts() {
-    // Устанавливаем начальные значения для всех селектов
     document.getElementById('eventTypeFont').value = EditorState.eventTypeFont;
     document.getElementById('namesFont').value = EditorState.namesFont;
     document.getElementById('greetingFont').value = EditorState.greetingFont;
@@ -145,12 +169,10 @@ function setInitialFonts() {
 }
 
 function initBoldItalicButtons() {
-    // Функция для инициализации кнопок жирный/курсив
     function setupButton(buttonId, stateProperty, elementId, styleType) {
         const btn = document.getElementById(buttonId);
         if (!btn) return;
 
-        // Устанавливаем начальное состояние
         if (EditorState[stateProperty]) {
             btn.classList.add('active');
         }
@@ -175,7 +197,6 @@ function initBoldItalicButtons() {
         });
     }
 
-    // Инициализируем все кнопки
     setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
     setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
     setupButton('namesBold', 'namesBold', 'previewNames', 'bold');
@@ -190,6 +211,59 @@ function initBoldItalicButtons() {
     setupButton('placeItalic', 'placeItalic', 'previewPlace', 'italic');
     setupButton('messageBold', 'messageBold', 'previewMessage', 'bold');
     setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
+}
+
+// Инициализация фильтров паттернов
+function initPatternFilters() {
+    const filterContainer = document.querySelector('.pattern-filters');
+    if (!filterContainer) return;
+
+    filterContainer.innerHTML = `
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="wedding">Свадьба</button>
+        <button class="filter-btn" data-filter="birthday">День рождения</button>
+        <button class="filter-btn" data-filter="other">Другое</button>
+    `;
+
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            renderPatternGrid();
+        });
+    });
+}
+
+function renderPatternGrid() {
+    const grid = document.getElementById('patternGrid');
+    if (!grid) return;
+
+    const filtered = currentFilter === 'all'
+        ? patterns
+        : patterns.filter(p => p.category === currentFilter);
+
+    grid.innerHTML = filtered.map(p => `
+        <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
+             data-pattern="${p.file}"
+             data-category="${p.category}"
+             title="${p.name}"
+             style="background-image: url('/images/patterns/${p.file}')">
+        </div>
+    `).join('');
+
+    grid.querySelectorAll('.pattern-item').forEach(item => {
+        item.addEventListener('click', () => {
+            grid.querySelectorAll('.pattern-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            EditorState.pattern = item.dataset.pattern;
+            updatePreview();
+        });
+    });
+}
+
+function initPatternGrid() {
+    renderPatternGrid();
 }
 
 function initAccordion() {
@@ -248,27 +322,6 @@ function initMobileMenu() {
             });
         });
     }
-}
-
-function initPatternGrid() {
-    const grid = document.getElementById('patternGrid');
-    if (!grid) return;
-
-    grid.innerHTML = patterns.map(p => `
-        <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
-             data-pattern="${p.file}"
-             style="background-image: url('/images/patterns/${p.file}')">
-        </div>
-    `).join('');
-
-    grid.querySelectorAll('.pattern-item').forEach(item => {
-        item.addEventListener('click', () => {
-            grid.querySelectorAll('.pattern-item').forEach(i => i.classList.remove('selected'));
-            item.classList.add('selected');
-            EditorState.pattern = item.dataset.pattern;
-            updatePreview();
-        });
-    });
 }
 
 function initEventListeners() {
@@ -445,8 +498,6 @@ function initEventListeners() {
 function updateMessagePreview() {
     const messageEl = document.getElementById('previewMessage');
     messageEl.innerHTML = EditorState.messageText.replace(/\n/g, '<br>');
-
-    // Принудительно применяем стили для переноса текста
     messageEl.style.whiteSpace = 'pre-wrap';
     messageEl.style.wordWrap = 'break-word';
     messageEl.style.overflowWrap = 'break-word';
@@ -460,52 +511,44 @@ function updateDecorLines() {
 }
 
 function updateAllText() {
-    // Тип мероприятия
     document.getElementById('previewEventType').textContent = EditorState.eventType;
     document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
     document.getElementById('previewEventType').style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
     document.getElementById('previewEventType').style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
     document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
 
-    // Имена
     document.getElementById('previewNames').textContent = EditorState.names;
     document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
     document.getElementById('previewNames').style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
     document.getElementById('previewNames').style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
     document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
 
-    // Приветствие
     document.getElementById('previewGreeting').textContent = EditorState.greeting;
     document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
     document.getElementById('previewGreeting').style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
     document.getElementById('previewGreeting').style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
     document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
 
-    // Дата
     document.getElementById('previewDate').textContent = EditorState.dateText;
     document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
     document.getElementById('previewDate').style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
     document.getElementById('previewDate').style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
     document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
 
-    // Время
     document.getElementById('previewTime').textContent = EditorState.timeText;
     document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
     document.getElementById('previewTime').style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
     document.getElementById('previewTime').style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
     document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
 
-    // Место
     document.getElementById('previewPlace').textContent = EditorState.placeText;
     document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
     document.getElementById('previewPlace').style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
     document.getElementById('previewPlace').style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
     document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
 
-    // Доп. текст
     updateMessagePreview();
 
-    // Обновляем значения в интерфейсе
     document.getElementById('eventTypeSizeValue').textContent = EditorState.eventTypeSize;
     document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
     document.getElementById('greetingSizeValue').textContent = EditorState.greetingSize;
@@ -566,6 +609,7 @@ function initMobileTabs() {
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
             setTimeout(applyMobileScale, 50);
+            setTimeout(fixBackgroundScroll, 50);
         }
     }
 
@@ -594,6 +638,7 @@ function initMobileTabs() {
                     switchToTab(activeTab.dataset.tab);
                 }
                 fixMobileTabsPosition();
+                fixBackgroundScroll();
             } else {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
@@ -605,7 +650,6 @@ function initMobileTabs() {
 }
 
 function initColorPresets() {
-    // Цвета рамки
     document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;
@@ -618,7 +662,6 @@ function initColorPresets() {
         });
     });
 
-    // Цвета внутреннего фона
     document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;
@@ -631,7 +674,6 @@ function initColorPresets() {
         });
     });
 
-    // Цвет текста
     document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;

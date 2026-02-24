@@ -28,7 +28,7 @@ function applyMobileScale() {
         cards.forEach(card => {
             card.style.transform = 'scale(0.7)';
             card.style.transformOrigin = 'center top';
-            card.style.margin = '0 auto';
+            card.style.margin = '20px auto';
         });
     } else {
         cards.forEach(card => {
@@ -76,7 +76,7 @@ function displayInvitation(data) {
 
     const patternBg = document.querySelector('.pattern-bg');
     if (patternBg) {
-        patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'abstract-1.jpg'}')`;
+        patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'bg1.png'}')`;
         patternBg.style.opacity = data.bgOpacity || 0.2;
     }
 
@@ -84,7 +84,6 @@ function displayInvitation(data) {
     const containerBgOpacity = data.containerBgOpacity || 0.95;
     const rgb = hexToRgb(containerBgColor);
 
-    // Правильное форматирование текста с переносами
     const messageText = (data.messageText || '').replace(/\n/g, '<br>');
 
     const content = document.getElementById('invitationContent');

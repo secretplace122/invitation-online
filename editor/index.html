@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -7,8 +8,11 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Parisienne&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Parisienne&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <nav class="navbar">
         <div class="nav-container">
@@ -54,7 +58,8 @@
                             </button>
                             <div class="accordion-content">
                                 <div class="setting-group">
-                                    <label>Паттерн</label>
+                                    <label>Изображение</label>
+                                    <div class="pattern-filters"></div>
                                     <div class="pattern-grid scrollable-grid" id="patternGrid"></div>
                                 </div>
                                 <div class="setting-group">
@@ -74,14 +79,20 @@
                                 <div class="setting-group">
                                     <label>Цвет</label>
                                     <div class="color-presets" id="borderColorPresets">
-                                        <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37" title="Золото"></div>
-                                        <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0" title="Серебро"></div>
-                                        <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32" title="Бронза"></div>
+                                        <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37"
+                                            title="Золото"></div>
+                                        <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0"
+                                            title="Серебро"></div>
+                                        <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32"
+                                            title="Бронза"></div>
                                     </div>
                                     <div class="color-presets" id="borderColorPresets2">
-                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Дерево"></div>
-                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
-                                        <div class="color-preset" style="background: #FF1493;" data-color="#FF1493" title="Розовый"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513"
+                                            title="Дерево"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000"
+                                            title="Черный"></div>
+                                        <div class="color-preset" style="background: #FF1493;" data-color="#FF1493"
+                                            title="Розовый"></div>
                                     </div>
                                     <input type="color" id="borderColor" value="#D4AF37" style="margin-top: 0.5rem;">
                                 </div>
@@ -106,22 +117,32 @@
                                 <div class="setting-group">
                                     <label>Цвет</label>
                                     <div class="color-presets" id="containerBgColorPresets">
-                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
-                                        <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6" title="Слоновая кость"></div>
-                                        <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0" title="Светло-серый"></div>
-                                        <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5" title="Розовый"></div>
+                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;"
+                                            data-color="#FFFFFF" title="Белый"></div>
+                                        <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6"
+                                            title="Слоновая кость"></div>
+                                        <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0"
+                                            title="Светло-серый"></div>
+                                        <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5"
+                                            title="Розовый"></div>
                                     </div>
                                     <div class="color-presets" id="containerBgColorPresets2">
-                                        <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF" title="Голубой"></div>
-                                        <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC" title="Бежевый"></div>
-                                        <div class="color-preset" style="background: #E6E6FA;" data-color="#E6E6FA" title="Лаванда"></div>
-                                        <div class="color-preset" style="background: #FAF0E6;" data-color="#FAF0E6" title="Лен"></div>
+                                        <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF"
+                                            title="Голубой"></div>
+                                        <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC"
+                                            title="Бежевый"></div>
+                                        <div class="color-preset" style="background: #E6E6FA;" data-color="#E6E6FA"
+                                            title="Лаванда"></div>
+                                        <div class="color-preset" style="background: #FAF0E6;" data-color="#FAF0E6"
+                                            title="Лен"></div>
                                     </div>
-                                    <input type="color" id="containerBgColor" value="#FFFFFF" style="margin-top: 0.5rem;">
+                                    <input type="color" id="containerBgColor" value="#FFFFFF"
+                                        style="margin-top: 0.5rem;">
                                 </div>
                                 <div class="setting-group">
                                     <label>Прозрачность <span id="containerBgOpacityValue">0.95</span></label>
-                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05" value="0.95">
+                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05"
+                                        value="0.95">
                                 </div>
                             </div>
                         </div>
@@ -149,7 +170,7 @@
                                         <button class="text-format-btn" id="eventTypeItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Имена -->
                                 <div class="setting-group">
                                     <label>Имена</label>
@@ -166,7 +187,7 @@
                                         <button class="text-format-btn" id="namesItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Приветствие -->
                                 <div class="setting-group">
                                     <label>Приветствие</label>
@@ -183,7 +204,7 @@
                                         <button class="text-format-btn" id="greetingItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Дата -->
                                 <div class="setting-group">
                                     <label>Дата</label>
@@ -200,7 +221,7 @@
                                         <button class="text-format-btn" id="dateItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Время -->
                                 <div class="setting-group">
                                     <label>Время</label>
@@ -217,7 +238,7 @@
                                         <button class="text-format-btn" id="timeItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Место -->
                                 <div class="setting-group">
                                     <label>Место</label>
@@ -234,7 +255,7 @@
                                         <button class="text-format-btn" id="placeItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Доп. текст -->
                                 <div class="setting-group">
                                     <label>Доп. текст</label>
@@ -255,21 +276,27 @@
                                         <button class="text-format-btn" id="messageItalic" title="Курсив">I</button>
                                     </div>
                                 </div>
-                                
+
                                 <!-- Общие настройки текста -->
                                 <div class="setting-group">
                                     <label>Цвет текста</label>
                                     <div class="color-presets" id="textColorPresets">
-                                        <div class="color-preset" style="background: #475569;" data-color="#475569" title="Темно-серый"></div>
-                                        <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
-                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Коричневый"></div>
-                                        <div class="color-preset" style="background: #B8860B;" data-color="#B8860B" title="Золотой"></div>
-                                        <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57" title="Зеленый"></div>
-                                        <div class="color-preset" style="background: #8B0000;" data-color="#8B0000" title="Бордовый"></div>
+                                        <div class="color-preset" style="background: #475569;" data-color="#475569"
+                                            title="Темно-серый"></div>
+                                        <div class="color-preset" style="background: #000000;" data-color="#000000"
+                                            title="Черный"></div>
+                                        <div class="color-preset" style="background: #8B4513;" data-color="#8B4513"
+                                            title="Коричневый"></div>
+                                        <div class="color-preset" style="background: #B8860B;" data-color="#B8860B"
+                                            title="Золотой"></div>
+                                        <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57"
+                                            title="Зеленый"></div>
+                                        <div class="color-preset" style="background: #8B0000;" data-color="#8B0000"
+                                            title="Бордовый"></div>
                                     </div>
                                     <input type="color" id="textColor" value="#475569" style="margin-top: 0.5rem;">
                                 </div>
-                                
+
                                 <div class="setting-group">
                                     <label style="display: flex; align-items: center;">
                                         <input type="checkbox" id="showDecorLines" checked>
@@ -329,4 +356,5 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/editor.js"></script>
 </body>
+
 </html>
