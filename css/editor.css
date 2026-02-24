@@ -746,3 +746,62 @@
 .decor-element.selected:active {
     opacity: 1;
 }
+/* Режимы для мобильной версии */
+@media (max-width: 768px) {
+    /* Обычный режим (просмотр) - с масштабированием */
+    .invitation-card {
+        transform: scale(0.75);
+        transform-origin: center top;
+        transition: transform 0.2s ease;
+    }
+    
+    /* Режим редактирования - без масштабирования для точных касаний */
+    .invitation-card.edit-mode {
+        transform: none !important;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+    
+    /* Увеличиваем область прокрутки в режиме редактирования */
+    .edit-mode ~ .preview-container,
+    .preview-container:has(.edit-mode) {
+        padding: 1rem;
+        overflow-y: auto;
+    }
+    
+    /* Улучшаем touch-области */
+    .decor-element {
+        min-width: 44px;
+        min-height: 44px;
+        touch-action: none;
+    }
+    
+    .decor-resize,
+    .decor-rotate {
+        width: 44px !important;
+        height: 44px !important;
+        opacity: 1 !important;
+        background: rgba(255, 255, 255, 0.98) !important;
+        border: 3px solid #D4AF37 !important;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3) !important;
+    }
+    
+    .decor-resize {
+        bottom: -22px !important;
+        right: -22px !important;
+    }
+    
+    .decor-rotate {
+        top: -52px !important;
+        font-size: 24px !important;
+        line-height: 44px !important;
+    }
+    
+    /* Предотвращаем скролл при касании декораций */
+    .decor-element {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
