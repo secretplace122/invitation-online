@@ -233,24 +233,28 @@ function attachDecorEvents() {
     document.querySelectorAll('.decor-element').forEach(el => {
         const id = parseInt(el.dataset.id);
 
-        el.addEventListener('click', (e) => {
+        // Удаляем старые обработчики чтобы избежать дублирования
+        el.removeEventListener('click', el._clickHandler);
+        el.removeEventListener('mousedown', el._mouseDownHandler);
+        el.removeEventListener('touchstart', el._touchStartHandler);
+        el.removeEventListener('touchmove', el._touchMoveHandler);
+        el.removeEventListener('touchend', el._touchEndHandler);
+
+        // Создаем обработчики с замыканием на id
+        el._clickHandler = (e) => {
             e.stopPropagation();
             selectDecor(id);
-        });
+        };
 
-        // Mouse events for desktop
-        el.addEventListener('mousedown', (e) => {
+        el._mouseDownHandler = (e) => {
             if (e.target.classList.contains('decor-resize') || e.target.classList.contains('decor-rotate')) return;
             e.preventDefault();
             startDrag(e, id);
-        });
+        };
 
-        // Touch events for mobile
-        el.addEventListener('touchstart', (e) => {
+        el._touchStartHandler = (e) => {
             e.preventDefault();
-            touchStartTime = Date.now();
             const touch = e.touches[0];
-            lastTouchPosition = { x: touch.clientX, y: touch.clientY };
 
             if (e.target.classList.contains('decor-resize')) {
                 startResize(touch, id);
@@ -259,65 +263,54 @@ function attachDecorEvents() {
             } else {
                 startDrag(touch, id);
             }
-        }, { passive: false });
+        };
 
-        el.addEventListener('touchmove', (e) => {
-            e.preventDefault();
-            if (!isDragging && !isResizing && !isRotating) return;
-            
-            const touch = e.touches[0];
-            const deltaX = Math.abs(touch.clientX - lastTouchPosition.x);
-            const deltaY = Math.abs(touch.clientY - lastTouchPosition.y);
-            
-            // Если движение значительное, предотвращаем скролл
-            if (deltaX > 5 || deltaY > 5) {
-                e.preventDefault();
-            }
-            
-            lastTouchPosition = { x: touch.clientX, y: touch.clientY };
-            
-            if (isDragging) handleDrag(touch, id);
-            else if (isResizing) handleResize(touch, id);
-            else if (isRotating) handleRotate(touch, id);
-            
-        }, { passive: false });
+        // Добавляем обработчики
+        el.addEventListener('click', el._clickHandler);
+        el.addEventListener('mousedown', el._mouseDownHandler);
+        el.addEventListener('touchstart', el._touchStartHandler, { passive: false });
 
-        el.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            const touchEndTime = Date.now();
-            
-            // Если это было быстрое касание (тап), не останавливаем взаимодействие
-            if (touchEndTime - touchStartTime < 200 && !isDragging && !isResizing && !isRotating) {
-                selectDecor(id);
-            }
-            
-            stopInteraction();
-        }, { passive: false });
-
+        // Обработчики для ручек
         const resizeHandle = el.querySelector('.decor-resize');
         if (resizeHandle) {
-            resizeHandle.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                startResize(e, id);
-            });
+            resizeHandle.removeEventListener('mousedown', resizeHandle._mouseDownHandler);
+            resizeHandle.removeEventListener('touchstart', resizeHandle._touchStartHandler);
 
-            resizeHandle.addEventListener('touchstart', (e) => {
+            resizeHandle._mouseDownHandler = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                startResize(e, id);
+            };
+
+            resizeHandle._touchStartHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 startResize(e.touches[0], id);
-            }, { passive: false });
+            };
+
+            resizeHandle.addEventListener('mousedown', resizeHandle._mouseDownHandler);
+            resizeHandle.addEventListener('touchstart', resizeHandle._touchStartHandler, { passive: false });
         }
 
         const rotateHandle = el.querySelector('.decor-rotate');
         if (rotateHandle) {
-            rotateHandle.addEventListener('mousedown', (e) => {
-                e.preventDefault();
-                startRotate(e, id);
-            });
+            rotateHandle.removeEventListener('mousedown', rotateHandle._mouseDownHandler);
+            rotateHandle.removeEventListener('touchstart', rotateHandle._touchStartHandler);
 
-            rotateHandle.addEventListener('touchstart', (e) => {
+            rotateHandle._mouseDownHandler = (e) => {
                 e.preventDefault();
+                e.stopPropagation();
+                startRotate(e, id);
+            };
+
+            rotateHandle._touchStartHandler = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
                 startRotate(e.touches[0], id);
-            }, { passive: false });
+            };
+
+            rotateHandle.addEventListener('mousedown', rotateHandle._mouseDownHandler);
+            rotateHandle.addEventListener('touchstart', rotateHandle._touchStartHandler, { passive: false });
         }
     });
 }
@@ -330,7 +323,7 @@ function startDrag(e, id) {
     const card = document.getElementById('previewCard');
     const cardRect = card.getBoundingClientRect();
     const decor = EditorState.decor.find(d => d.id === id);
-    
+
     // Вычисляем центр элемента в пикселях
     const centerX = (decor.x / 100) * cardRect.width;
     const centerY = (decor.y / 100) * cardRect.height;
@@ -456,7 +449,7 @@ function handleRotate(e, id) {
         const deltaAngle = currentAngle - startDecorState.startAngle;
 
         decor.rotation = startDecorState.rotation + deltaAngle;
-        
+
         const el = document.querySelector(`.decor-element[data-id="${id}"]`);
         if (el) {
             el.style.transform = `translate(-50%, -50%) rotate(${decor.rotation}deg)`;
