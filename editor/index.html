@@ -7,7 +7,7 @@
     <link rel="stylesheet" href="../css/style.css">
     <link rel="stylesheet" href="../css/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Parisienne&display=swap" rel="stylesheet">
 </head>
 <body>
     <nav class="navbar">
@@ -77,12 +77,11 @@
                                         <div class="color-preset" style="background: #D4AF37;" data-color="#D4AF37" title="Золото"></div>
                                         <div class="color-preset" style="background: #C0C0C0;" data-color="#C0C0C0" title="Серебро"></div>
                                         <div class="color-preset" style="background: #CD7F32;" data-color="#CD7F32" title="Бронза"></div>
+                                    </div>
+                                    <div class="color-presets" id="borderColorPresets2">
                                         <div class="color-preset" style="background: #8B4513;" data-color="#8B4513" title="Дерево"></div>
                                         <div class="color-preset" style="background: #000000;" data-color="#000000" title="Черный"></div>
-                                        <div class="color-preset" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="#FFFFFF" title="Белый"></div>
                                         <div class="color-preset" style="background: #FF1493;" data-color="#FF1493" title="Розовый"></div>
-                                        <div class="color-preset" style="background: #4169E1;" data-color="#4169E1" title="Синий"></div>
-                                        <div class="color-preset" style="background: #32CD32;" data-color="#32CD32" title="Зеленый"></div>
                                     </div>
                                     <input type="color" id="borderColor" value="#D4AF37" style="margin-top: 0.5rem;">
                                 </div>
@@ -92,7 +91,7 @@
                                 </div>
                                 <div class="setting-group">
                                     <label>Скругление <span id="borderRadiusValue">30</span>px</label>
-                                    <input type="range" id="borderRadius" min="0" max="50" step="5" value="30">
+                                    <input type="range" id="borderRadius" min="0" max="250" step="5" value="30">
                                 </div>
                             </div>
                         </div>
@@ -111,6 +110,8 @@
                                         <div class="color-preset" style="background: #FFF5E6;" data-color="#FFF5E6" title="Слоновая кость"></div>
                                         <div class="color-preset" style="background: #F0F0F0;" data-color="#F0F0F0" title="Светло-серый"></div>
                                         <div class="color-preset" style="background: #FFF0F5;" data-color="#FFF0F5" title="Розовый"></div>
+                                    </div>
+                                    <div class="color-presets" id="containerBgColorPresets2">
                                         <div class="color-preset" style="background: #F0F8FF;" data-color="#F0F8FF" title="Голубой"></div>
                                         <div class="color-preset" style="background: #F5F5DC;" data-color="#F5F5DC" title="Бежевый"></div>
                                         <div class="color-preset" style="background: #E6E6FA;" data-color="#E6E6FA" title="Лаванда"></div>
@@ -132,30 +133,109 @@
                                 <span class="material-symbols-outlined">expand_more</span>
                             </button>
                             <div class="accordion-content">
+                                <!-- Тип мероприятия -->
                                 <div class="setting-group">
                                     <label>Тип мероприятия</label>
                                     <input type="text" id="eventType" value="Свадебное приглашение">
+                                    <div class="size-control">
+                                        <input type="range" id="eventTypeSize" min="12" max="32" step="1" value="16">
+                                        <span id="eventTypeSizeValue">16</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="eventTypeFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="eventTypeBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="eventTypeItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Имена -->
                                 <div class="setting-group">
                                     <label>Имена</label>
                                     <input type="text" id="names" value="Александр & Елена">
+                                    <div class="size-control">
+                                        <input type="range" id="namesSize" min="24" max="72" step="2" value="48">
+                                        <span id="namesSizeValue">48</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="namesFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="namesBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="namesItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Приветствие -->
                                 <div class="setting-group">
                                     <label>Приветствие</label>
                                     <input type="text" id="greeting" value="приглашают вас разделить с ними радость">
+                                    <div class="size-control">
+                                        <input type="range" id="greetingSize" min="12" max="32" step="1" value="18">
+                                        <span id="greetingSizeValue">18</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="greetingFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="greetingBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="greetingItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Дата -->
                                 <div class="setting-group">
                                     <label>Дата</label>
                                     <input type="text" id="dateText" value="15 июня 2026">
+                                    <div class="size-control">
+                                        <input type="range" id="dateSize" min="12" max="32" step="1" value="18">
+                                        <span id="dateSizeValue">18</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="dateFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="dateBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="dateItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Время -->
                                 <div class="setting-group">
                                     <label>Время</label>
                                     <input type="text" id="timeText" value="в 16:00">
+                                    <div class="size-control">
+                                        <input type="range" id="timeSize" min="12" max="32" step="1" value="18">
+                                        <span id="timeSizeValue">18</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="timeFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="timeBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="timeItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Место -->
                                 <div class="setting-group">
                                     <label>Место</label>
                                     <input type="text" id="placeText" value="ЗАГС, г. Москва">
+                                    <div class="size-control">
+                                        <input type="range" id="placeSize" min="12" max="32" step="1" value="18">
+                                        <span id="placeSizeValue">18</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="placeFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="placeBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="placeItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
+                                
+                                <!-- Доп. текст -->
                                 <div class="setting-group">
                                     <label>Доп. текст</label>
                                     <textarea id="messageText" rows="4" placeholder="Программа:
@@ -163,30 +243,20 @@
 2. Церемония - 16:00
 3. Фуршет - 17:00
 4. Танцы - 18:00"></textarea>
+                                    <div class="size-control">
+                                        <input type="range" id="messageSize" min="12" max="32" step="1" value="16">
+                                        <span id="messageSizeValue">16</span>px
+                                    </div>
+                                    <div class="text-format-row">
+                                        <select class="font-select text-format-select" id="messageFont">
+                                            <!-- Заполняется скриптом -->
+                                        </select>
+                                        <button class="text-format-btn" id="messageBold" title="Жирный">B</button>
+                                        <button class="text-format-btn" id="messageItalic" title="Курсив">I</button>
+                                    </div>
                                 </div>
-                            </div>
-                        </div>
-
-                        <!-- Шрифты и стили -->
-                        <div class="accordion-item">
-                            <button class="accordion-header">
-                                <span>✍️ Шрифты и стили</span>
-                                <span class="material-symbols-outlined">expand_more</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="setting-group">
-                                    <label>Шрифт для имен</label>
-                                    <select id="fontNames">
-                                        <option value="'Great Vibes', cursive">Great Vibes</option>
-                                        <option value="'Dancing Script', cursive">Dancing Script</option>
-                                        <option value="'Playfair Display', serif">Playfair Display</option>
-                                        <option value="'Inter', sans-serif">Inter</option>
-                                    </select>
-                                </div>
-                                <div class="setting-group">
-                                    <label>Размер <span id="namesSizeValue">48</span>px</label>
-                                    <input type="range" id="namesSize" min="24" max="72" step="2" value="48">
-                                </div>
+                                
+                                <!-- Общие настройки текста -->
                                 <div class="setting-group">
                                     <label>Цвет текста</label>
                                     <div class="color-presets" id="textColorPresets">
@@ -196,64 +266,15 @@
                                         <div class="color-preset" style="background: #B8860B;" data-color="#B8860B" title="Золотой"></div>
                                         <div class="color-preset" style="background: #2E8B57;" data-color="#2E8B57" title="Зеленый"></div>
                                         <div class="color-preset" style="background: #8B0000;" data-color="#8B0000" title="Бордовый"></div>
-                                        <div class="color-preset" style="background: #483D8B;" data-color="#483D8B" title="Темно-синий"></div>
                                     </div>
                                     <input type="color" id="textColor" value="#475569" style="margin-top: 0.5rem;">
                                 </div>
+                                
                                 <div class="setting-group">
-                                    <label>Показать декоративные линии</label>
-                                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                                    <label style="display: flex; align-items: center;">
                                         <input type="checkbox" id="showDecorLines" checked>
-                                        <span>Отображать линии-разделители</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Выравнивание описания -->
-                        <div class="accordion-item">
-                            <button class="accordion-header">
-                                <span>📏 Выравнивание описания</span>
-                                <span class="material-symbols-outlined">expand_more</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="setting-group">
-                                    <label>Текст описания (message)</label>
-                                    <div style="display: flex; gap: 1rem; margin-top: 0.5rem;">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="radio" name="messageAlign" id="messageAlignCenter" value="center" checked> По центру
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="radio" name="messageAlign" id="messageAlignLeft" value="left"> По левому краю
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Декорации -->
-                        <div class="accordion-item">
-                            <button class="accordion-header">
-                                <span>✨ Декорации</span>
-                                <span class="material-symbols-outlined">expand_more</span>
-                            </button>
-                            <div class="accordion-content">
-                                <div class="decor-grid scrollable-grid" id="decorGrid"></div>
-                                <div style="margin-top: 1rem; padding: 0.5rem; background: #f8fafc; border-radius: 8px;">
-                                    <p style="font-size: 0.9rem; color: #94a3b8; margin-bottom: 0.5rem;">
-                                        <span class="material-symbols-outlined" style="font-size: 1rem; vertical-align: middle;">info</span>
-                                        Нажмите на декорацию, чтобы добавить. Перетаскивайте, меняйте размер, нажмите Delete для удаления.
-                                    </p>
-                                </div>
-                                <div class="selected-decor-info" id="selectedDecorInfo" style="display: none; margin-top: 1rem; padding: 0.5rem; background: #e6f3ff; border-radius: 8px;">
-                                    <p><strong>Выбрано:</strong> <span id="selectedDecorName"></span></p>
-                                    <div class="setting-group">
-                                        <label>Размер <span id="decorSizeValue">50</span>px</label>
-                                        <input type="range" id="decorSize" min="30" max="500" step="5" value="50">
-                                    </div>
-                                    <button class="btn btn-secondary" id="deleteSelectedDecor" style="width: 100%; margin-top: 0.5rem;">
-                                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span> Удалить
-                                    </button>
+                                        <span style="margin-left: 0.5rem;">Показать декоративные линии</span>
+                                    </label>
                                 </div>
                             </div>
                         </div>
@@ -296,7 +317,6 @@
                             <div class="card-footer">
                                 <div class="decor-line"></div>
                             </div>
-                            <div class="decor-layer" id="decorLayer"></div>
                         </div>
                     </div>
                 </div>

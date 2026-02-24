@@ -7,71 +7,190 @@ const EditorState = {
     containerBgColor: '#FFFFFF',
     containerBgOpacity: 0.95,
     eventType: 'Свадебное приглашение',
+    eventTypeSize: 16,
+    eventTypeBold: false,
+    eventTypeItalic: false,
+    eventTypeFont: "'Playfair Display', serif",
     names: 'Александр & Елена',
-    greeting: 'приглашают вас разделить с ними радость',
-    dateText: '15 июня 2026',
-    timeText: 'в 16:00',
-    placeText: 'ЗАГС, г. Москва',
-    messageText: 'Программа:\n1. Сбор гостей - 15:00\n2. Церемония - 16:00\n3. Фуршет - 17:00\n4. Танцы - 18:00',
-    fontNames: "'Great Vibes', cursive",
     namesSize: 48,
+    namesBold: false,
+    namesItalic: false,
+    namesFont: "'Great Vibes', cursive",
+    greeting: 'приглашают вас разделить с ними радость',
+    greetingSize: 18,
+    greetingBold: false,
+    greetingItalic: true,
+    greetingFont: "'Playfair Display', serif",
+    dateText: '15 июня 2026',
+    dateSize: 18,
+    dateBold: false,
+    dateItalic: false,
+    dateFont: "'Playfair Display', serif",
+    timeText: 'в 16:00',
+    timeSize: 18,
+    timeBold: false,
+    timeItalic: false,
+    timeFont: "'Playfair Display', serif",
+    placeText: 'ЗАГС, г. Москва',
+    placeSize: 18,
+    placeBold: true,
+    placeItalic: false,
+    placeFont: "'Playfair Display', serif",
+    messageText: 'Программа:\n1. Сбор гостей - 15:00\n2. Церемония - 16:00\n3. Фуршет - 17:00\n4. Танцы - 18:00',
+    messageSize: 16,
+    messageBold: false,
+    messageItalic: false,
+    messageFont: "'Inter', sans-serif",
     textColor: '#475569',
-    textAlign: 'center',
-    showDecorLines: true,
-    decor: [],
-    nextDecorId: 1
+    showDecorLines: true
 };
 
 const patterns = [
-    { id: 'abstract-1', file: 'wedding-classic.png' },
-    { id: 'abstract-2', file: 'wedding-watercolor.png' },
-    { id: 'wedding', file: 'wedding-royal.png' },
-    { id: 'birthday', file: 'wedding-rose.png' },
+    { id: 'abstract-1', file: 'bg1.png' },
+    { id: 'abstract-2', file: 'abstract-2.jpg' },
+    { id: 'wedding', file: 'wedding-classic.png' },
+    { id: 'wedding2', file: 'wedding-watercolor.png' },
+    { id: 'wedding3', file: 'wedding-royal.png' },
+    { id: 'wedding4', file: 'wedding-rose.png' },
     { id: 'corporate', file: 'corporate-pattern.jpg' },
     { id: 'floral', file: 'floral-pattern.jpg' }
 ];
 
-const decorItems = [
-    { id: 'rings', file: 'rings_1.png', name: 'Кольца' },
-    { id: 'hearts', file: 'flower_1.png', name: 'Сердечки' },
-    { id: 'stars', file: 'rings_2.png', name: 'Звезды' },
-    { id: 'flowers', file: 'wedding_1.png', name: 'Цветы' },
-    { id: 'balloons', file: 'hearth_1.png', name: 'Шарики' },
-    { id: 'cake', file: 'black_wedding_1.png', name: 'Торт' }
+const fonts = [
+    { value: "'Playfair Display', serif", name: "Playfair Display" },
+    { value: "'Great Vibes', cursive", name: "Great Vibes" },
+    { value: "'Dancing Script', cursive", name: "Dancing Script" },
+    { value: "'Cormorant Garamond', serif", name: "Cormorant Garamond" },
+    { value: "'Montserrat', sans-serif", name: "Montserrat" },
+    { value: "'Lora', serif", name: "Lora" },
+    { value: "'Inter', sans-serif", name: "Inter" },
+    { value: "'Pacifico', cursive", name: "Pacifico" },
+    { value: "'Amatic SC', cursive", name: "Amatic SC" },
+    { value: "'Parisienne', cursive", name: "Parisienne" }
 ];
 
-let selectedDecorId = null;
-let isDragging = false;
-let isResizing = false;
-let isRotating = false;
-let dragOffset = { x: 0, y: 0 };
-let startDecorState = {};
-let touchStartTime = 0;
-let lastTouchPosition = { x: 0, y: 0 };
 let isMobileView = window.innerWidth <= 768;
 let activeTab = 'settings';
 
 document.addEventListener('DOMContentLoaded', () => {
     initPatternGrid();
-    initDecorGrid();
     initEventListeners();
-    initGlobalEvents();
     initMobileTabs();
     initColorPresets();
     initAccordion();
     initMobileMenu();
+    initFontSelectors();
+    initBoldItalicButtons();
     updatePreview();
     updateAllText();
+    setInitialFonts();
 
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             isMobileView = window.innerWidth <= 768;
-            renderDecor();
+            applyMobileScale();
+            fixMobileTabsPosition();
         }, 100);
     });
+
+    applyMobileScale();
+    fixMobileTabsPosition();
 });
+
+function fixMobileTabsPosition() {
+    const navbar = document.querySelector('.navbar');
+    const mobileTabs = document.getElementById('mobileTabs');
+
+    if (navbar && mobileTabs && isMobileView) {
+        const navbarHeight = navbar.offsetHeight;
+        mobileTabs.style.top = navbarHeight + 'px';
+    }
+}
+
+function applyMobileScale() {
+    const cards = document.querySelectorAll('.invitation-card');
+    if (isMobileView) {
+        cards.forEach(card => {
+            card.style.transform = 'scale(0.7)';
+            card.style.transformOrigin = 'center top';
+            card.style.margin = '0 auto';
+        });
+    } else {
+        cards.forEach(card => {
+            card.style.transform = 'none';
+        });
+    }
+}
+
+function initFontSelectors() {
+    // Заполняем все выпадающие списки шрифтов
+    document.querySelectorAll('.font-select').forEach(select => {
+        select.innerHTML = fonts.map(f =>
+            `<option value="${f.value}" style="font-family: ${f.value}">${f.name}</option>`
+        ).join('');
+    });
+}
+
+function setInitialFonts() {
+    // Устанавливаем начальные значения для всех селектов
+    document.getElementById('eventTypeFont').value = EditorState.eventTypeFont;
+    document.getElementById('namesFont').value = EditorState.namesFont;
+    document.getElementById('greetingFont').value = EditorState.greetingFont;
+    document.getElementById('dateFont').value = EditorState.dateFont;
+    document.getElementById('timeFont').value = EditorState.timeFont;
+    document.getElementById('placeFont').value = EditorState.placeFont;
+    document.getElementById('messageFont').value = EditorState.messageFont;
+}
+
+function initBoldItalicButtons() {
+    // Функция для инициализации кнопок жирный/курсив
+    function setupButton(buttonId, stateProperty, elementId, styleType) {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return;
+
+        // Устанавливаем начальное состояние
+        if (EditorState[stateProperty]) {
+            btn.classList.add('active');
+        }
+
+        btn.addEventListener('click', () => {
+            EditorState[stateProperty] = !EditorState[stateProperty];
+
+            if (EditorState[stateProperty]) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+
+            const element = document.getElementById(elementId);
+            if (element) {
+                if (styleType === 'bold') {
+                    element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
+                } else if (styleType === 'italic') {
+                    element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
+                }
+            }
+        });
+    }
+
+    // Инициализируем все кнопки
+    setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
+    setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
+    setupButton('namesBold', 'namesBold', 'previewNames', 'bold');
+    setupButton('namesItalic', 'namesItalic', 'previewNames', 'italic');
+    setupButton('greetingBold', 'greetingBold', 'previewGreeting', 'bold');
+    setupButton('greetingItalic', 'greetingItalic', 'previewGreeting', 'italic');
+    setupButton('dateBold', 'dateBold', 'previewDate', 'bold');
+    setupButton('dateItalic', 'dateItalic', 'previewDate', 'italic');
+    setupButton('timeBold', 'timeBold', 'previewTime', 'bold');
+    setupButton('timeItalic', 'timeItalic', 'previewTime', 'italic');
+    setupButton('placeBold', 'placeBold', 'previewPlace', 'bold');
+    setupButton('placeItalic', 'placeItalic', 'previewPlace', 'italic');
+    setupButton('messageBold', 'messageBold', 'previewMessage', 'bold');
+    setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
+}
 
 function initAccordion() {
     document.querySelectorAll('.accordion-header').forEach(header => {
@@ -152,412 +271,15 @@ function initPatternGrid() {
     });
 }
 
-function initDecorGrid() {
-    const grid = document.getElementById('decorGrid');
-    if (!grid) return;
-
-    grid.innerHTML = decorItems.map(d => `
-        <div class="decor-item" data-decor="${d.file}" data-name="${d.name}">
-            <img src="/images/decor/${d.file}" alt="${d.name}">
-        </div>
-    `).join('');
-
-    grid.querySelectorAll('.decor-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const decorFile = item.dataset.decor;
-            const decorName = item.dataset.name;
-            addDecor(decorFile, decorName);
-        });
-    });
-}
-
-function addDecor(file, name) {
-    const id = EditorState.nextDecorId++;
-
-    EditorState.decor.push({
-        id: id,
-        file: file,
-        name: name,
-        x: 50,
-        y: 50,
-        width: 80,
-        height: 80,
-        rotation: 0
-    });
-
-    renderDecor();
-    selectDecor(id);
-}
-
-function renderDecor() {
-    const layer = document.getElementById('decorLayer');
-    const card = document.getElementById('previewCard');
-    if (!layer || !card) return;
-
-    const cardRect = card.getBoundingClientRect();
-
-    layer.innerHTML = EditorState.decor.map(d => {
-        const isSelected = selectedDecorId === d.id;
-
-        // ВСЕГДА используем пиксели для позиционирования в редакторе
-        const posX = (d.x / 100) * cardRect.width;
-        const posY = (d.y / 100) * cardRect.height;
-
-        return `
-        <div class="decor-element ${isSelected ? 'selected' : ''}" 
-             data-id="${d.id}"
-             data-width="${d.width}"
-             data-height="${d.height}"
-             style="
-                position: absolute;
-                left: ${posX}px;
-                top: ${posY}px;
-                width: ${d.width}px;
-                height: ${d.height}px;
-                transform: translate(-50%, -50%) rotate(${d.rotation || 0}deg);
-                cursor: move;
-                z-index: ${isSelected ? 1000 : 10};
-                user-select: none;
-                touch-action: none;
-                -webkit-tap-highlight-color: transparent;
-             ">
-            <img src="/images/decor/${d.file}" draggable="false" style="
-                width: 100%;
-                height: 100%;
-                object-fit: contain;
-                pointer-events: none;
-                user-select: none;
-            ">
-            ${isSelected ? `
-                <div class="decor-resize"></div>
-                <div class="decor-rotate">↻</div>
-            ` : ''}
-        </div>
-    `}).join('');
-
-    attachDecorEvents();
-}
-
-function attachDecorEvents() {
-    document.querySelectorAll('.decor-element').forEach(el => {
-        const id = parseInt(el.dataset.id);
-
-        el.removeEventListener('click', el._clickHandler);
-        el.removeEventListener('mousedown', el._mouseDownHandler);
-        el.removeEventListener('touchstart', el._touchStartHandler);
-
-        el._clickHandler = (e) => {
-            e.stopPropagation();
-            selectDecor(id);
-        };
-
-        el._mouseDownHandler = (e) => {
-            if (e.target.classList.contains('decor-resize') || e.target.classList.contains('decor-rotate')) return;
-            e.preventDefault();
-            startDrag(e, id);
-        };
-
-        el._touchStartHandler = (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            touchStartTime = Date.now();
-            const touch = e.touches[0];
-            lastTouchPosition = { x: touch.clientX, y: touch.clientY };
-
-            if (e.target.classList.contains('decor-resize')) {
-                startResize(touch, id);
-            } else if (e.target.classList.contains('decor-rotate')) {
-                startRotate(touch, id);
-            } else {
-                startDrag(touch, id);
-            }
-        };
-
-        el.addEventListener('click', el._clickHandler);
-        el.addEventListener('mousedown', el._mouseDownHandler);
-        el.addEventListener('touchstart', el._touchStartHandler, { passive: false });
-
-        const resizeHandle = el.querySelector('.decor-resize');
-        if (resizeHandle) {
-            resizeHandle.removeEventListener('mousedown', resizeHandle._mouseDownHandler);
-            resizeHandle.removeEventListener('touchstart', resizeHandle._touchStartHandler);
-
-            resizeHandle._mouseDownHandler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startResize(e, id);
-            };
-
-            resizeHandle._touchStartHandler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startResize(e.touches[0], id);
-            };
-
-            resizeHandle.addEventListener('mousedown', resizeHandle._mouseDownHandler);
-            resizeHandle.addEventListener('touchstart', resizeHandle._touchStartHandler, { passive: false });
-        }
-
-        const rotateHandle = el.querySelector('.decor-rotate');
-        if (rotateHandle) {
-            rotateHandle.removeEventListener('mousedown', rotateHandle._mouseDownHandler);
-            rotateHandle.removeEventListener('touchstart', rotateHandle._touchStartHandler);
-
-            rotateHandle._mouseDownHandler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startRotate(e, id);
-            };
-
-            rotateHandle._touchStartHandler = (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                startRotate(e.touches[0], id);
-            };
-
-            rotateHandle.addEventListener('mousedown', rotateHandle._mouseDownHandler);
-            rotateHandle.addEventListener('touchstart', rotateHandle._touchStartHandler, { passive: false });
-        }
-    });
-}
-
-function startDrag(e, id) {
-    e.preventDefault();
-    isDragging = true;
-    selectDecor(id);
-
-    const card = document.getElementById('previewCard');
-    const cardRect = card.getBoundingClientRect();
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const elRect = el.getBoundingClientRect();
-    
-    // Центр элемента
-    const centerX = elRect.left + elRect.width / 2;
-    const centerY = elRect.top + elRect.height / 2;
-
-    dragOffset.x = e.clientX - centerX;
-    dragOffset.y = e.clientY - centerY;
-
-    el.style.cursor = 'grabbing';
-    el.style.transition = 'none';
-}
-
-function startResize(e, id) {
-    e.preventDefault();
-    isResizing = true;
-    selectDecor(id);
-
-    const decor = EditorState.decor.find(d => d.id === id);
-    startDecorState = {
-        width: decor.width,
-        x: e.clientX,
-        y: e.clientY
-    };
-}
-
-function startRotate(e, id) {
-    e.preventDefault();
-    isRotating = true;
-    selectDecor(id);
-
-    const card = document.getElementById('previewCard');
-    const cardRect = card.getBoundingClientRect();
-    const decor = EditorState.decor.find(d => d.id === id);
-
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    const elRect = el.getBoundingClientRect();
-    const centerX = elRect.left + elRect.width / 2;
-    const centerY = elRect.top + elRect.height / 2;
-
-    startDecorState = {
-        rotation: decor.rotation || 0,
-        startAngle: Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI,
-        centerX,
-        centerY
-    };
-}
-
-function handleMove(e) {
-    if (!e) return;
-
-    let clientX, clientY;
-    if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-
-    if (isDragging && selectedDecorId) {
-        handleDrag({ clientX, clientY }, selectedDecorId);
-    } else if (isResizing && selectedDecorId) {
-        handleResize({ clientX, clientY }, selectedDecorId);
-    } else if (isRotating && selectedDecorId) {
-        handleRotate({ clientX, clientY }, selectedDecorId);
-    }
-}
-
-function handleDrag(e, id) {
-    if (!isDragging || !selectedDecorId) return;
-
-    const card = document.getElementById('previewCard');
-    const cardRect = card.getBoundingClientRect();
-    const decor = EditorState.decor.find(d => d.id === id);
-    if (!decor) return;
-
-    // Вычисляем новую позицию центра
-    let newCenterX = e.clientX - cardRect.left - dragOffset.x;
-    let newCenterY = e.clientY - cardRect.top - dragOffset.y;
-
-    // Правильные границы: элемент не должен выходить за пределы карточки
-    const minX = decor.width / 2;
-    const maxX = cardRect.width - decor.width / 2;
-    const minY = decor.height / 2;
-    const maxY = cardRect.height - decor.height / 2;
-
-    // Применяем ограничения
-    newCenterX = Math.max(minX, Math.min(maxX, newCenterX));
-    newCenterY = Math.max(minY, Math.min(maxY, newCenterY));
-
-    // Сохраняем в процентах (для базы данных)
-    decor.x = (newCenterX / cardRect.width) * 100;
-    decor.y = (newCenterY / cardRect.height) * 100;
-
-    // Обновляем позицию в DOM
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-    if (el) {
-        el.style.left = newCenterX + 'px';
-        el.style.top = newCenterY + 'px';
-    }
-}
-
-function handleResize(e, id) {
-    if (!isResizing || !selectedDecorId) return;
-
-    const dx = e.clientX - startDecorState.x;
-    const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
-
-    const decor = EditorState.decor.find(d => d.id === id);
-    if (decor) {
-        decor.width = newSize;
-        decor.height = newSize;
-
-        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-        if (el) {
-            el.style.width = newSize + 'px';
-            el.style.height = newSize + 'px';
-            el.dataset.width = newSize;
-            el.dataset.height = newSize;
-        }
-
-        const sizeInput = document.getElementById('decorSize');
-        const sizeValue = document.getElementById('decorSizeValue');
-        if (sizeInput) sizeInput.value = newSize;
-        if (sizeValue) sizeValue.textContent = newSize;
-    }
-}
-
-function handleRotate(e, id) {
-    if (!isRotating || !selectedDecorId) return;
-
-    const decor = EditorState.decor.find(d => d.id === id);
-    
-    if (decor) {
-        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
-        const elRect = el.getBoundingClientRect();
-        const centerX = elRect.left + elRect.width / 2;
-        const centerY = elRect.top + elRect.height / 2;
-
-        const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
-        const deltaAngle = currentAngle - startDecorState.startAngle;
-
-        decor.rotation = startDecorState.rotation + deltaAngle;
-
-        if (el) {
-            el.style.transform = `translate(-50%, -50%) rotate(${decor.rotation}deg)`;
-        }
-    }
-}
-
-function initGlobalEvents() {
-    document.addEventListener('mousemove', handleMove);
-    document.addEventListener('mouseup', stopInteraction);
-
-    document.addEventListener('touchmove', (e) => {
-        if (isDragging || isResizing || isRotating) {
-            e.preventDefault();
-            handleMove(e);
-        }
-    }, { passive: false });
-
-    document.addEventListener('touchend', stopInteraction);
-    document.addEventListener('touchcancel', stopInteraction);
-
-    document.addEventListener('keydown', (e) => {
-        if (e.key === 'Delete' && selectedDecorId) {
-            deleteSelectedDecor();
-        }
-    });
-}
-
-function stopInteraction() {
-    if (isDragging || isResizing || isRotating) {
-        isDragging = false;
-        isResizing = false;
-        isRotating = false;
-
-        if (selectedDecorId) {
-            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-            if (el) {
-                el.style.cursor = 'move';
-                el.style.transition = '';
-            }
-        }
-    }
-}
-
-function selectDecor(id) {
-    if (selectedDecorId === id) return;
-
-    selectedDecorId = id;
-
-    const decor = EditorState.decor.find(d => d.id === id);
-    if (decor) {
-        const info = document.getElementById('selectedDecorInfo');
-        if (info) info.style.display = 'block';
-
-        const nameSpan = document.getElementById('selectedDecorName');
-        if (nameSpan) nameSpan.textContent = decor.name;
-
-        const sizeInput = document.getElementById('decorSize');
-        const sizeValue = document.getElementById('decorSizeValue');
-        if (sizeInput) sizeInput.value = decor.width;
-        if (sizeValue) sizeValue.textContent = decor.width;
-    }
-
-    renderDecor();
-}
-
-function deleteSelectedDecor() {
-    if (selectedDecorId) {
-        EditorState.decor = EditorState.decor.filter(d => d.id !== selectedDecorId);
-        selectedDecorId = null;
-
-        const info = document.getElementById('selectedDecorInfo');
-        if (info) info.style.display = 'none';
-
-        renderDecor();
-    }
-}
-
 function initEventListeners() {
+    // Фон страницы
     document.getElementById('bgOpacity')?.addEventListener('input', (e) => {
         EditorState.bgOpacity = parseFloat(e.target.value);
         document.getElementById('bgOpacityValue').textContent = EditorState.bgOpacity.toFixed(2);
         updatePreview();
     });
 
+    // Рамка контейнера
     document.getElementById('borderColor')?.addEventListener('input', (e) => {
         EditorState.borderColor = e.target.value;
         updatePreview();
@@ -575,6 +297,7 @@ function initEventListeners() {
         updatePreview();
     });
 
+    // Внутренний фон
     document.getElementById('containerBgColor')?.addEventListener('input', (e) => {
         EditorState.containerBgColor = e.target.value;
         updatePreview();
@@ -586,71 +309,10 @@ function initEventListeners() {
         updatePreview();
     });
 
-    document.getElementById('eventType')?.addEventListener('input', (e) => {
-        EditorState.eventType = e.target.value;
-        document.getElementById('previewEventType').textContent = EditorState.eventType;
-    });
-
-    document.getElementById('names')?.addEventListener('input', (e) => {
-        EditorState.names = e.target.value;
-        document.getElementById('previewNames').textContent = EditorState.names;
-    });
-
-    document.getElementById('greeting')?.addEventListener('input', (e) => {
-        EditorState.greeting = e.target.value;
-        document.getElementById('previewGreeting').textContent = EditorState.greeting;
-    });
-
-    document.getElementById('dateText')?.addEventListener('input', (e) => {
-        EditorState.dateText = e.target.value;
-        document.getElementById('previewDate').textContent = EditorState.dateText;
-    });
-
-    document.getElementById('timeText')?.addEventListener('input', (e) => {
-        EditorState.timeText = e.target.value;
-        document.getElementById('previewTime').textContent = EditorState.timeText;
-    });
-
-    document.getElementById('placeText')?.addEventListener('input', (e) => {
-        EditorState.placeText = e.target.value;
-        document.getElementById('previewPlace').textContent = EditorState.placeText;
-    });
-
-    document.getElementById('messageText')?.addEventListener('input', (e) => {
-        EditorState.messageText = e.target.value;
-        document.getElementById('previewMessage').innerHTML = e.target.value.replace(/\n/g, '<br>');
-    });
-
-    document.getElementById('fontNames')?.addEventListener('change', (e) => {
-        EditorState.fontNames = e.target.value;
-        updatePreview();
-    });
-
-    document.getElementById('namesSize')?.addEventListener('input', (e) => {
-        EditorState.namesSize = parseInt(e.target.value);
-        document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
-        updatePreview();
-    });
-
+    // Текст - общие настройки
     document.getElementById('textColor')?.addEventListener('input', (e) => {
         EditorState.textColor = e.target.value;
         updatePreview();
-    });
-
-    document.getElementById('messageAlignCenter')?.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            EditorState.textAlign = 'center';
-            document.getElementById('previewMessage').style.textAlign = 'center';
-            updateDecorLines();
-        }
-    });
-
-    document.getElementById('messageAlignLeft')?.addEventListener('change', (e) => {
-        if (e.target.checked) {
-            EditorState.textAlign = 'left';
-            document.getElementById('previewMessage').style.textAlign = 'left';
-            updateDecorLines();
-        }
     });
 
     document.getElementById('showDecorLines')?.addEventListener('change', (e) => {
@@ -658,50 +320,200 @@ function initEventListeners() {
         updateDecorLines();
     });
 
-    document.getElementById('decorSize')?.addEventListener('input', (e) => {
-        if (selectedDecorId) {
-            const size = parseInt(e.target.value);
-            document.getElementById('decorSizeValue').textContent = size;
-
-            const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-            if (decor) {
-                decor.width = size;
-                decor.height = size;
-
-                const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-                if (el) {
-                    el.style.width = size + 'px';
-                    el.style.height = size + 'px';
-                    el.dataset.width = size;
-                    el.dataset.height = size;
-                }
-            }
-        }
+    // Тип мероприятия
+    document.getElementById('eventType')?.addEventListener('input', (e) => {
+        EditorState.eventType = e.target.value;
+        document.getElementById('previewEventType').textContent = EditorState.eventType;
     });
 
-    document.getElementById('deleteSelectedDecor')?.addEventListener('click', deleteSelectedDecor);
+    document.getElementById('eventTypeSize')?.addEventListener('input', (e) => {
+        EditorState.eventTypeSize = parseInt(e.target.value);
+        document.getElementById('eventTypeSizeValue').textContent = EditorState.eventTypeSize;
+        document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
+    });
+
+    document.getElementById('eventTypeFont')?.addEventListener('change', (e) => {
+        EditorState.eventTypeFont = e.target.value;
+        document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
+    });
+
+    // Имена
+    document.getElementById('names')?.addEventListener('input', (e) => {
+        EditorState.names = e.target.value;
+        document.getElementById('previewNames').textContent = EditorState.names;
+    });
+
+    document.getElementById('namesSize')?.addEventListener('input', (e) => {
+        EditorState.namesSize = parseInt(e.target.value);
+        document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
+        document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
+    });
+
+    document.getElementById('namesFont')?.addEventListener('change', (e) => {
+        EditorState.namesFont = e.target.value;
+        document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
+    });
+
+    // Приветствие
+    document.getElementById('greeting')?.addEventListener('input', (e) => {
+        EditorState.greeting = e.target.value;
+        document.getElementById('previewGreeting').textContent = EditorState.greeting;
+    });
+
+    document.getElementById('greetingSize')?.addEventListener('input', (e) => {
+        EditorState.greetingSize = parseInt(e.target.value);
+        document.getElementById('greetingSizeValue').textContent = EditorState.greetingSize;
+        document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
+    });
+
+    document.getElementById('greetingFont')?.addEventListener('change', (e) => {
+        EditorState.greetingFont = e.target.value;
+        document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
+    });
+
+    // Дата
+    document.getElementById('dateText')?.addEventListener('input', (e) => {
+        EditorState.dateText = e.target.value;
+        document.getElementById('previewDate').textContent = EditorState.dateText;
+    });
+
+    document.getElementById('dateSize')?.addEventListener('input', (e) => {
+        EditorState.dateSize = parseInt(e.target.value);
+        document.getElementById('dateSizeValue').textContent = EditorState.dateSize;
+        document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
+    });
+
+    document.getElementById('dateFont')?.addEventListener('change', (e) => {
+        EditorState.dateFont = e.target.value;
+        document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
+    });
+
+    // Время
+    document.getElementById('timeText')?.addEventListener('input', (e) => {
+        EditorState.timeText = e.target.value;
+        document.getElementById('previewTime').textContent = EditorState.timeText;
+    });
+
+    document.getElementById('timeSize')?.addEventListener('input', (e) => {
+        EditorState.timeSize = parseInt(e.target.value);
+        document.getElementById('timeSizeValue').textContent = EditorState.timeSize;
+        document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
+    });
+
+    document.getElementById('timeFont')?.addEventListener('change', (e) => {
+        EditorState.timeFont = e.target.value;
+        document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
+    });
+
+    // Место
+    document.getElementById('placeText')?.addEventListener('input', (e) => {
+        EditorState.placeText = e.target.value;
+        document.getElementById('previewPlace').textContent = EditorState.placeText;
+    });
+
+    document.getElementById('placeSize')?.addEventListener('input', (e) => {
+        EditorState.placeSize = parseInt(e.target.value);
+        document.getElementById('placeSizeValue').textContent = EditorState.placeSize;
+        document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
+    });
+
+    document.getElementById('placeFont')?.addEventListener('change', (e) => {
+        EditorState.placeFont = e.target.value;
+        document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
+    });
+
+    // Доп. текст
+    document.getElementById('messageText')?.addEventListener('input', (e) => {
+        EditorState.messageText = e.target.value;
+        updateMessagePreview();
+    });
+
+    document.getElementById('messageSize')?.addEventListener('input', (e) => {
+        EditorState.messageSize = parseInt(e.target.value);
+        document.getElementById('messageSizeValue').textContent = EditorState.messageSize;
+        document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
+    });
+
+    document.getElementById('messageFont')?.addEventListener('change', (e) => {
+        EditorState.messageFont = e.target.value;
+        document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
+    });
+
     document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
+}
+
+function updateMessagePreview() {
+    const messageEl = document.getElementById('previewMessage');
+    messageEl.innerHTML = EditorState.messageText.replace(/\n/g, '<br>');
+
+    // Принудительно применяем стили для переноса текста
+    messageEl.style.whiteSpace = 'pre-wrap';
+    messageEl.style.wordWrap = 'break-word';
+    messageEl.style.overflowWrap = 'break-word';
+    messageEl.style.maxWidth = '100%';
 }
 
 function updateDecorLines() {
     document.querySelectorAll('.decor-line').forEach(line => {
-        line.style.display = EditorState.showDecorLines ? 'block' : 'none';
-        if (EditorState.textAlign === 'left') {
-            line.style.margin = '0.5rem 0';
-        } else {
-            line.style.margin = '0.5rem auto';
-        }
+        line.style.opacity = EditorState.showDecorLines ? '0.5' : '0';
     });
 }
 
 function updateAllText() {
+    // Тип мероприятия
     document.getElementById('previewEventType').textContent = EditorState.eventType;
+    document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
+    document.getElementById('previewEventType').style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
+    document.getElementById('previewEventType').style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
+    document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
+
+    // Имена
     document.getElementById('previewNames').textContent = EditorState.names;
+    document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
+    document.getElementById('previewNames').style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
+    document.getElementById('previewNames').style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
+    document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
+
+    // Приветствие
     document.getElementById('previewGreeting').textContent = EditorState.greeting;
+    document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
+    document.getElementById('previewGreeting').style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
+    document.getElementById('previewGreeting').style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
+    document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
+
+    // Дата
     document.getElementById('previewDate').textContent = EditorState.dateText;
+    document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
+    document.getElementById('previewDate').style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
+    document.getElementById('previewDate').style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
+    document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
+
+    // Время
     document.getElementById('previewTime').textContent = EditorState.timeText;
+    document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
+    document.getElementById('previewTime').style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
+    document.getElementById('previewTime').style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
+    document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
+
+    // Место
     document.getElementById('previewPlace').textContent = EditorState.placeText;
-    document.getElementById('previewMessage').innerHTML = EditorState.messageText.replace(/\n/g, '<br>');
+    document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
+    document.getElementById('previewPlace').style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
+    document.getElementById('previewPlace').style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
+    document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
+
+    // Доп. текст
+    updateMessagePreview();
+
+    // Обновляем значения в интерфейсе
+    document.getElementById('eventTypeSizeValue').textContent = EditorState.eventTypeSize;
+    document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
+    document.getElementById('greetingSizeValue').textContent = EditorState.greetingSize;
+    document.getElementById('dateSizeValue').textContent = EditorState.dateSize;
+    document.getElementById('timeSizeValue').textContent = EditorState.timeSize;
+    document.getElementById('placeSizeValue').textContent = EditorState.placeSize;
+    document.getElementById('messageSizeValue').textContent = EditorState.messageSize;
+
     updateDecorLines();
 }
 
@@ -721,14 +533,8 @@ function updatePreview() {
         card.style.color = EditorState.textColor;
     }
 
-    const namesEl = document.getElementById('previewNames');
-    if (namesEl) {
-        namesEl.style.fontFamily = EditorState.fontNames;
-        namesEl.style.fontSize = `${EditorState.namesSize}px`;
-    }
-
-    updateDecorLines();
-    renderDecor();
+    updateAllText();
+    applyMobileScale();
 }
 
 function hexToRgb(hex) {
@@ -744,7 +550,6 @@ function initMobileTabs() {
     const mobileTabs = document.getElementById('mobileTabs');
     const sidebar = document.getElementById('editorSidebar');
     const preview = document.getElementById('editorPreview');
-    const card = document.getElementById('previewCard');
 
     if (!mobileTabs || !sidebar || !preview) return;
 
@@ -756,32 +561,11 @@ function initMobileTabs() {
             document.querySelector('.mobile-tab[data-tab="settings"]').classList.add('active');
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
-            
-            // В режиме настроек можно оставить scale для компактности
-            if (card) {
-                card.classList.remove('edit-mode');
-            }
-            
-            isDragging = false;
-            isResizing = false;
-            isRotating = false;
         } else {
             document.querySelector('.mobile-tab[data-tab="preview"]').classList.add('active');
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
-            
-            // В режиме предпросмотра (редактирования) убираем scale
-            if (card) {
-                card.classList.add('edit-mode');
-            }
-            
-            setTimeout(() => {
-                renderDecor();
-                const previewContainer = document.querySelector('.preview-container');
-                if (previewContainer) {
-                    previewContainer.style.overflowY = 'auto';
-                }
-            }, 100);
+            setTimeout(applyMobileScale, 50);
         }
     }
 
@@ -789,6 +573,7 @@ function initMobileTabs() {
 
     if (isMobileView) {
         switchToTab('settings');
+        fixMobileTabsPosition();
     }
 
     document.querySelectorAll('.mobile-tab').forEach(tab => {
@@ -808,44 +593,45 @@ function initMobileTabs() {
                 if (activeTab) {
                     switchToTab(activeTab.dataset.tab);
                 }
+                fixMobileTabsPosition();
             } else {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
                 activeTab = 'settings';
-                if (card) {
-                    card.classList.remove('edit-mode');
-                }
             }
-            renderDecor();
+            applyMobileScale();
         }, 150);
     });
 }
 
 function initColorPresets() {
-    document.querySelectorAll('#borderColorPresets .color-preset').forEach(preset => {
+    // Цвета рамки
+    document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;
             document.getElementById('borderColor').value = color;
             EditorState.borderColor = color;
             updatePreview();
 
-            document.querySelectorAll('#borderColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
             preset.classList.add('selected');
         });
     });
 
-    document.querySelectorAll('#containerBgColorPresets .color-preset').forEach(preset => {
+    // Цвета внутреннего фона
+    document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;
             document.getElementById('containerBgColor').value = color;
             EditorState.containerBgColor = color;
             updatePreview();
 
-            document.querySelectorAll('#containerBgColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
             preset.classList.add('selected');
         });
     });
 
+    // Цвет текста
     document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
         preset.addEventListener('click', () => {
             const color = preset.dataset.color;
@@ -899,18 +685,42 @@ async function saveInvitation() {
             containerBgColor: EditorState.containerBgColor,
             containerBgOpacity: EditorState.containerBgOpacity,
             eventType: EditorState.eventType,
+            eventTypeSize: EditorState.eventTypeSize,
+            eventTypeBold: EditorState.eventTypeBold,
+            eventTypeItalic: EditorState.eventTypeItalic,
+            eventTypeFont: EditorState.eventTypeFont,
             names: EditorState.names,
-            greeting: EditorState.greeting,
-            dateText: EditorState.dateText,
-            timeText: EditorState.timeText,
-            placeText: EditorState.placeText,
-            messageText: EditorState.messageText,
-            fontNames: EditorState.fontNames,
             namesSize: EditorState.namesSize,
+            namesBold: EditorState.namesBold,
+            namesItalic: EditorState.namesItalic,
+            namesFont: EditorState.namesFont,
+            greeting: EditorState.greeting,
+            greetingSize: EditorState.greetingSize,
+            greetingBold: EditorState.greetingBold,
+            greetingItalic: EditorState.greetingItalic,
+            greetingFont: EditorState.greetingFont,
+            dateText: EditorState.dateText,
+            dateSize: EditorState.dateSize,
+            dateBold: EditorState.dateBold,
+            dateItalic: EditorState.dateItalic,
+            dateFont: EditorState.dateFont,
+            timeText: EditorState.timeText,
+            timeSize: EditorState.timeSize,
+            timeBold: EditorState.timeBold,
+            timeItalic: EditorState.timeItalic,
+            timeFont: EditorState.timeFont,
+            placeText: EditorState.placeText,
+            placeSize: EditorState.placeSize,
+            placeBold: EditorState.placeBold,
+            placeItalic: EditorState.placeItalic,
+            placeFont: EditorState.placeFont,
+            messageText: EditorState.messageText,
+            messageSize: EditorState.messageSize,
+            messageBold: EditorState.messageBold,
+            messageItalic: EditorState.messageItalic,
+            messageFont: EditorState.messageFont,
             textColor: EditorState.textColor,
-            textAlign: EditorState.textAlign,
             showDecorLines: EditorState.showDecorLines,
-            decor: EditorState.decor,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 

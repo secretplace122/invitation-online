@@ -13,7 +13,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
+    applyMobileScale();
+    
+    window.addEventListener('resize', () => {
+        applyMobileScale();
+    });
 });
+
+function applyMobileScale() {
+    const isMobile = window.innerWidth <= 768;
+    const cards = document.querySelectorAll('.invitation-card');
+    
+    if (isMobile) {
+        cards.forEach(card => {
+            card.style.transform = 'scale(0.7)';
+            card.style.transformOrigin = 'center top';
+        });
+    } else {
+        cards.forEach(card => {
+            card.style.transform = 'none';
+        });
+    }
+}
 
 async function loadInvitation() {
     try {
@@ -62,22 +83,6 @@ function displayInvitation(data) {
     const containerBgOpacity = data.containerBgOpacity || 0.95;
     const rgb = hexToRgb(containerBgColor);
 
-    const decorHtml = (data.decor || []).map(d => {
-        return `
-        <div style="
-            position: absolute;
-            left: ${d.x}%;
-            top: ${d.y}%;
-            width: ${d.width}px;
-            height: ${d.height}px;
-            transform: translate(-50%, -50%) rotate(${d.rotation || 0}deg);
-            pointer-events: none;
-            z-index: 10;
-        ">
-            <img src="/images/decor/${d.file}" style="width: 100%; height: 100%; object-fit: contain;">
-        </div>
-    `}).join('');
-
     const messageText = (data.messageText || '').replace(/\n/g, '<br>');
 
     const content = document.getElementById('invitationContent');
@@ -94,77 +99,100 @@ function displayInvitation(data) {
             padding: 2.5rem 2rem;
             position: relative;
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transform-origin: center top;
         ">
-            <div class="card-header" style="text-align: ${data.textAlign || 'center'}; margin-bottom: 1rem;">
+            <div class="card-header" style="text-align: center; margin-bottom: 1rem;">
                 <div class="decor-line" style="
                     width: 80px; 
                     height: 2px; 
                     background: currentColor; 
-                    margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem 0'}; 
-                    opacity: 0.5; 
-                    display: ${data.showDecorLines !== false ? 'block' : 'none'};
+                    margin: 0.5rem auto; 
+                    opacity: ${data.showDecorLines !== false ? '0.5' : '0'};
                 "></div>
                 
                 <h2 class="event-type" style="
-                    font-size: 1rem; 
+                    font-size: ${data.eventTypeSize || 16}px; 
                     letter-spacing: 2px; 
                     text-transform: uppercase; 
                     margin: 0.5rem 0;
+                    font-weight: ${data.eventTypeBold ? 'bold' : 'normal'};
+                    font-style: ${data.eventTypeItalic ? 'italic' : 'normal'};
+                    font-family: ${data.eventTypeFont || "'Playfair Display', serif"};
                 ">${data.eventType || 'Приглашение'}</h2>
                 
                 <div class="decor-line" style="
                     width: 80px; 
                     height: 2px; 
                     background: currentColor; 
-                    margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem 0'}; 
-                    opacity: 0.5; 
-                    display: ${data.showDecorLines !== false ? 'block' : 'none'};
+                    margin: 0.5rem auto; 
+                    opacity: ${data.showDecorLines !== false ? '0.5' : '0'};
                 "></div>
             </div>
             
-            <div class="card-body" style="text-align: ${data.textAlign || 'center'};">
+            <div class="card-body" style="text-align: center;">
                 <h1 class="names" style="
-                    font-family: ${data.fontNames || "'Great Vibes', cursive"}; 
+                    font-family: ${data.namesFont || "'Great Vibes', cursive"}; 
                     font-size: ${data.namesSize || 48}px; 
                     margin: 0.5rem 0; 
                     line-height: 1.2;
+                    font-weight: ${data.namesBold ? 'bold' : 'normal'};
+                    font-style: ${data.namesItalic ? 'italic' : 'normal'};
                 ">${data.names || 'Александр & Елена'}</h1>
                 
                 <p class="greeting" style="
-                    font-size: 1.1rem; 
+                    font-size: ${data.greetingSize || 18}px; 
                     margin-bottom: 2rem; 
-                    font-style: italic;
+                    font-family: ${data.greetingFont || "'Playfair Display', serif"};
+                    font-weight: ${data.greetingBold ? 'bold' : 'normal'};
+                    font-style: ${data.greetingItalic ? 'italic' : 'normal'};
                 ">${data.greeting || 'приглашают вас разделить с ними радость'}</p>
                 
                 <div class="details" style="margin: 0.3rem 0;">
-                    <p class="date" style="font-size: 1.1rem;">${data.dateText || '15 июня 2026'}</p>
-                    <p class="time" style="font-size: 1.1rem;">${data.timeText || 'в 16:00'}</p>
-                    <p class="place" style="font-size: 1.1rem; font-weight: 600; margin-top: 0.5rem;">${data.placeText || 'ЗАГС, г. Москва'}</p>
+                    <p class="date" style="
+                        font-size: ${data.dateSize || 18}px;
+                        font-family: ${data.dateFont || "'Playfair Display', serif"};
+                        font-weight: ${data.dateBold ? 'bold' : 'normal'};
+                        font-style: ${data.dateItalic ? 'italic' : 'normal'};
+                    ">${data.dateText || '15 июня 2026'}</p>
+                    <p class="time" style="
+                        font-size: ${data.timeSize || 18}px;
+                        font-family: ${data.timeFont || "'Playfair Display', serif"};
+                        font-weight: ${data.timeBold ? 'bold' : 'normal'};
+                        font-style: ${data.timeItalic ? 'italic' : 'normal'};
+                    ">${data.timeText || 'в 16:00'}</p>
+                    <p class="place" style="
+                        font-size: ${data.placeSize || 18}px; 
+                        font-weight: ${data.placeBold ? 'bold' : '600'}; 
+                        margin-top: 0.5rem;
+                        font-family: ${data.placeFont || "'Playfair Display', serif"};
+                        font-style: ${data.placeItalic ? 'italic' : 'normal'};
+                    ">${data.placeText || 'ЗАГС, г. Москва'}</p>
                 </div>
                 
                 <div class="message" style="
                     margin-top: 2rem; 
-                    font-size: 1rem; 
+                    font-size: ${data.messageSize || 16}px; 
                     line-height: 1.5;
+                    font-family: ${data.messageFont || "'Inter', sans-serif"};
+                    font-weight: ${data.messageBold ? 'bold' : 'normal'};
+                    font-style: ${data.messageItalic ? 'italic' : 'normal'};
                 ">${messageText}</div>
             </div>
             
-            <div class="card-footer" style="text-align: ${data.textAlign || 'center'}; margin-top: 1rem;">
+            <div class="card-footer" style="text-align: center; margin-top: 1rem;">
                 <div class="decor-line" style="
                     width: 80px; 
                     height: 2px; 
                     background: currentColor; 
-                    margin: ${data.textAlign === 'center' ? '0.5rem auto' : '0.5rem 0'}; 
-                    opacity: 0.5; 
-                    display: ${data.showDecorLines !== false ? 'block' : 'none'};
+                    margin: 0.5rem auto; 
+                    opacity: ${data.showDecorLines !== false ? '0.5' : '0'};
                 "></div>
             </div>
-            
-            ${decorHtml}
         </div>
     `;
     
     console.log('Invitation displayed');
+    applyMobileScale();
 }
 
 function hexToRgb(hex) {
