@@ -200,6 +200,22 @@ function displayInvitation(data) {
     
     console.log('Invitation displayed');
     applyMobileScale();
+    
+    // Запускаем анимации если они включены
+    if (data.enableAnimations && window.animationManager) {
+        setTimeout(() => {
+            const config = {
+                enabled: true,
+                type: data.animationType || 'balloons',
+                intensity: data.animationIntensity || 5,
+                speed: data.animationSpeed || 3,
+                colors: data.animationColors || ['#FF69B4', '#FFD700', '#87CEEB'],
+                size: data.animationSize || 60,
+                position: data.animationPosition || 'whole'
+            };
+            window.animationManager.start(config);
+        }, 500);
+    }
 }
 
 function hexToRgb(hex) {

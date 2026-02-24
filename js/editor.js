@@ -1,6 +1,6 @@
 const EditorState = {
-    pattern: 'bg1.png',
-    bgOpacity: 0.2,
+    pattern: 'wedding6.png',
+    bgOpacity: 0.8,
     borderColor: '#D4AF37',
     borderWidth: 2,
     borderRadius: 30,
@@ -42,7 +42,15 @@ const EditorState = {
     messageItalic: false,
     messageFont: "'Inter', sans-serif",
     textColor: '#475569',
-    showDecorLines: true
+    showDecorLines: true,
+    // Анимации
+    enableAnimations: false,
+    animationType: 'balloons',
+    animationIntensity: 5,
+    animationSpeed: 3,
+    animationColors: ['#FF69B4', '#FFD700', '#87CEEB', '#98FB98', '#FFA07A', '#DDA0DD'],
+    animationSize: 60,
+    animationPosition: 'whole'
 };
 
 const patterns = [
@@ -75,9 +83,9 @@ const patterns = [
     { id: 'wedding-26', file: 'wedding26.png', category: 'wedding', name: '26' },
     { id: 'wedding-27', file: 'wedding27.png', category: 'wedding', name: '27' },
     { id: 'wedding-28', file: 'wedding28.png', category: 'wedding', name: '28' },
-    { id: 'wedding-29', file: 'wedding29.png', category: 'wedding', name: '29' },// замена
-    { id: 'wedding-30', file: 'wedding30.png', category: 'wedding', name: '30' },// замена
-    { id: 'wedding-31', file: 'wedding31.png', category: 'wedding', name: '31' },// замена
+    { id: 'wedding-29', file: 'wedding29.png', category: 'wedding', name: '29' },
+    { id: 'wedding-30', file: 'wedding30.png', category: 'wedding', name: '30' },
+    { id: 'wedding-31', file: 'wedding31.png', category: 'wedding', name: '31' },
     { id: 'wedding-32', file: 'wedding32.png', category: 'wedding', name: '32' },
     // День рождения
     { id: 'birthday-1', file: 'birthday1.png', category: 'birthday', name: '1' },
@@ -98,7 +106,7 @@ const patterns = [
     // Другое
     { id: 'other-1', file: 'other1.png', category: 'other', name: '1' },
     { id: 'other-2', file: 'other2.png', category: 'other', name: '2' },
-    { id: 'other-3', file: 'other3.png', category: 'other', name: '3' },// замена
+    { id: 'other-3', file: 'other3.png', category: 'other', name: '3' },
     { id: 'other-4', file: 'other4.png', category: 'other', name: '4' },
     { id: 'other-5', file: 'other5.png', category: 'other', name: '5' },
     { id: 'other-6', file: 'other6.png', category: 'other', name: '6' },
@@ -107,11 +115,11 @@ const patterns = [
     { id: 'other-9', file: 'other9.png', category: 'other', name: '9' },
     { id: 'other-10', file: 'other10.png', category: 'other', name: '10' },
     { id: 'other-11', file: 'other11.png', category: 'other', name: '11' },
-    { id: 'other-12', file: 'other12.png', category: 'other', name: '12' },// замена
+    { id: 'other-12', file: 'other12.png', category: 'other', name: '12' },
     { id: 'other-13', file: 'other13.png', category: 'other', name: '13' },
     { id: 'other-14', file: 'other14.png', category: 'other', name: '14' },
     { id: 'other-15', file: 'other15.png', category: 'other', name: '15' },
-    { id: 'other-16', file: 'other16.png', category: 'other', name: '16' },// замена
+    { id: 'other-16', file: 'other16.png', category: 'other', name: '16' },
 ];
 
 const fonts = [
@@ -141,6 +149,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileMenu();
     initFontSelectors();
     initBoldItalicButtons();
+    initAnimationControls();
     updatePreview();
     updateAllText();
     setInitialFonts();
@@ -167,7 +176,6 @@ function fixBackgroundScroll() {
     const bgLayer = document.getElementById('previewBgLayer');
 
     if (previewContainer && bgLayer && isMobileView) {
-        // При скролле бэкграунд остается на месте
         previewContainer.addEventListener('scroll', () => {
             bgLayer.style.transform = `translateY(${previewContainer.scrollTop}px)`;
         });
@@ -371,6 +379,106 @@ function initMobileMenu() {
             });
         });
     }
+}
+
+// Инициализация контролов анимации
+function initAnimationControls() {
+    const enableAnimations = document.getElementById('enableAnimations');
+    if (enableAnimations) {
+        enableAnimations.checked = EditorState.enableAnimations;
+        
+        enableAnimations.addEventListener('change', (e) => {
+            EditorState.enableAnimations = e.target.checked;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            } else if (window.animationManager) {
+                window.animationManager.stop();
+            }
+        });
+    }
+
+    document.getElementById('animationType')?.addEventListener('change', (e) => {
+        EditorState.animationType = e.target.value;
+        if (EditorState.enableAnimations && window.animationManager) {
+            window.animationManager.start(getAnimationConfig());
+        }
+    });
+
+    document.getElementById('animationIntensity')?.addEventListener('input', (e) => {
+        EditorState.animationIntensity = parseInt(e.target.value);
+        document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
+        if (EditorState.enableAnimations && window.animationManager) {
+            window.animationManager.start(getAnimationConfig());
+        }
+    });
+
+    document.getElementById('animationSpeed')?.addEventListener('input', (e) => {
+        EditorState.animationSpeed = parseInt(e.target.value);
+        document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
+        if (EditorState.enableAnimations && window.animationManager) {
+            window.animationManager.start(getAnimationConfig());
+        }
+    });
+
+    document.getElementById('animationSize')?.addEventListener('input', (e) => {
+        EditorState.animationSize = parseInt(e.target.value);
+        document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
+        if (EditorState.enableAnimations && window.animationManager) {
+            window.animationManager.start(getAnimationConfig());
+        }
+    });
+
+    document.getElementById('animationPosition')?.addEventListener('change', (e) => {
+        EditorState.animationPosition = e.target.value;
+        if (EditorState.enableAnimations && window.animationManager) {
+            window.animationManager.start(getAnimationConfig());
+        }
+    });
+
+    document.querySelectorAll('.color-checkbox').forEach(checkbox => {
+        checkbox.checked = true; // Все по умолчанию включены
+        checkbox.addEventListener('change', updateAnimationColors);
+    });
+
+    document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
+        if (window.animationManager) {
+            // Временно включаем анимацию для предпросмотра
+            const config = getAnimationConfig();
+            config.enabled = true;
+            window.animationManager.start(config);
+            
+            // Останавливаем через 5 секунд
+            setTimeout(() => {
+                window.animationManager.stop();
+            }, 5000);
+        } else {
+            console.error('Animation manager not found');
+            alert('Ошибка: менеджер анимаций не загружен');
+        }
+    });
+}
+
+function updateAnimationColors() {
+    const colors = [];
+    document.querySelectorAll('.color-checkbox:checked').forEach(cb => {
+        colors.push(cb.dataset.color);
+    });
+    EditorState.animationColors = colors.length > 0 ? colors : ['#FF69B4'];
+    if (EditorState.enableAnimations && window.animationManager) {
+        window.animationManager.start(getAnimationConfig());
+    }
+}
+
+function getAnimationConfig() {
+    return {
+        enabled: EditorState.enableAnimations,
+        type: EditorState.animationType,
+        intensity: EditorState.animationIntensity,
+        speed: EditorState.animationSpeed,
+        colors: EditorState.animationColors,
+        size: EditorState.animationSize,
+        position: EditorState.animationPosition
+    };
 }
 
 function initEventListeners() {
@@ -812,6 +920,14 @@ async function saveInvitation() {
             messageFont: EditorState.messageFont,
             textColor: EditorState.textColor,
             showDecorLines: EditorState.showDecorLines,
+            // Анимации
+            enableAnimations: EditorState.enableAnimations,
+            animationType: EditorState.animationType,
+            animationIntensity: EditorState.animationIntensity,
+            animationSpeed: EditorState.animationSpeed,
+            animationColors: EditorState.animationColors,
+            animationSize: EditorState.animationSize,
+            animationPosition: EditorState.animationPosition,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 

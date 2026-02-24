@@ -305,6 +305,138 @@
                                 </div>
                             </div>
                         </div>
+                        <!-- Анимации -->
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>✨ Анимации</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content">
+                                <div class="setting-group">
+                                    <label style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="enableAnimations">
+                                        <span style="margin-left: 0.5rem;">Включить анимации</span>
+                                    </label>
+                                    <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.5rem;">
+                                        Анимации добавляют движущиеся элементы поверх приглашения
+                                    </p>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Тип анимации</label>
+                                    <select id="animationType">
+                                        <optgroup label="Основные">
+                                            <option value="balloons">🎈 Воздушные шарики</option>
+                                            <option value="confetti">🎉 Конфетти</option>
+                                            <option value="hearts">❤️ Сердечки</option>
+                                            <option value="stars">⭐ Звездочки</option>
+                                            <option value="flowers">🌸 Цветы</option>
+                                            <option value="snow">❄️ Снежинки</option>
+                                        </optgroup>
+                                        <optgroup label="Свадьба">
+                                            <option value="rings">💍 Кольца</option>
+                                            <option value="wedding-hearts">💕 Два сердца</option>
+                                            <option value="doves">🕊️ Голуби</option>
+                                            <option value="wedding-cake">🎂 Свадебный торт</option>
+                                            <option value="champagne">🥂 Бокалы</option>
+                                        </optgroup>
+                                        <optgroup label="День рождения">
+                                            <option value="gifts">🎁 Подарки</option>
+                                            <option value="candles">🕯️ Свечи</option>
+                                            <option value="party">🎊 Праздник</option>
+                                            <option value="crown">👑 Корона</option>
+                                        </optgroup>
+                                        <optgroup label="Цветы">
+                                            <option value="rose">🌹 Розы</option>
+                                            <option value="tulip">🌷 Тюльпаны</option>
+                                            <option value="sunflower">🌻 Подсолнухи</option>
+                                            <option value="bouquet">💐 Букет</option>
+                                        </optgroup>
+                                        <optgroup label="Хэллоуин">
+                                            <option value="pumpkin">🎃 Тыквы</option>
+                                            <option value="ghost">👻 Привидения</option>
+                                            <option value="bat">🦇 Летучие мыши</option>
+                                            <option value="spider">🕷️ Пауки</option>
+                                        </optgroup>
+                                        <optgroup label="Пасха">
+                                            <option value="easter-egg">🥚 Пасхальные яйца</option>
+                                            <option value="easter-bunny">🐰 Пасхальный кролик</option>
+                                            <option value="chick">🐥 Цыплята</option>
+                                        </optgroup>
+                                        <optgroup label="Новый год">
+                                            <option value="snowflake">❄️ Снежинки</option>
+                                            <option value="christmas-tree">🎄 Ёлки</option>
+                                            <option value="santa">🎅 Санта</option>
+                                            <option value="snowman">⛄ Снеговики</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Интенсивность <span id="animationIntensityValue">5</span></label>
+                                    <input type="range" id="animationIntensity" min="1" max="10" step="1" value="5">
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Скорость <span id="animationSpeedValue">3</span>с</label>
+                                    <input type="range" id="animationSpeed" min="1" max="10" step="1" value="3">
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Размер элементов <span id="animationSizeValue">60</span>px</label>
+                                    <input type="range" id="animationSize" min="30" max="150" step="5" value="60">
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Позиция</label>
+                                    <select id="animationPosition">
+                                        <option value="whole">По всему экрану</option>
+                                        <option value="top">Только сверху</option>
+                                        <option value="bottom">Только снизу</option>
+                                        <option value="around-card">Вокруг карточки</option>
+                                    </select>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Цвета</label>
+                                    <div class="animation-colors" id="animationColors">
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#FF69B4" checked>
+                                            Розовый
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#FFD700" checked>
+                                            Золотой
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#87CEEB" checked>
+                                            Голубой
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#98FB98" checked>
+                                            Салатовый
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#FFA07A" checked>
+                                            Персиковый
+                                        </label>
+                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
+                                            <input type="checkbox" class="color-checkbox" data-color="#DDA0DD" checked>
+                                            Сиреневый
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div class="setting-group">
+                                    <label>Предпросмотр анимации</label>
+                                    <button class="btn btn-secondary" id="previewAnimationBtn" style="width: 100%;">
+                                        <span class="material-symbols-outlined"
+                                            style="font-size: 1rem;">play_arrow</span>
+                                        Протестировать анимацию (5 сек)
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -354,6 +486,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="../js/firebase-config.js"></script>
+    <script src="../js/animations.js"></script>
     <script src="../js/editor.js"></script>
 </body>
 
