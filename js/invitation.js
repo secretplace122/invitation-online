@@ -2,7 +2,7 @@ let invitationSlug = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     console.log('Invitation page loaded');
-    
+
     if (window.location.hash) {
         invitationSlug = window.location.hash.substring(1);
         console.log('Loading invitation:', invitationSlug);
@@ -11,10 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log('No slug found in URL');
         showError();
     }
-    
+
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
     applyMobileScale();
-    
+
     window.addEventListener('resize', () => {
         applyMobileScale();
     });
@@ -23,11 +23,12 @@ document.addEventListener('DOMContentLoaded', () => {
 function applyMobileScale() {
     const isMobile = window.innerWidth <= 768;
     const cards = document.querySelectorAll('.invitation-card');
-    
+
     if (isMobile) {
         cards.forEach(card => {
             card.style.transform = 'scale(0.7)';
             card.style.transformOrigin = 'center top';
+            card.style.margin = '0 auto';
         });
     } else {
         cards.forEach(card => {
@@ -41,16 +42,16 @@ async function loadInvitation() {
         document.getElementById('loadingSpinner').style.display = 'flex';
         document.getElementById('invitationWrapper').style.display = 'none';
         document.getElementById('errorPage').style.display = 'none';
-        
+
         console.log('Searching for slug:', invitationSlug);
-        
+
         const query = await db.collection('invitations')
             .where('slug', '==', invitationSlug)
             .limit(1)
             .get();
-        
+
         console.log('Query result:', query.empty ? 'empty' : 'found');
-        
+
         if (!query.empty) {
             const doc = query.docs[0];
             const data = doc.data();
@@ -68,7 +69,7 @@ async function loadInvitation() {
 
 function displayInvitation(data) {
     console.log('Displaying invitation');
-    
+
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('invitationWrapper').style.display = 'block';
     document.getElementById('errorPage').style.display = 'none';
@@ -83,6 +84,7 @@ function displayInvitation(data) {
     const containerBgOpacity = data.containerBgOpacity || 0.95;
     const rgb = hexToRgb(containerBgColor);
 
+    // Правильное форматирование текста с переносами
     const messageText = (data.messageText || '').replace(/\n/g, '<br>');
 
     const content = document.getElementById('invitationContent');
@@ -176,6 +178,13 @@ function displayInvitation(data) {
                     font-family: ${data.messageFont || "'Inter', sans-serif"};
                     font-weight: ${data.messageBold ? 'bold' : 'normal'};
                     font-style: ${data.messageItalic ? 'italic' : 'normal'};
+                    white-space: pre-wrap;
+                    word-wrap: break-word;
+                    overflow-wrap: break-word;
+                    max-width: 100%;
+                    width: 100%;
+                    text-align: left;
+                    padding: 0 0.5rem;
                 ">${messageText}</div>
             </div>
             
@@ -190,7 +199,7 @@ function displayInvitation(data) {
             </div>
         </div>
     `;
-    
+
     console.log('Invitation displayed');
     applyMobileScale();
 }
