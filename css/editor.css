@@ -561,14 +561,6 @@
         min-height: 0;
     }
 
-    /* Уменьшаем карточку для удобной работы */
-    .invitation-card {
-        transform: scale(0.75);
-        transform-origin: center top;
-        margin: 1rem auto;
-        flex-shrink: 0;
-    }
-
     /* Увеличенные области для touch */
     .decor-resize,
     .decor-rotate {
