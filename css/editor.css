@@ -647,3 +647,157 @@
         transform: scale(0.75);
     }
 }
+
+/* Исправления для мобильной версии */
+@media (max-width: 768px) {
+
+    /* Фикс мобильных табов */
+    .editor-mobile-tabs {
+        display: flex;
+        position: sticky;
+        top: 70px;
+        z-index: 100;
+        background: white;
+        border-bottom: 1px solid rgba(168, 216, 234, 0.3);
+        border-top: 1px solid rgba(168, 216, 234, 0.3);
+        padding: 0.5rem;
+        gap: 0.5rem;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+        margin: 0;
+    }
+
+    .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 101;
+        background: white;
+    }
+
+    /* Увеличенные области для touch */
+    .decor-resize,
+    .decor-rotate {
+        width: 44px !important;
+        height: 44px !important;
+        opacity: 0.9;
+        background: rgba(255, 255, 255, 0.98);
+        border-width: 3px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        transition: opacity 0.2s;
+    }
+
+    .decor-resize {
+        bottom: -22px !important;
+        right: -22px !important;
+    }
+
+    .decor-rotate {
+        top: -52px !important;
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 24px !important;
+        line-height: 44px !important;
+    }
+
+    /* Убираем трансформацию карточки */
+    .invitation-card {
+        transform: none !important;
+        width: 100%;
+        max-width: 500px;
+        margin: 0 auto;
+    }
+
+    /* Улучшенный скролл */
+    .preview-container {
+        overflow-y: auto;
+        padding: 1rem;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    /* Уменьшенные цветовые пресеты */
+    .color-presets {
+        gap: 0.4rem;
+        grid-template-columns: repeat(6, 1fr);
+    }
+
+    .color-preset {
+        width: 32px;
+        height: 32px;
+        border-radius: 6px;
+    }
+
+    /* Убираем hover эффекты на мобильных */
+    .color-preset:hover,
+    .pattern-item:hover,
+    .decor-item:hover {
+        transform: none;
+    }
+
+    /* Увеличиваем отступы для touch */
+    .setting-group input[type="range"] {
+        height: 44px;
+        padding: 0;
+    }
+
+    .setting-group input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+    }
+
+    .btn {
+        min-height: 44px;
+        padding: 0.75rem 1.5rem;
+    }
+
+    .slug-input input {
+        min-height: 44px;
+        font-size: 16px;
+    }
+
+    /* Предотвращаем выделение текста при touch */
+    .decor-element {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .color-presets {
+        grid-template-columns: repeat(4, 1fr);
+    }
+
+    .color-preset {
+        width: 38px;
+        height: 38px;
+    }
+}
+
+@media (max-width: 360px) {
+    .color-presets {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* Фикс для точного позиционирования */
+.decor-element {
+    will-change: left, top, transform;
+    transition: none;
+    pointer-events: auto !important;
+}
+
+.decor-layer {
+    pointer-events: none;
+}
+
+.decor-layer .decor-element {
+    pointer-events: auto;
+}
+
+/* Убираем !important где возможно */
+.preview-container .preview-bg-layer {
+    z-index: 1;
+}
+
+.preview-container .preview-content-layer {
+    z-index: 2;
+}

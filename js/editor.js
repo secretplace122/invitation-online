@@ -46,6 +46,8 @@ let isResizing = false;
 let isRotating = false;
 let dragOffset = { x: 0, y: 0 };
 let startDecorState = {};
+let touchStartTime = 0;
+let lastTouchPosition = { x: 0, y: 0 };
 
 document.addEventListener('DOMContentLoaded', () => {
     initPatternGrid();
@@ -64,7 +66,6 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             renderDecor();
-            updateDecorPositions();
         }, 100);
     });
 });
@@ -190,37 +191,21 @@ function renderDecor() {
     const card = document.getElementById('previewCard');
     if (!layer || !card) return;
 
-    const cardRect = card.getBoundingClientRect();
-    const cardWidth = cardRect.width;
-    const cardHeight = cardRect.height;
-
-    // Получаем текущий scale карточки
-    const cardTransform = window.getComputedStyle(card).transform;
-    let scale = 1;
-    if (cardTransform && cardTransform !== 'none') {
-        const matrix = new DOMMatrix(cardTransform);
-        scale = matrix.a;
-    }
-
     layer.innerHTML = EditorState.decor.map(d => {
         const isSelected = selectedDecorId === d.id;
-
-        // Корректируем позицию с учетом scale
-        const posX = (d.x / 100) * cardWidth;
-        const posY = (d.y / 100) * cardHeight;
 
         return `
         <div class="decor-element ${isSelected ? 'selected' : ''}" 
              data-id="${d.id}"
-             data-scale="${scale}"
+             data-width="${d.width}"
+             data-height="${d.height}"
              style="
                 position: absolute;
-                left: ${posX - (d.width * scale) / 2}px;
-                top: ${posY - (d.height * scale) / 2}px;
+                left: ${d.x}%;
+                top: ${d.y}%;
                 width: ${d.width}px;
                 height: ${d.height}px;
-                transform: rotate(${d.rotation || 0}deg) scale(${1 / scale});
-                transform-origin: center center;
+                transform: translate(-50%, -50%) rotate(${d.rotation || 0}deg);
                 cursor: move;
                 z-index: ${isSelected ? 1000 : 10};
                 user-select: none;
@@ -235,8 +220,8 @@ function renderDecor() {
                 user-select: none;
             ">
             ${isSelected ? `
-                <div class="decor-resize" style="transform: scale(${scale}); transform-origin: bottom right;"></div>
-                <div class="decor-rotate" style="transform: translateX(-50%) scale(${scale});">↻</div>
+                <div class="decor-resize"></div>
+                <div class="decor-rotate">↻</div>
             ` : ''}
         </div>
     `}).join('');
@@ -253,15 +238,19 @@ function attachDecorEvents() {
             selectDecor(id);
         });
 
+        // Mouse events for desktop
         el.addEventListener('mousedown', (e) => {
             if (e.target.classList.contains('decor-resize') || e.target.classList.contains('decor-rotate')) return;
             e.preventDefault();
             startDrag(e, id);
         });
 
+        // Touch events for mobile
         el.addEventListener('touchstart', (e) => {
             e.preventDefault();
+            touchStartTime = Date.now();
             const touch = e.touches[0];
+            lastTouchPosition = { x: touch.clientX, y: touch.clientY };
 
             if (e.target.classList.contains('decor-resize')) {
                 startResize(touch, id);
@@ -270,6 +259,39 @@ function attachDecorEvents() {
             } else {
                 startDrag(touch, id);
             }
+        }, { passive: false });
+
+        el.addEventListener('touchmove', (e) => {
+            e.preventDefault();
+            if (!isDragging && !isResizing && !isRotating) return;
+            
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - lastTouchPosition.x);
+            const deltaY = Math.abs(touch.clientY - lastTouchPosition.y);
+            
+            // Если движение значительное, предотвращаем скролл
+            if (deltaX > 5 || deltaY > 5) {
+                e.preventDefault();
+            }
+            
+            lastTouchPosition = { x: touch.clientX, y: touch.clientY };
+            
+            if (isDragging) handleDrag(touch, id);
+            else if (isResizing) handleResize(touch, id);
+            else if (isRotating) handleRotate(touch, id);
+            
+        }, { passive: false });
+
+        el.addEventListener('touchend', (e) => {
+            e.preventDefault();
+            const touchEndTime = Date.now();
+            
+            // Если это было быстрое касание (тап), не останавливаем взаимодействие
+            if (touchEndTime - touchStartTime < 200 && !isDragging && !isResizing && !isRotating) {
+                selectDecor(id);
+            }
+            
+            stopInteraction();
         }, { passive: false });
 
         const resizeHandle = el.querySelector('.decor-resize');
@@ -305,19 +327,22 @@ function startDrag(e, id) {
     isDragging = true;
     selectDecor(id);
 
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
     const card = document.getElementById('previewCard');
     const cardRect = card.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
+    const decor = EditorState.decor.find(d => d.id === id);
+    
+    // Вычисляем центр элемента в пикселях
+    const centerX = (decor.x / 100) * cardRect.width;
+    const centerY = (decor.y / 100) * cardRect.height;
 
-    const centerX = elRect.left + elRect.width / 2;
-    const centerY = elRect.top + elRect.height / 2;
+    dragOffset.x = e.clientX - (cardRect.left + centerX);
+    dragOffset.y = e.clientY - (cardRect.top + centerY);
 
-    dragOffset.x = e.clientX - centerX;
-    dragOffset.y = e.clientY - centerY;
-
-    el.style.cursor = 'grabbing';
-    el.style.transition = 'none';
+    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+    if (el) {
+        el.style.cursor = 'grabbing';
+        el.style.transition = 'none';
+    }
 }
 
 function startResize(e, id) {
@@ -328,7 +353,8 @@ function startResize(e, id) {
     const decor = EditorState.decor.find(d => d.id === id);
     startDecorState = {
         width: decor.width,
-        x: e.clientX
+        x: e.clientX,
+        y: e.clientY
     };
 }
 
@@ -337,15 +363,14 @@ function startRotate(e, id) {
     isRotating = true;
     selectDecor(id);
 
-    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
     const card = document.getElementById('previewCard');
     const cardRect = card.getBoundingClientRect();
-    const elRect = el.getBoundingClientRect();
-
-    const centerX = elRect.left + elRect.width / 2;
-    const centerY = elRect.top + elRect.height / 2;
-
     const decor = EditorState.decor.find(d => d.id === id);
+
+    // Вычисляем центр элемента
+    const centerX = cardRect.left + (decor.x / 100) * cardRect.width;
+    const centerY = cardRect.top + (decor.y / 100) * cardRect.height;
+
     startDecorState = {
         rotation: decor.rotation || 0,
         startAngle: Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI,
@@ -354,36 +379,115 @@ function startRotate(e, id) {
     };
 }
 
-function updateDecorPositions() {
+function handleDrag(e, id) {
+    if (!isDragging || !selectedDecorId) return;
+
     const card = document.getElementById('previewCard');
-    if (!card) return;
-
     const cardRect = card.getBoundingClientRect();
-    const cardTransform = window.getComputedStyle(card).transform;
-    let scale = 1;
-    if (cardTransform && cardTransform !== 'none') {
-        const matrix = new DOMMatrix(cardTransform);
-        scale = matrix.a;
+    const decor = EditorState.decor.find(d => d.id === id);
+    if (!decor) return;
+
+    // Вычисляем новую позицию центра
+    let newCenterX = e.clientX - cardRect.left - dragOffset.x;
+    let newCenterY = e.clientY - cardRect.top - dragOffset.y;
+
+    // Конвертируем в проценты
+    let newX = (newCenterX / cardRect.width) * 100;
+    let newY = (newCenterY / cardRect.height) * 100;
+
+    // Рассчитываем границы в процентах с учетом размера элемента
+    const halfWidthPercent = (decor.width / 2 / cardRect.width) * 100;
+    const halfHeightPercent = (decor.height / 2 / cardRect.height) * 100;
+
+    // Ограничиваем позицию
+    newX = Math.max(halfWidthPercent, Math.min(100 - halfWidthPercent, newX));
+    newY = Math.max(halfHeightPercent, Math.min(100 - halfHeightPercent, newY));
+
+    // Обновляем состояние
+    decor.x = newX;
+    decor.y = newY;
+
+    // Обновляем DOM
+    const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+    if (el) {
+        el.style.left = newX + '%';
+        el.style.top = newY + '%';
     }
+}
 
-    EditorState.decor.forEach(decor => {
-        const el = document.querySelector(`.decor-element[data-id="${decor.id}"]`);
+function handleResize(e, id) {
+    if (!isResizing || !selectedDecorId) return;
+
+    const dx = e.clientX - startDecorState.x;
+    const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
+
+    const decor = EditorState.decor.find(d => d.id === id);
+    if (decor) {
+        decor.width = newSize;
+        decor.height = newSize;
+
+        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
         if (el) {
-            const posX = (decor.x / 100) * cardRect.width;
-            const posY = (decor.y / 100) * cardRect.height;
-
-            el.style.left = (posX - (decor.width * scale) / 2) + 'px';
-            el.style.top = (posY - (decor.height * scale) / 2) + 'px';
-            el.style.transform = `rotate(${decor.rotation}deg) scale(${1 / scale})`;
+            el.style.width = newSize + 'px';
+            el.style.height = newSize + 'px';
+            el.dataset.width = newSize;
+            el.dataset.height = newSize;
         }
-    });
+
+        const sizeInput = document.getElementById('decorSize');
+        const sizeValue = document.getElementById('decorSizeValue');
+        if (sizeInput) sizeInput.value = newSize;
+        if (sizeValue) sizeValue.textContent = newSize;
+    }
+}
+
+function handleRotate(e, id) {
+    if (!isRotating || !selectedDecorId) return;
+
+    const decor = EditorState.decor.find(d => d.id === id);
+    const card = document.getElementById('previewCard');
+    const cardRect = card.getBoundingClientRect();
+
+    if (decor) {
+        const centerX = cardRect.left + (decor.x / 100) * cardRect.width;
+        const centerY = cardRect.top + (decor.y / 100) * cardRect.height;
+
+        const currentAngle = Math.atan2(e.clientY - centerY, e.clientX - centerX) * 180 / Math.PI;
+        const deltaAngle = currentAngle - startDecorState.startAngle;
+
+        decor.rotation = startDecorState.rotation + deltaAngle;
+        
+        const el = document.querySelector(`.decor-element[data-id="${id}"]`);
+        if (el) {
+            el.style.transform = `translate(-50%, -50%) rotate(${decor.rotation}deg)`;
+        }
+    }
 }
 
 function initGlobalEvents() {
-    document.addEventListener('mousemove', handleMove);
+    // Mouse events
+    document.addEventListener('mousemove', (e) => {
+        if (isDragging && selectedDecorId) {
+            e.preventDefault();
+            handleDrag(e, selectedDecorId);
+        } else if (isResizing && selectedDecorId) {
+            e.preventDefault();
+            handleResize(e, selectedDecorId);
+        } else if (isRotating && selectedDecorId) {
+            e.preventDefault();
+            handleRotate(e, selectedDecorId);
+        }
+    });
+
     document.addEventListener('mouseup', stopInteraction);
 
-    document.addEventListener('touchmove', handleTouchMove, { passive: false });
+    // Global touch events to prevent scrolling while interacting
+    document.addEventListener('touchmove', (e) => {
+        if (isDragging || isResizing || isRotating) {
+            e.preventDefault();
+        }
+    }, { passive: false });
+
     document.addEventListener('touchend', stopInteraction);
     document.addEventListener('touchcancel', stopInteraction);
 
@@ -394,117 +498,18 @@ function initGlobalEvents() {
     });
 }
 
-function handleTouchMove(e) {
-    if (!e.touches || e.touches.length === 0) return;
-
-    if (isDragging || isResizing || isRotating) {
-        e.preventDefault();
-        handleMove(e);
-    }
-}
-
-function handleMove(e) {
-    if (!e) return;
-
-    let clientX, clientY;
-
-    if (e.touches) {
-        clientX = e.touches[0].clientX;
-        clientY = e.touches[0].clientY;
-    } else {
-        clientX = e.clientX;
-        clientY = e.clientY;
-    }
-
-    if (!clientX && !clientY) return;
-
-    if (isDragging && selectedDecorId) {
-        const card = document.getElementById('previewCard');
-        const cardRect = card.getBoundingClientRect();
-
-        const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-        if (!decor) return;
-
-        let newCenterX = clientX - cardRect.left - dragOffset.x;
-        let newCenterY = clientY - cardRect.top - dragOffset.y;
-
-        const minX = decor.width / 2;
-        const maxX = cardRect.width - decor.width / 2;
-        const minY = decor.height / 2;
-        const maxY = cardRect.height - decor.height / 2;
-
-        newCenterX = Math.max(minX, Math.min(maxX, newCenterX));
-        newCenterY = Math.max(minY, Math.min(maxY, newCenterY));
-
-        decor.x = (newCenterX / cardRect.width) * 100;
-        decor.y = (newCenterY / cardRect.height) * 100;
-
-        const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-        if (el) {
-            el.style.left = (newCenterX - decor.width / 2) + 'px';
-            el.style.top = (newCenterY - decor.height / 2) + 'px';
-        }
-    }
-
-    if (isResizing && selectedDecorId) {
-        const dx = clientX - startDecorState.x;
-        const newSize = Math.min(500, Math.max(30, startDecorState.width + dx));
-
-        const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-        if (decor) {
-            decor.width = newSize;
-            decor.height = newSize;
-
-            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-            if (el) {
-                el.style.width = newSize + 'px';
-                el.style.height = newSize + 'px';
-
-                const card = document.getElementById('previewCard');
-                const cardRect = card.getBoundingClientRect();
-                const posX = (decor.x / 100) * cardRect.width;
-                const posY = (decor.y / 100) * cardRect.height;
-
-                el.style.left = (posX - newSize / 2) + 'px';
-                el.style.top = (posY - newSize / 2) + 'px';
-            }
-
-            const sizeInput = document.getElementById('decorSize');
-            const sizeValue = document.getElementById('decorSizeValue');
-            if (sizeInput) sizeInput.value = newSize;
-            if (sizeValue) sizeValue.textContent = newSize;
-        }
-    }
-
-    if (isRotating && selectedDecorId) {
-        const decor = EditorState.decor.find(d => d.id === selectedDecorId);
-        const card = document.getElementById('previewCard');
-        const cardRect = card.getBoundingClientRect();
-        const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-
-        if (decor && el) {
-            const centerX = cardRect.left + (decor.x / 100) * cardRect.width;
-            const centerY = cardRect.top + (decor.y / 100) * cardRect.height;
-
-            const currentAngle = Math.atan2(clientY - centerY, clientX - centerX) * 180 / Math.PI;
-            const deltaAngle = currentAngle - startDecorState.startAngle;
-
-            decor.rotation = startDecorState.rotation + deltaAngle;
-            el.style.transform = `rotate(${decor.rotation}deg)`;
-        }
-    }
-}
-
 function stopInteraction() {
     if (isDragging || isResizing || isRotating) {
         isDragging = false;
         isResizing = false;
         isRotating = false;
 
-        const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
-        if (el) {
-            el.style.cursor = 'move';
-            el.style.transition = '';
+        if (selectedDecorId) {
+            const el = document.querySelector(`.decor-element[data-id="${selectedDecorId}"]`);
+            if (el) {
+                el.style.cursor = 'move';
+                el.style.transition = '';
+            }
         }
     }
 }
@@ -664,13 +669,8 @@ function initEventListeners() {
                 if (el) {
                     el.style.width = size + 'px';
                     el.style.height = size + 'px';
-
-                    const containerRect = document.getElementById('previewCard').getBoundingClientRect();
-                    const posX = (decor.x / 100) * containerRect.width;
-                    const posY = (decor.y / 100) * containerRect.height;
-
-                    el.style.left = (posX - size / 2) + 'px';
-                    el.style.top = (posY - size / 2) + 'px';
+                    el.dataset.width = size;
+                    el.dataset.height = size;
                 }
             }
         }
@@ -796,6 +796,7 @@ function initMobileTabs() {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
             }
+            renderDecor();
         }, 150);
     });
 }
