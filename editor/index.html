@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="../css/editor.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <link
-        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Parisienne&display=swap"
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Parisienne&family=Press+Start+2P&family=VT323&family=Courier+Prime:wght@400;700&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&display=swap"
         rel="stylesheet">
 </head>
 
@@ -104,6 +104,31 @@
                                     <label>Скругление <span id="borderRadiusValue">30</span>px</label>
                                     <input type="range" id="borderRadius" min="0" max="250" step="5" value="30">
                                 </div>
+                                <div class="setting-group" style="margin-top: 1rem;">
+                                    <label style="display: flex; align-items: center;">
+                                        <input type="checkbox" id="borderGlowEnabled">
+                                        <span style="margin-left: 0.5rem;">✨ Подсветка рамки (Glow)</span>
+                                    </label>
+
+                                    <div class="glow-controls" id="borderGlowControls">
+                                        <div class="setting-group">
+                                            <label>Цвет свечения</label>
+                                            <input type="color" id="borderGlowColor" value="#D4AF37">
+                                        </div>
+
+                                        <div class="setting-group">
+                                            <label>Размер свечения <span id="borderGlowSizeValue">10</span>px</label>
+                                            <input type="range" id="borderGlowSize" min="0" max="30" step="1"
+                                                value="10">
+                                        </div>
+
+                                        <div class="setting-group">
+                                            <label>Интенсивность <span id="borderGlowIntensityValue">0.50</span></label>
+                                            <input type="range" id="borderGlowIntensity" min="0" max="1" step="0.05"
+                                                value="0.5">
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 
@@ -163,9 +188,7 @@
                                         <span id="eventTypeSizeValue">16</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="eventTypeFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="eventTypeFont"></select>
                                         <button class="text-format-btn" id="eventTypeBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="eventTypeItalic" title="Курсив">I</button>
                                     </div>
@@ -180,9 +203,7 @@
                                         <span id="namesSizeValue">48</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="namesFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="namesFont"></select>
                                         <button class="text-format-btn" id="namesBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="namesItalic" title="Курсив">I</button>
                                     </div>
@@ -197,9 +218,7 @@
                                         <span id="greetingSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="greetingFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="greetingFont"></select>
                                         <button class="text-format-btn" id="greetingBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="greetingItalic" title="Курсив">I</button>
                                     </div>
@@ -214,9 +233,7 @@
                                         <span id="dateSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="dateFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="dateFont"></select>
                                         <button class="text-format-btn" id="dateBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="dateItalic" title="Курсив">I</button>
                                     </div>
@@ -231,9 +248,7 @@
                                         <span id="timeSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="timeFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="timeFont"></select>
                                         <button class="text-format-btn" id="timeBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="timeItalic" title="Курсив">I</button>
                                     </div>
@@ -248,9 +263,7 @@
                                         <span id="placeSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="placeFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="placeFont"></select>
                                         <button class="text-format-btn" id="placeBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="placeItalic" title="Курсив">I</button>
                                     </div>
@@ -269,11 +282,18 @@
                                         <span id="messageSizeValue">16</span>px
                                     </div>
                                     <div class="text-format-row">
-                                        <select class="font-select text-format-select" id="messageFont">
-                                            <!-- Заполняется скриптом -->
-                                        </select>
+                                        <select class="font-select text-format-select" id="messageFont"></select>
                                         <button class="text-format-btn" id="messageBold" title="Жирный">B</button>
                                         <button class="text-format-btn" id="messageItalic" title="Курсив">I</button>
+                                    </div>
+                                    <div class="setting-group" style="margin-top: 0.5rem;">
+                                        <label style="display: flex; align-items: center;">
+                                            <input type="checkbox" id="enablePerLineDecor">
+                                            <span style="margin-left: 0.5rem;">📏 Линии между строками</span>
+                                        </label>
+                                        <p style="font-size: 0.85rem; color: #94a3b8; margin-top: 0.3rem;">
+                                            Добавляет декоративную линию между каждой строкой текста
+                                        </p>
                                     </div>
                                 </div>
 
@@ -305,6 +325,7 @@
                                 </div>
                             </div>
                         </div>
+
                         <!-- Анимации -->
                         <div class="accordion-item">
                             <button class="accordion-header">
@@ -400,30 +421,18 @@
                                 <div class="setting-group">
                                     <label>Цвета</label>
                                     <div class="animation-colors" id="animationColors">
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#FF69B4" checked>
-                                            Розовый
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#FFD700" checked>
-                                            Золотой
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#87CEEB" checked>
-                                            Голубой
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#98FB98" checked>
-                                            Салатовый
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#FFA07A" checked>
-                                            Персиковый
-                                        </label>
-                                        <label style="display: flex; align-items: center; gap: 0.5rem;">
-                                            <input type="checkbox" class="color-checkbox" data-color="#DDA0DD" checked>
-                                            Сиреневый
-                                        </label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#FF69B4"
+                                                checked> Розовый</label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#FFD700"
+                                                checked> Золотой</label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#87CEEB"
+                                                checked> Голубой</label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#98FB98"
+                                                checked> Салатовый</label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#FFA07A"
+                                                checked> Персиковый</label>
+                                        <label><input type="checkbox" class="color-checkbox" data-color="#DDA0DD"
+                                                checked> Сиреневый</label>
                                     </div>
                                 </div>
 

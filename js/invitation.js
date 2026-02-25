@@ -1,40 +1,30 @@
 let invitationSlug = null;
 
 document.addEventListener('DOMContentLoaded', () => {
-    console.log('Invitation page loaded');
-    
     if (window.location.hash) {
         invitationSlug = window.location.hash.substring(1);
-        console.log('Loading invitation:', invitationSlug);
         loadInvitation();
     } else {
-        console.log('No slug found in URL');
         showError();
     }
-    
+
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
     applyMobileScale();
-    
-    window.addEventListener('resize', () => {
-        applyMobileScale();
-    });
+
+    window.addEventListener('resize', () => applyMobileScale());
 });
 
 function applyMobileScale() {
     const isMobile = window.innerWidth <= 768;
-    const cards = document.querySelectorAll('.invitation-card');
-    
-    if (isMobile) {
-        cards.forEach(card => {
+    document.querySelectorAll('.invitation-card').forEach(card => {
+        if (isMobile) {
             card.style.transform = 'scale(0.7)';
             card.style.transformOrigin = 'center top';
             card.style.margin = '20px auto';
-        });
-    } else {
-        cards.forEach(card => {
+        } else {
             card.style.transform = 'none';
-        });
-    }
+        }
+    });
 }
 
 async function loadInvitation() {
@@ -42,23 +32,15 @@ async function loadInvitation() {
         document.getElementById('loadingSpinner').style.display = 'flex';
         document.getElementById('invitationWrapper').style.display = 'none';
         document.getElementById('errorPage').style.display = 'none';
-        
-        console.log('Searching for slug:', invitationSlug);
-        
+
         const query = await db.collection('invitations')
             .where('slug', '==', invitationSlug)
             .limit(1)
             .get();
-        
-        console.log('Query result:', query.empty ? 'empty' : 'found');
-        
+
         if (!query.empty) {
-            const doc = query.docs[0];
-            const data = doc.data();
-            console.log('Invitation data:', data);
-            displayInvitation(data);
+            displayInvitation(query.docs[0].data());
         } else {
-            console.log('No invitation found');
             showError();
         }
     } catch (error) {
@@ -68,8 +50,6 @@ async function loadInvitation() {
 }
 
 function displayInvitation(data) {
-    console.log('Displaying invitation');
-    
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('invitationWrapper').style.display = 'block';
     document.getElementById('errorPage').style.display = 'none';
@@ -84,7 +64,20 @@ function displayInvitation(data) {
     const containerBgOpacity = data.containerBgOpacity || 0.95;
     const rgb = hexToRgb(containerBgColor);
 
-    const messageText = (data.messageText || '').replace(/\n/g, '<br>');
+    const messageText = data.messageText || '';
+    const lines = messageText.split('\n');
+    let messageHtml = '';
+
+    lines.forEach((line, index) => {
+        messageHtml += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
+
+        if (data.enablePerLineDecor && index < lines.length - 1) {
+            messageHtml += `<div class="message-line-decor" style="width:60px; height:2px; background:${data.textColor || '#475569'}; opacity:0.3; margin:5px auto; pointer-events:none;"></div>`;
+        }
+    });
+
+    const showBottomLine = data.enableMessageLine && messageText.trim() !== '';
+    const bottomLineOpacity = showBottomLine ? (data.messageLineOpacity || 0.3) : 0;
 
     const content = document.getElementById('invitationContent');
     content.innerHTML = `
@@ -99,7 +92,9 @@ function displayInvitation(data) {
             margin: 0 auto;
             padding: 2.5rem 2rem;
             position: relative;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            box-shadow: ${data.borderGlowEnabled ?
+            `0 0 ${data.borderGlowSize || 10}px ${data.borderGlowColor || data.borderColor || '#D4AF37'}, 0 25px 50px -12px rgba(0,0,0,0.25)` :
+            '0 25px 50px -12px rgba(0,0,0,0.25)'};
             transform-origin: center top;
         ">
             <div class="card-header" style="text-align: center; margin-bottom: 1rem;">
@@ -177,13 +172,25 @@ function displayInvitation(data) {
                     font-family: ${data.messageFont || "'Inter', sans-serif"};
                     font-weight: ${data.messageBold ? 'bold' : 'normal'};
                     font-style: ${data.messageItalic ? 'italic' : 'normal'};
-                    white-space: pre-wrap;
-                    word-wrap: break-word;
-                    overflow-wrap: break-word;
                     max-width: 100%;
                     width: 100%;
                     text-align: center;
-                ">${messageText}</div>
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    gap: 8px;
+                ">
+                    ${messageHtml}
+                </div>
+                
+                <div class="message-decor-line" style="
+                    width: calc(100% - 2rem);
+                    height: 2px;
+                    background: ${data.textColor || '#475569'};
+                    margin: 1rem auto 0;
+                    opacity: ${bottomLineOpacity};
+                    transition: opacity 0.3s;
+                "></div>
             </div>
             
             <div class="card-footer" style="text-align: center; margin-top: 1rem;">
@@ -197,14 +204,12 @@ function displayInvitation(data) {
             </div>
         </div>
     `;
-    
-    console.log('Invitation displayed');
+
     applyMobileScale();
-    
-    // Запускаем анимации если они включены
+
     if (data.enableAnimations && window.animationManager) {
         setTimeout(() => {
-            const config = {
+            window.animationManager.start({
                 enabled: true,
                 type: data.animationType || 'balloons',
                 intensity: data.animationIntensity || 5,
@@ -212,8 +217,7 @@ function displayInvitation(data) {
                 colors: data.animationColors || ['#FF69B4', '#FFD700', '#87CEEB'],
                 size: data.animationSize || 60,
                 position: data.animationPosition || 'whole'
-            };
-            window.animationManager.start(config);
+            });
         }, 500);
     }
 }
@@ -228,15 +232,13 @@ function hexToRgb(hex) {
 }
 
 function showError() {
-    console.log('Showing error page');
     document.getElementById('loadingSpinner').style.display = 'none';
     document.getElementById('invitationWrapper').style.display = 'none';
     document.getElementById('errorPage').style.display = 'block';
 }
 
 function copyInvitationLink() {
-    const url = window.location.href;
-    navigator.clipboard.writeText(url).then(() => {
+    navigator.clipboard.writeText(window.location.href).then(() => {
         const btn = document.getElementById('copyLinkBtn');
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="material-symbols-outlined">check</span> Скопировано!';

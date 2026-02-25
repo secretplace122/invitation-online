@@ -4,6 +4,10 @@ const EditorState = {
     borderColor: '#D4AF37',
     borderWidth: 2,
     borderRadius: 30,
+    borderGlowEnabled: false,
+    borderGlowColor: '#D4AF37',
+    borderGlowSize: 10,
+    borderGlowIntensity: 0.5,
     containerBgColor: '#FFFFFF',
     containerBgOpacity: 0.95,
     eventType: 'Свадебное приглашение',
@@ -43,7 +47,7 @@ const EditorState = {
     messageFont: "'Inter', sans-serif",
     textColor: '#475569',
     showDecorLines: true,
-    // Анимации
+    enablePerLineDecor: false,
     enableAnimations: false,
     animationType: 'balloons',
     animationIntensity: 5,
@@ -54,7 +58,6 @@ const EditorState = {
 };
 
 const patterns = [
-    // Свадьба
     { id: 'wedding-1', file: 'wedding1.png', category: 'wedding', name: '1' },
     { id: 'wedding-2', file: 'wedding2.png', category: 'wedding', name: '2' },
     { id: 'wedding-3', file: 'wedding3.png', category: 'wedding', name: '3' },
@@ -87,7 +90,6 @@ const patterns = [
     { id: 'wedding-30', file: 'wedding30.png', category: 'wedding', name: '30' },
     { id: 'wedding-31', file: 'wedding31.png', category: 'wedding', name: '31' },
     { id: 'wedding-32', file: 'wedding32.png', category: 'wedding', name: '32' },
-    // День рождения
     { id: 'birthday-1', file: 'birthday1.png', category: 'birthday', name: '1' },
     { id: 'birthday-2', file: 'birthday2.png', category: 'birthday', name: '2' },
     { id: 'birthday-3', file: 'birthday3.png', category: 'birthday', name: '3' },
@@ -103,7 +105,6 @@ const patterns = [
     { id: 'birthday-13', file: 'birthday13.png', category: 'birthday', name: '13' },
     { id: 'birthday-14', file: 'birthday14.png', category: 'birthday', name: '14' },
     { id: 'birthday-15', file: 'birthday15.png', category: 'birthday', name: '15' },
-    // Другое
     { id: 'other-1', file: 'other1.png', category: 'other', name: '1' },
     { id: 'other-2', file: 'other2.png', category: 'other', name: '2' },
     { id: 'other-3', file: 'other3.png', category: 'other', name: '3' },
@@ -132,7 +133,12 @@ const fonts = [
     { value: "'Inter', sans-serif", name: "Inter" },
     { value: "'Pacifico', cursive", name: "Pacifico" },
     { value: "'Amatic SC', cursive", name: "Amatic SC" },
-    { value: "'Parisienne', cursive", name: "Parisienne" }
+    { value: "'Parisienne', cursive", name: "Parisienne" },
+    { value: "'Press Start 2P', cursive", name: "Press Start 2P (Пиксельный)" },
+    { value: "'VT323', monospace", name: "VT323 (Консольный)" },
+    { value: "'Courier Prime', monospace", name: "Courier Prime" },
+    { value: "'Caveat', cursive", name: "Caveat" },
+    { value: "'Comfortaa', sans-serif", name: "Comfortaa" }
 ];
 
 let isMobileView = window.innerWidth <= 768;
@@ -170,25 +176,25 @@ document.addEventListener('DOMContentLoaded', () => {
     fixBackgroundScroll();
 });
 
-// Функция для фикса проблемы с бэкграундом при скролле
 function fixBackgroundScroll() {
     const previewContainer = document.getElementById('previewContainer');
     const bgLayer = document.getElementById('previewBgLayer');
-
     if (previewContainer && bgLayer && isMobileView) {
-        previewContainer.addEventListener('scroll', () => {
-            bgLayer.style.transform = `translateY(${previewContainer.scrollTop}px)`;
-        });
+        previewContainer.removeEventListener('scroll', handleBgScroll);
+        previewContainer.addEventListener('scroll', handleBgScroll);
     }
+}
+
+function handleBgScroll(e) {
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (bgLayer) bgLayer.style.transform = `translateY(${e.target.scrollTop}px)`;
 }
 
 function fixMobileTabsPosition() {
     const navbar = document.querySelector('.navbar');
     const mobileTabs = document.getElementById('mobileTabs');
-
     if (navbar && mobileTabs && isMobileView) {
-        const navbarHeight = navbar.offsetHeight;
-        mobileTabs.style.top = navbarHeight + 'px';
+        mobileTabs.style.top = navbar.offsetHeight + 'px';
     }
 }
 
@@ -201,9 +207,7 @@ function applyMobileScale() {
             card.style.margin = '20px auto';
         });
     } else {
-        cards.forEach(card => {
-            card.style.transform = 'none';
-        });
+        cards.forEach(card => card.style.transform = 'none');
     }
 }
 
@@ -216,43 +220,39 @@ function initFontSelectors() {
 }
 
 function setInitialFonts() {
-    document.getElementById('eventTypeFont').value = EditorState.eventTypeFont;
-    document.getElementById('namesFont').value = EditorState.namesFont;
-    document.getElementById('greetingFont').value = EditorState.greetingFont;
-    document.getElementById('dateFont').value = EditorState.dateFont;
-    document.getElementById('timeFont').value = EditorState.timeFont;
-    document.getElementById('placeFont').value = EditorState.placeFont;
-    document.getElementById('messageFont').value = EditorState.messageFont;
+    const fontMap = {
+        eventTypeFont: 'eventTypeFont',
+        namesFont: 'namesFont',
+        greetingFont: 'greetingFont',
+        dateFont: 'dateFont',
+        timeFont: 'timeFont',
+        placeFont: 'placeFont',
+        messageFont: 'messageFont'
+    };
+    Object.entries(fontMap).forEach(([id, state]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = EditorState[state];
+    });
 }
 
 function initBoldItalicButtons() {
-    function setupButton(buttonId, stateProperty, elementId, styleType) {
+    const setupButton = (buttonId, stateProperty, elementId, styleType) => {
         const btn = document.getElementById(buttonId);
         if (!btn) return;
 
-        if (EditorState[stateProperty]) {
-            btn.classList.add('active');
-        }
+        if (EditorState[stateProperty]) btn.classList.add('active');
 
         btn.addEventListener('click', () => {
             EditorState[stateProperty] = !EditorState[stateProperty];
-
-            if (EditorState[stateProperty]) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
+            btn.classList.toggle('active');
 
             const element = document.getElementById(elementId);
             if (element) {
-                if (styleType === 'bold') {
-                    element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
-                } else if (styleType === 'italic') {
-                    element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
-                }
+                if (styleType === 'bold') element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
+                else if (styleType === 'italic') element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
             }
         });
-    }
+    };
 
     setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
     setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
@@ -270,7 +270,6 @@ function initBoldItalicButtons() {
     setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
 }
 
-// Инициализация фильтров паттернов
 function initPatternFilters() {
     const filterContainer = document.querySelector('.pattern-filters');
     if (!filterContainer) return;
@@ -296,9 +295,7 @@ function renderPatternGrid() {
     const grid = document.getElementById('patternGrid');
     if (!grid) return;
 
-    const filtered = currentFilter === 'all'
-        ? patterns
-        : patterns.filter(p => p.category === currentFilter);
+    const filtered = currentFilter === 'all' ? patterns : patterns.filter(p => p.category === currentFilter);
 
     grid.innerHTML = filtered.map(p => `
         <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
@@ -328,6 +325,7 @@ function initAccordion() {
         header.addEventListener('click', () => {
             const item = header.closest('.accordion-item');
             const wasActive = item.classList.contains('active');
+            const icon = header.querySelector('.material-symbols-outlined');
 
             document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
                 if (activeItem !== item) {
@@ -337,15 +335,8 @@ function initAccordion() {
                 }
             });
 
-            if (!wasActive) {
-                item.classList.add('active');
-                const icon = header.querySelector('.material-symbols-outlined');
-                if (icon) icon.textContent = 'expand_less';
-            } else {
-                item.classList.remove('active');
-                const icon = header.querySelector('.material-symbols-outlined');
-                if (icon) icon.textContent = 'expand_more';
-            }
+            item.classList.toggle('active');
+            if (icon) icon.textContent = item.classList.contains('active') ? 'expand_less' : 'expand_more';
         });
     });
 }
@@ -358,35 +349,30 @@ function initMobileMenu() {
         menuBtn.addEventListener('click', (e) => {
             e.stopPropagation();
             navLinks.classList.toggle('active');
-
-            const spans = menuBtn.querySelectorAll('span');
-            spans.forEach(span => span.classList.toggle('active'));
+            menuBtn.querySelectorAll('span').forEach(span => span.classList.toggle('active'));
         });
 
         document.addEventListener('click', (e) => {
             if (!navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
                 navLinks.classList.remove('active');
-                const spans = menuBtn?.querySelectorAll('span');
-                spans?.forEach(span => span.classList.remove('active'));
+                menuBtn?.querySelectorAll('span').forEach(span => span.classList.remove('active'));
             }
         });
 
         document.querySelectorAll('#navLinks a').forEach(link => {
             link.addEventListener('click', () => {
                 navLinks.classList.remove('active');
-                const spans = menuBtn?.querySelectorAll('span');
-                spans?.forEach(span => span.classList.remove('active'));
+                menuBtn?.querySelectorAll('span').forEach(span => span.classList.remove('active'));
             });
         });
     }
 }
 
-// Инициализация контролов анимации
 function initAnimationControls() {
     const enableAnimations = document.getElementById('enableAnimations');
     if (enableAnimations) {
         enableAnimations.checked = EditorState.enableAnimations;
-        
+
         enableAnimations.addEventListener('change', (e) => {
             EditorState.enableAnimations = e.target.checked;
             if (EditorState.enableAnimations && window.animationManager) {
@@ -397,62 +383,79 @@ function initAnimationControls() {
         });
     }
 
-    document.getElementById('animationType')?.addEventListener('change', (e) => {
-        EditorState.animationType = e.target.value;
-        if (EditorState.enableAnimations && window.animationManager) {
-            window.animationManager.start(getAnimationConfig());
-        }
-    });
+    const animationType = document.getElementById('animationType');
+    if (animationType) {
+        animationType.value = EditorState.animationType;
+        animationType.addEventListener('change', (e) => {
+            EditorState.animationType = e.target.value;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
 
-    document.getElementById('animationIntensity')?.addEventListener('input', (e) => {
-        EditorState.animationIntensity = parseInt(e.target.value);
+    const intensity = document.getElementById('animationIntensity');
+    if (intensity) {
+        intensity.value = EditorState.animationIntensity;
         document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
-        if (EditorState.enableAnimations && window.animationManager) {
-            window.animationManager.start(getAnimationConfig());
-        }
-    });
+        intensity.addEventListener('input', (e) => {
+            EditorState.animationIntensity = parseInt(e.target.value);
+            document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
 
-    document.getElementById('animationSpeed')?.addEventListener('input', (e) => {
-        EditorState.animationSpeed = parseInt(e.target.value);
+    const speed = document.getElementById('animationSpeed');
+    if (speed) {
+        speed.value = EditorState.animationSpeed;
         document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
-        if (EditorState.enableAnimations && window.animationManager) {
-            window.animationManager.start(getAnimationConfig());
-        }
-    });
+        speed.addEventListener('input', (e) => {
+            EditorState.animationSpeed = parseInt(e.target.value);
+            document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
 
-    document.getElementById('animationSize')?.addEventListener('input', (e) => {
-        EditorState.animationSize = parseInt(e.target.value);
+    const size = document.getElementById('animationSize');
+    if (size) {
+        size.value = EditorState.animationSize;
         document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
-        if (EditorState.enableAnimations && window.animationManager) {
-            window.animationManager.start(getAnimationConfig());
-        }
-    });
+        size.addEventListener('input', (e) => {
+            EditorState.animationSize = parseInt(e.target.value);
+            document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
 
-    document.getElementById('animationPosition')?.addEventListener('change', (e) => {
-        EditorState.animationPosition = e.target.value;
-        if (EditorState.enableAnimations && window.animationManager) {
-            window.animationManager.start(getAnimationConfig());
-        }
-    });
+    const position = document.getElementById('animationPosition');
+    if (position) {
+        position.value = EditorState.animationPosition;
+        position.addEventListener('change', (e) => {
+            EditorState.animationPosition = e.target.value;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
 
     document.querySelectorAll('.color-checkbox').forEach(checkbox => {
-        checkbox.checked = true; // Все по умолчанию включены
+        checkbox.checked = EditorState.animationColors.includes(checkbox.dataset.color);
         checkbox.addEventListener('change', updateAnimationColors);
     });
 
     document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
         if (window.animationManager) {
-            // Временно включаем анимацию для предпросмотра
             const config = getAnimationConfig();
             config.enabled = true;
             window.animationManager.start(config);
-            
-            // Останавливаем через 5 секунд
-            setTimeout(() => {
-                window.animationManager.stop();
-            }, 5000);
+            setTimeout(() => window.animationManager.stop(), 5000);
         } else {
-            console.error('Animation manager not found');
             alert('Ошибка: менеджер анимаций не загружен');
         }
     });
@@ -460,9 +463,7 @@ function initAnimationControls() {
 
 function updateAnimationColors() {
     const colors = [];
-    document.querySelectorAll('.color-checkbox:checked').forEach(cb => {
-        colors.push(cb.dataset.color);
-    });
+    document.querySelectorAll('.color-checkbox:checked').forEach(cb => colors.push(cb.dataset.color));
     EditorState.animationColors = colors.length > 0 ? colors : ['#FF69B4'];
     if (EditorState.enableAnimations && window.animationManager) {
         window.animationManager.start(getAnimationConfig());
@@ -482,182 +483,375 @@ function getAnimationConfig() {
 }
 
 function initEventListeners() {
-    // Фон страницы
-    document.getElementById('bgOpacity')?.addEventListener('input', (e) => {
-        EditorState.bgOpacity = parseFloat(e.target.value);
-        document.getElementById('bgOpacityValue').textContent = EditorState.bgOpacity.toFixed(2);
-        updatePreview();
-    });
+    const bgOpacity = document.getElementById('bgOpacity');
+    if (bgOpacity) {
+        bgOpacity.value = EditorState.bgOpacity;
+        const bgOpacityValue = document.getElementById('bgOpacityValue');
+        if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
+        bgOpacity.addEventListener('input', (e) => {
+            EditorState.bgOpacity = parseFloat(e.target.value);
+            if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
+            updatePreview();
+        });
+    }
 
-    // Рамка контейнера
-    document.getElementById('borderColor')?.addEventListener('input', (e) => {
-        EditorState.borderColor = e.target.value;
-        updatePreview();
-    });
+    const borderColor = document.getElementById('borderColor');
+    if (borderColor) {
+        borderColor.value = EditorState.borderColor;
+        borderColor.addEventListener('input', (e) => {
+            EditorState.borderColor = e.target.value;
+            updatePreview();
+        });
+    }
 
-    document.getElementById('borderWidth')?.addEventListener('input', (e) => {
-        EditorState.borderWidth = parseInt(e.target.value);
-        document.getElementById('borderWidthValue').textContent = EditorState.borderWidth;
-        updatePreview();
-    });
+    const borderWidth = document.getElementById('borderWidth');
+    if (borderWidth) {
+        borderWidth.value = EditorState.borderWidth;
+        const borderWidthValue = document.getElementById('borderWidthValue');
+        if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
+        borderWidth.addEventListener('input', (e) => {
+            EditorState.borderWidth = parseInt(e.target.value);
+            if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
+            updatePreview();
+        });
+    }
 
-    document.getElementById('borderRadius')?.addEventListener('input', (e) => {
-        EditorState.borderRadius = parseInt(e.target.value);
-        document.getElementById('borderRadiusValue').textContent = EditorState.borderRadius;
-        updatePreview();
-    });
+    const borderRadius = document.getElementById('borderRadius');
+    if (borderRadius) {
+        borderRadius.value = EditorState.borderRadius;
+        const borderRadiusValue = document.getElementById('borderRadiusValue');
+        if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
+        borderRadius.addEventListener('input', (e) => {
+            EditorState.borderRadius = parseInt(e.target.value);
+            if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
+            updatePreview();
+        });
+    }
 
-    // Внутренний фон
-    document.getElementById('containerBgColor')?.addEventListener('input', (e) => {
-        EditorState.containerBgColor = e.target.value;
-        updatePreview();
-    });
+    const containerBgColor = document.getElementById('containerBgColor');
+    if (containerBgColor) {
+        containerBgColor.value = EditorState.containerBgColor;
+        containerBgColor.addEventListener('input', (e) => {
+            EditorState.containerBgColor = e.target.value;
+            updatePreview();
+        });
+    }
 
-    document.getElementById('containerBgOpacity')?.addEventListener('input', (e) => {
-        EditorState.containerBgOpacity = parseFloat(e.target.value);
-        document.getElementById('containerBgOpacityValue').textContent = EditorState.containerBgOpacity.toFixed(2);
-        updatePreview();
-    });
+    const containerBgOpacity = document.getElementById('containerBgOpacity');
+    if (containerBgOpacity) {
+        containerBgOpacity.value = EditorState.containerBgOpacity;
+        const containerBgOpacityValue = document.getElementById('containerBgOpacityValue');
+        if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
+        containerBgOpacity.addEventListener('input', (e) => {
+            EditorState.containerBgOpacity = parseFloat(e.target.value);
+            if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
+            updatePreview();
+        });
+    }
 
-    // Текст - общие настройки
-    document.getElementById('textColor')?.addEventListener('input', (e) => {
-        EditorState.textColor = e.target.value;
-        updatePreview();
-    });
+    const textColor = document.getElementById('textColor');
+    if (textColor) {
+        textColor.value = EditorState.textColor;
+        textColor.addEventListener('input', (e) => {
+            EditorState.textColor = e.target.value;
+            updatePreview();
+        });
+    }
 
-    document.getElementById('showDecorLines')?.addEventListener('change', (e) => {
-        EditorState.showDecorLines = e.target.checked;
-        updateDecorLines();
-    });
+    const showDecorLines = document.getElementById('showDecorLines');
+    if (showDecorLines) {
+        showDecorLines.checked = EditorState.showDecorLines;
+        showDecorLines.addEventListener('change', (e) => {
+            EditorState.showDecorLines = e.target.checked;
+            updateDecorLines();
+        });
+    }
 
-    // Тип мероприятия
-    document.getElementById('eventType')?.addEventListener('input', (e) => {
-        EditorState.eventType = e.target.value;
-        document.getElementById('previewEventType').textContent = EditorState.eventType;
-    });
+    const eventType = document.getElementById('eventType');
+    if (eventType) {
+        eventType.value = EditorState.eventType;
+        eventType.addEventListener('input', (e) => {
+            EditorState.eventType = e.target.value;
+            document.getElementById('previewEventType').textContent = EditorState.eventType;
+        });
+    }
 
-    document.getElementById('eventTypeSize')?.addEventListener('input', (e) => {
-        EditorState.eventTypeSize = parseInt(e.target.value);
-        document.getElementById('eventTypeSizeValue').textContent = EditorState.eventTypeSize;
-        document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
-    });
+    const eventTypeSize = document.getElementById('eventTypeSize');
+    if (eventTypeSize) {
+        eventTypeSize.value = EditorState.eventTypeSize;
+        const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
+        if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+        eventTypeSize.addEventListener('input', (e) => {
+            EditorState.eventTypeSize = parseInt(e.target.value);
+            if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+            document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
+        });
+    }
 
-    document.getElementById('eventTypeFont')?.addEventListener('change', (e) => {
-        EditorState.eventTypeFont = e.target.value;
-        document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
-    });
+    const eventTypeFont = document.getElementById('eventTypeFont');
+    if (eventTypeFont) {
+        eventTypeFont.value = EditorState.eventTypeFont;
+        eventTypeFont.addEventListener('change', (e) => {
+            EditorState.eventTypeFont = e.target.value;
+            document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
+        });
+    }
 
-    // Имена
-    document.getElementById('names')?.addEventListener('input', (e) => {
-        EditorState.names = e.target.value;
-        document.getElementById('previewNames').textContent = EditorState.names;
-    });
+    const names = document.getElementById('names');
+    if (names) {
+        names.value = EditorState.names;
+        names.addEventListener('input', (e) => {
+            EditorState.names = e.target.value;
+            document.getElementById('previewNames').textContent = EditorState.names;
+        });
+    }
 
-    document.getElementById('namesSize')?.addEventListener('input', (e) => {
-        EditorState.namesSize = parseInt(e.target.value);
-        document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
-        document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
-    });
+    const namesSize = document.getElementById('namesSize');
+    if (namesSize) {
+        namesSize.value = EditorState.namesSize;
+        const namesSizeValue = document.getElementById('namesSizeValue');
+        if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+        namesSize.addEventListener('input', (e) => {
+            EditorState.namesSize = parseInt(e.target.value);
+            if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+            document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
+        });
+    }
 
-    document.getElementById('namesFont')?.addEventListener('change', (e) => {
-        EditorState.namesFont = e.target.value;
-        document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
-    });
+    const namesFont = document.getElementById('namesFont');
+    if (namesFont) {
+        namesFont.value = EditorState.namesFont;
+        namesFont.addEventListener('change', (e) => {
+            EditorState.namesFont = e.target.value;
+            document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
+        });
+    }
 
-    // Приветствие
-    document.getElementById('greeting')?.addEventListener('input', (e) => {
-        EditorState.greeting = e.target.value;
-        document.getElementById('previewGreeting').textContent = EditorState.greeting;
-    });
+    const greeting = document.getElementById('greeting');
+    if (greeting) {
+        greeting.value = EditorState.greeting;
+        greeting.addEventListener('input', (e) => {
+            EditorState.greeting = e.target.value;
+            document.getElementById('previewGreeting').textContent = EditorState.greeting;
+        });
+    }
 
-    document.getElementById('greetingSize')?.addEventListener('input', (e) => {
-        EditorState.greetingSize = parseInt(e.target.value);
-        document.getElementById('greetingSizeValue').textContent = EditorState.greetingSize;
-        document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
-    });
+    const greetingSize = document.getElementById('greetingSize');
+    if (greetingSize) {
+        greetingSize.value = EditorState.greetingSize;
+        const greetingSizeValue = document.getElementById('greetingSizeValue');
+        if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+        greetingSize.addEventListener('input', (e) => {
+            EditorState.greetingSize = parseInt(e.target.value);
+            if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+            document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
+        });
+    }
 
-    document.getElementById('greetingFont')?.addEventListener('change', (e) => {
-        EditorState.greetingFont = e.target.value;
-        document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
-    });
+    const greetingFont = document.getElementById('greetingFont');
+    if (greetingFont) {
+        greetingFont.value = EditorState.greetingFont;
+        greetingFont.addEventListener('change', (e) => {
+            EditorState.greetingFont = e.target.value;
+            document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
+        });
+    }
 
-    // Дата
-    document.getElementById('dateText')?.addEventListener('input', (e) => {
-        EditorState.dateText = e.target.value;
-        document.getElementById('previewDate').textContent = EditorState.dateText;
-    });
+    const dateText = document.getElementById('dateText');
+    if (dateText) {
+        dateText.value = EditorState.dateText;
+        dateText.addEventListener('input', (e) => {
+            EditorState.dateText = e.target.value;
+            document.getElementById('previewDate').textContent = EditorState.dateText;
+        });
+    }
 
-    document.getElementById('dateSize')?.addEventListener('input', (e) => {
-        EditorState.dateSize = parseInt(e.target.value);
-        document.getElementById('dateSizeValue').textContent = EditorState.dateSize;
-        document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
-    });
+    const dateSize = document.getElementById('dateSize');
+    if (dateSize) {
+        dateSize.value = EditorState.dateSize;
+        const dateSizeValue = document.getElementById('dateSizeValue');
+        if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+        dateSize.addEventListener('input', (e) => {
+            EditorState.dateSize = parseInt(e.target.value);
+            if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+            document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
+        });
+    }
 
-    document.getElementById('dateFont')?.addEventListener('change', (e) => {
-        EditorState.dateFont = e.target.value;
-        document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
-    });
+    const dateFont = document.getElementById('dateFont');
+    if (dateFont) {
+        dateFont.value = EditorState.dateFont;
+        dateFont.addEventListener('change', (e) => {
+            EditorState.dateFont = e.target.value;
+            document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
+        });
+    }
 
-    // Время
-    document.getElementById('timeText')?.addEventListener('input', (e) => {
-        EditorState.timeText = e.target.value;
-        document.getElementById('previewTime').textContent = EditorState.timeText;
-    });
+    const timeText = document.getElementById('timeText');
+    if (timeText) {
+        timeText.value = EditorState.timeText;
+        timeText.addEventListener('input', (e) => {
+            EditorState.timeText = e.target.value;
+            document.getElementById('previewTime').textContent = EditorState.timeText;
+        });
+    }
 
-    document.getElementById('timeSize')?.addEventListener('input', (e) => {
-        EditorState.timeSize = parseInt(e.target.value);
-        document.getElementById('timeSizeValue').textContent = EditorState.timeSize;
-        document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
-    });
+    const timeSize = document.getElementById('timeSize');
+    if (timeSize) {
+        timeSize.value = EditorState.timeSize;
+        const timeSizeValue = document.getElementById('timeSizeValue');
+        if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+        timeSize.addEventListener('input', (e) => {
+            EditorState.timeSize = parseInt(e.target.value);
+            if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+            document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
+        });
+    }
 
-    document.getElementById('timeFont')?.addEventListener('change', (e) => {
-        EditorState.timeFont = e.target.value;
-        document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
-    });
+    const timeFont = document.getElementById('timeFont');
+    if (timeFont) {
+        timeFont.value = EditorState.timeFont;
+        timeFont.addEventListener('change', (e) => {
+            EditorState.timeFont = e.target.value;
+            document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
+        });
+    }
 
-    // Место
-    document.getElementById('placeText')?.addEventListener('input', (e) => {
-        EditorState.placeText = e.target.value;
-        document.getElementById('previewPlace').textContent = EditorState.placeText;
-    });
+    const placeText = document.getElementById('placeText');
+    if (placeText) {
+        placeText.value = EditorState.placeText;
+        placeText.addEventListener('input', (e) => {
+            EditorState.placeText = e.target.value;
+            document.getElementById('previewPlace').textContent = EditorState.placeText;
+        });
+    }
 
-    document.getElementById('placeSize')?.addEventListener('input', (e) => {
-        EditorState.placeSize = parseInt(e.target.value);
-        document.getElementById('placeSizeValue').textContent = EditorState.placeSize;
-        document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
-    });
+    const placeSize = document.getElementById('placeSize');
+    if (placeSize) {
+        placeSize.value = EditorState.placeSize;
+        const placeSizeValue = document.getElementById('placeSizeValue');
+        if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+        placeSize.addEventListener('input', (e) => {
+            EditorState.placeSize = parseInt(e.target.value);
+            if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+            document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
+        });
+    }
 
-    document.getElementById('placeFont')?.addEventListener('change', (e) => {
-        EditorState.placeFont = e.target.value;
-        document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
-    });
+    const placeFont = document.getElementById('placeFont');
+    if (placeFont) {
+        placeFont.value = EditorState.placeFont;
+        placeFont.addEventListener('change', (e) => {
+            EditorState.placeFont = e.target.value;
+            document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
+        });
+    }
 
-    // Доп. текст
-    document.getElementById('messageText')?.addEventListener('input', (e) => {
-        EditorState.messageText = e.target.value;
-        updateMessagePreview();
-    });
+    const messageText = document.getElementById('messageText');
+    if (messageText) {
+        messageText.value = EditorState.messageText;
+        messageText.addEventListener('input', (e) => {
+            EditorState.messageText = e.target.value;
+            updateMessagePreview();
+        });
+    }
 
-    document.getElementById('messageSize')?.addEventListener('input', (e) => {
-        EditorState.messageSize = parseInt(e.target.value);
-        document.getElementById('messageSizeValue').textContent = EditorState.messageSize;
-        document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
-    });
+    const messageSize = document.getElementById('messageSize');
+    if (messageSize) {
+        messageSize.value = EditorState.messageSize;
+        const messageSizeValue = document.getElementById('messageSizeValue');
+        if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
+        messageSize.addEventListener('input', (e) => {
+            EditorState.messageSize = parseInt(e.target.value);
+            if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
+            document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
+        });
+    }
 
-    document.getElementById('messageFont')?.addEventListener('change', (e) => {
-        EditorState.messageFont = e.target.value;
-        document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
-    });
+    const messageFont = document.getElementById('messageFont');
+    if (messageFont) {
+        messageFont.value = EditorState.messageFont;
+        messageFont.addEventListener('change', (e) => {
+            EditorState.messageFont = e.target.value;
+            document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
+        });
+    }
+
+    const borderGlowEnabled = document.getElementById('borderGlowEnabled');
+    if (borderGlowEnabled) {
+        borderGlowEnabled.checked = EditorState.borderGlowEnabled;
+        borderGlowEnabled.addEventListener('change', (e) => {
+            EditorState.borderGlowEnabled = e.target.checked;
+            updatePreview();
+        });
+    }
+
+    const borderGlowColor = document.getElementById('borderGlowColor');
+    if (borderGlowColor) {
+        borderGlowColor.value = EditorState.borderGlowColor;
+        borderGlowColor.addEventListener('input', (e) => {
+            EditorState.borderGlowColor = e.target.value;
+            updatePreview();
+        });
+    }
+
+    const borderGlowSize = document.getElementById('borderGlowSize');
+    if (borderGlowSize) {
+        borderGlowSize.value = EditorState.borderGlowSize;
+        const borderGlowSizeValue = document.getElementById('borderGlowSizeValue');
+        if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
+        borderGlowSize.addEventListener('input', (e) => {
+            EditorState.borderGlowSize = parseInt(e.target.value);
+            if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
+            updatePreview();
+        });
+    }
+
+    const borderGlowIntensity = document.getElementById('borderGlowIntensity');
+    if (borderGlowIntensity) {
+        borderGlowIntensity.value = EditorState.borderGlowIntensity;
+        const borderGlowIntensityValue = document.getElementById('borderGlowIntensityValue');
+        if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
+        borderGlowIntensity.addEventListener('input', (e) => {
+            EditorState.borderGlowIntensity = parseFloat(e.target.value);
+            if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
+            updatePreview();
+        });
+    }
+
+    const enablePerLineDecor = document.getElementById('enablePerLineDecor');
+    if (enablePerLineDecor) {
+        enablePerLineDecor.checked = EditorState.enablePerLineDecor;
+        enablePerLineDecor.addEventListener('change', (e) => {
+            EditorState.enablePerLineDecor = e.target.checked;
+            updateMessagePreview();
+        });
+    }
 
     document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
 }
 
 function updateMessagePreview() {
     const messageEl = document.getElementById('previewMessage');
-    messageEl.innerHTML = EditorState.messageText.replace(/\n/g, '<br>');
-    messageEl.style.whiteSpace = 'pre-wrap';
-    messageEl.style.wordWrap = 'break-word';
-    messageEl.style.overflowWrap = 'break-word';
+    if (!messageEl) return;
+
+    const lines = EditorState.messageText.split('\n');
+    let html = '';
+
+    lines.forEach((line, index) => {
+        html += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
+
+        if (EditorState.enablePerLineDecor && index < lines.length - 1) {
+            html += `<div class="message-line-decor" style="background: ${EditorState.textColor};"></div>`;
+        }
+    });
+
+    messageEl.innerHTML = html;
+    messageEl.style.display = 'flex';
+    messageEl.style.flexDirection = 'column';
+    messageEl.style.alignItems = 'center';
+    messageEl.style.gap = '0px';
+    messageEl.style.width = '100%';
     messageEl.style.maxWidth = '100%';
 }
 
@@ -668,51 +862,82 @@ function updateDecorLines() {
 }
 
 function updateAllText() {
-    document.getElementById('previewEventType').textContent = EditorState.eventType;
-    document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
-    document.getElementById('previewEventType').style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
-    document.getElementById('previewEventType').style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
-    document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
+    const previewEventType = document.getElementById('previewEventType');
+    if (previewEventType) {
+        previewEventType.textContent = EditorState.eventType;
+        previewEventType.style.fontSize = EditorState.eventTypeSize + 'px';
+        previewEventType.style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
+        previewEventType.style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
+        previewEventType.style.fontFamily = EditorState.eventTypeFont;
+    }
 
-    document.getElementById('previewNames').textContent = EditorState.names;
-    document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
-    document.getElementById('previewNames').style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
-    document.getElementById('previewNames').style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
-    document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
+    const previewNames = document.getElementById('previewNames');
+    if (previewNames) {
+        previewNames.textContent = EditorState.names;
+        previewNames.style.fontSize = EditorState.namesSize + 'px';
+        previewNames.style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
+        previewNames.style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
+        previewNames.style.fontFamily = EditorState.namesFont;
+    }
 
-    document.getElementById('previewGreeting').textContent = EditorState.greeting;
-    document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
-    document.getElementById('previewGreeting').style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
-    document.getElementById('previewGreeting').style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
-    document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
+    const previewGreeting = document.getElementById('previewGreeting');
+    if (previewGreeting) {
+        previewGreeting.textContent = EditorState.greeting;
+        previewGreeting.style.fontSize = EditorState.greetingSize + 'px';
+        previewGreeting.style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
+        previewGreeting.style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
+        previewGreeting.style.fontFamily = EditorState.greetingFont;
+    }
 
-    document.getElementById('previewDate').textContent = EditorState.dateText;
-    document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
-    document.getElementById('previewDate').style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
-    document.getElementById('previewDate').style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
-    document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
+    const previewDate = document.getElementById('previewDate');
+    if (previewDate) {
+        previewDate.textContent = EditorState.dateText;
+        previewDate.style.fontSize = EditorState.dateSize + 'px';
+        previewDate.style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
+        previewDate.style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
+        previewDate.style.fontFamily = EditorState.dateFont;
+    }
 
-    document.getElementById('previewTime').textContent = EditorState.timeText;
-    document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
-    document.getElementById('previewTime').style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
-    document.getElementById('previewTime').style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
-    document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
+    const previewTime = document.getElementById('previewTime');
+    if (previewTime) {
+        previewTime.textContent = EditorState.timeText;
+        previewTime.style.fontSize = EditorState.timeSize + 'px';
+        previewTime.style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
+        previewTime.style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
+        previewTime.style.fontFamily = EditorState.timeFont;
+    }
 
-    document.getElementById('previewPlace').textContent = EditorState.placeText;
-    document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
-    document.getElementById('previewPlace').style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
-    document.getElementById('previewPlace').style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
-    document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
+    const previewPlace = document.getElementById('previewPlace');
+    if (previewPlace) {
+        previewPlace.textContent = EditorState.placeText;
+        previewPlace.style.fontSize = EditorState.placeSize + 'px';
+        previewPlace.style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
+        previewPlace.style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
+        previewPlace.style.fontFamily = EditorState.placeFont;
+    }
 
     updateMessagePreview();
 
-    document.getElementById('eventTypeSizeValue').textContent = EditorState.eventTypeSize;
-    document.getElementById('namesSizeValue').textContent = EditorState.namesSize;
-    document.getElementById('greetingSizeValue').textContent = EditorState.greetingSize;
-    document.getElementById('dateSizeValue').textContent = EditorState.dateSize;
-    document.getElementById('timeSizeValue').textContent = EditorState.timeSize;
-    document.getElementById('placeSizeValue').textContent = EditorState.placeSize;
-    document.getElementById('messageSizeValue').textContent = EditorState.messageSize;
+    const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
+    if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+
+    const namesSizeValue = document.getElementById('namesSizeValue');
+    if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+
+    const greetingSizeValue = document.getElementById('greetingSizeValue');
+    if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+
+    const dateSizeValue = document.getElementById('dateSizeValue');
+    if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+
+    const timeSizeValue = document.getElementById('timeSizeValue');
+    if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+
+    const placeSizeValue = document.getElementById('placeSizeValue');
+    if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+
+    const messageSizeValue = document.getElementById('messageSizeValue');
+    if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
 
     updateDecorLines();
 }
@@ -728,6 +953,13 @@ function updatePreview() {
     if (card) {
         card.style.border = `${EditorState.borderWidth}px solid ${EditorState.borderColor}`;
         card.style.borderRadius = `${EditorState.borderRadius}px`;
+
+        if (EditorState.borderGlowEnabled) {
+            card.style.boxShadow = `0 0 ${EditorState.borderGlowSize}px ${EditorState.borderGlowColor}, 0 25px 50px -12px rgba(0,0,0,0.25)`;
+        } else {
+            card.style.boxShadow = '0 25px 50px -12px rgba(0,0,0,0.25)';
+        }
+
         const rgb = hexToRgb(EditorState.containerBgColor);
         card.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${EditorState.containerBgOpacity})`;
         card.style.color = EditorState.textColor;
@@ -753,35 +985,29 @@ function initMobileTabs() {
 
     if (!mobileTabs || !sidebar || !preview) return;
 
-    function switchToTab(tabName) {
+    const switchToTab = (tabName) => {
         activeTab = tabName;
         document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.mobile-tab[data-tab="${tabName}"]`).classList.add('active');
 
         if (tabName === 'settings') {
-            document.querySelector('.mobile-tab[data-tab="settings"]').classList.add('active');
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
         } else {
-            document.querySelector('.mobile-tab[data-tab="preview"]').classList.add('active');
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
-            setTimeout(applyMobileScale, 50);
-            setTimeout(fixBackgroundScroll, 50);
+            setTimeout(() => {
+                applyMobileScale();
+                fixBackgroundScroll();
+            }, 50);
         }
-    }
+    };
 
     isMobileView = window.innerWidth <= 768;
-
-    if (isMobileView) {
-        switchToTab('settings');
-        fixMobileTabsPosition();
-    }
+    if (isMobileView) switchToTab('settings');
 
     document.querySelectorAll('.mobile-tab').forEach(tab => {
-        tab.addEventListener('click', () => {
-            const tabName = tab.dataset.tab;
-            switchToTab(tabName);
-        });
+        tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
     });
 
     let resizeTimeout;
@@ -790,16 +1016,12 @@ function initMobileTabs() {
         resizeTimeout = setTimeout(() => {
             isMobileView = window.innerWidth <= 768;
             if (isMobileView) {
-                const activeTab = document.querySelector('.mobile-tab.active');
-                if (activeTab) {
-                    switchToTab(activeTab.dataset.tab);
-                }
+                const active = document.querySelector('.mobile-tab.active');
+                if (active) switchToTab(active.dataset.tab);
                 fixMobileTabsPosition();
-                fixBackgroundScroll();
             } else {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
-                activeTab = 'settings';
             }
             applyMobileScale();
         }, 150);
@@ -863,9 +1085,7 @@ async function saveInvitation() {
     btn.disabled = true;
 
     try {
-        const existing = await db.collection('invitations')
-            .where('slug', '==', slug)
-            .get();
+        const existing = await db.collection('invitations').where('slug', '==', slug).get();
 
         if (!existing.empty) {
             alert('Эта ссылка уже занята. Придумайте другую');
@@ -881,6 +1101,10 @@ async function saveInvitation() {
             borderColor: EditorState.borderColor,
             borderWidth: EditorState.borderWidth,
             borderRadius: EditorState.borderRadius,
+            borderGlowEnabled: EditorState.borderGlowEnabled,
+            borderGlowColor: EditorState.borderGlowColor,
+            borderGlowSize: EditorState.borderGlowSize,
+            borderGlowIntensity: EditorState.borderGlowIntensity,
             containerBgColor: EditorState.containerBgColor,
             containerBgOpacity: EditorState.containerBgOpacity,
             eventType: EditorState.eventType,
@@ -920,7 +1144,7 @@ async function saveInvitation() {
             messageFont: EditorState.messageFont,
             textColor: EditorState.textColor,
             showDecorLines: EditorState.showDecorLines,
-            // Анимации
+            enablePerLineDecor: EditorState.enablePerLineDecor,
             enableAnimations: EditorState.enableAnimations,
             animationType: EditorState.animationType,
             animationIntensity: EditorState.animationIntensity,
@@ -932,7 +1156,6 @@ async function saveInvitation() {
         };
 
         await db.collection('invitations').add(invitationData);
-
         window.location.href = `/invitation/#${slug}`;
 
     } catch (error) {
