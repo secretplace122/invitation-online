@@ -396,19 +396,19 @@
 
 /* ===== SLUG INPUT ===== */
 .slug-input {
-    margin-top: 1rem;
+    margin-top: 0.3rem;
 }
 
 .slug-input label {
     display: block;
     margin-bottom: 0.4rem;
-    font-size: 0.9rem;
+    font-size: 0.7rem;
     color: #94a3b8;
 }
 
 .slug-input input {
     width: 100%;
-    padding: 0.6rem;
+    padding: 0.3rem;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
     font-size: 0.95rem;
@@ -571,7 +571,7 @@
     }
 
     .sidebar-footer {
-        padding: 1rem;
+        padding: 0.4rem;
         flex-shrink: 0;
     }
 
@@ -647,13 +647,13 @@
     }
 
     .btn {
-        min-height: 44px;
-        padding: 0.75rem 1.5rem;
+        min-height: 30px;
+        padding: 0.4rem 0.5rem;
     }
 
     .slug-input input {
-        min-height: 44px;
-        font-size: 16px;
+        min-height: 30px;
+        font-size: 15px;
     }
 
     .accordion-content {
@@ -676,7 +676,7 @@
     }
 
     .animation-colors label {
-        min-height: 44px;
+        min-height: 24px;
     }
 
     .animation-colors input[type="checkbox"] {
