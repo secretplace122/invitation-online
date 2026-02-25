@@ -132,7 +132,7 @@ body {
 }
 
 .hero {
-    background-image: url('/images/hero-bg.jpg');
+    background-image: url('/images/hero-bg.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -338,7 +338,7 @@ body {
 }
 
 .footer {
-    background-image: url('/images/footer-bg.jpg');
+    background-image: url('/images/footer-bg.webp');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
@@ -479,7 +479,69 @@ body {
     margin-bottom: 0.5rem;
 }
 
+.how-it-works {
+    padding: 2rem;
+    background: white;
+    border-radius: 50px;
+}
+
+.steps-container {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    margin-top: 3rem;
+}
+
+.step-item {
+    text-align: center;
+    width: 250px;
+    flex: 0 0 auto;
+}
+
+.step-number {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: white;
+}
+
 @media (max-width: 768px) {
+    .steps-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .step-item {
+        width: calc(33.33% - 0.35rem);
+        min-width: 0;
+        font-size: 0.9rem;
+    }
+
+    .step-item h3 {
+        font-size: 1rem;
+    }
+
+    .step-item p {
+        display: none;
+    }
+
+    .step-number {
+        width: 40px;
+        height: 40px;
+        font-size: 1.2rem;
+        margin-bottom: 0.5rem;
+    }
+
     .legal-page {
         padding: 2rem 1rem;
     }
