@@ -1,23 +1,55 @@
 <!DOCTYPE html>
 <html lang="ru">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>invitation-online - Создай своё приглашение</title>
+
+    <title>Создать приглашение онлайн — конструктор пригласительных на свадьбу, день рождения</title>
+    <meta name="description"
+        content="Создайте красивое приглашение онлайн за 299 ₽. Конструктор пригласительных на свадьбу, день рождения и любой праздник. Уникальная ссылка сразу после оплаты.">
+    <meta name="keywords"
+        content="приглашение, пригласительные, пригласительные на свадьбу, пригласительные на день рождения, сделать пригласительные, приглашение онлайн, создать приглашение онлайн, открытка приглашение">
+
+    <link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon">
+    <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="48x48" href="/images/favicon/favicon-48x48.png">
+    <link rel="icon" type="image/png" sizes="128x128" href="/images/favicon/favicon-128x128.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
+
+    <link rel="canonical" href="https://invitation-online.ru">
+
+    <meta name="geo.region" content="RU">
+    <meta name="msapplication-TileColor" content="#A8D8EA">
+    <meta name="theme-color" content="#A8D8EA">
+
+    <meta property="og:title" content="Создать приглашение онлайн — конструктор пригласительных">
+    <meta property="og:description"
+        content="Создайте красивое приглашение онлайн за 299 ₽ на свадьбу, день рождения и любой праздник">
+    <meta property="og:image" content="https://invitation-online.ru/images/og-preview.jpg">
+    <meta property="og:url" content="https://invitation-online.ru">
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="invitation-online">
+
     <link rel="stylesheet" href="css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=VT323&family=Courier+Prime:wght@400;700&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Dancing+Script:wght@400;700&family=Inter:wght@300;400;500;600;700&family=Press+Start+2P&family=VT323&family=Courier+Prime:wght@400;700&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+    </style>
 </head>
+
 <body>
-    <div class="pattern-bg" id="patternBg" style="opacity: 0.1; background-image: url('/images/patterns/abstract-1.jpg');"></div>
+    <div class="pattern-bg" id="patternBg" style="opacity: 0.2; background-image: url('/images/main-bg.png');"></div>
 
     <nav class="navbar">
         <div class="nav-container">
             <a href="/" class="logo">
-                <svg class="logo-svg" viewBox="0 0 24 24">
-                    <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
-                    <path d="M16 10l-4 4-4-4"/>
-                </svg>
+                <img src="/images/logo.png" alt="invitation-online" height="32" style="height: 32px; width: auto;">
                 invitation-online
             </a>
             <button class="mobile-menu-btn" id="mobileMenuBtn">
@@ -38,53 +70,159 @@
         <section class="hero">
             <div class="container">
                 <h1 class="hero-title">
-                    Создайте уникальное<br>
-                    <span class="gradient-text">приглашение своей мечты</span>
+                    Создать онлайн приглашение<br>
+                    <span class="gradient-text">на любой праздник</span>
                 </h1>
                 <p class="hero-subtitle">
-                    Конструктор, в котором вы сами выбираете фон, рамку, шрифты и декор.
-                    Полная свобода творчества.
+                    Конструктор пригласительных на свадьбу, день рождения и другие события.
+                    Уникальная ссылка сразу после оплаты.
                 </p>
+                <div style="margin-bottom: 1.5rem;">
+                    <span
+                        style="background: linear-gradient(135deg, #A8D8EA, #FAC0C0); padding: 0.5rem 1.5rem; border-radius: 50px; font-weight: 600; color: #475569;">299
+                        ₽ за приглашение</span>
+                </div>
                 <a href="/editor/" class="btn btn-primary btn-large">✨ Создать приглашение</a>
+            </div>
+        </section>
+
+        <section class="how-it-works" style="padding: 2rem 2rem; background: white;border-radius: 50px 50px 50px 50px;">
+            <div class="container">
+                <h2 class="section-title">Как создать приглашение за 3 шага</h2>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 3rem;">
+                    <div style="text-align: center;">
+                        <div
+                            style="width: 60px; height: 60px; background: linear-gradient(135deg, #A8D8EA, #FAC0C0); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: bold; color: white;">
+                            1</div>
+                        <h3 style="margin-bottom: 0.5rem;">Выберите дизайн</h3>
+                        <p style="color: #94a3b8;">Фон, рамку, шрифты и цвета для вашего приглашения</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div
+                            style="width: 60px; height: 60px; background: linear-gradient(135deg, #A8D8EA, #FAC0C0); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: bold; color: white;">
+                            2</div>
+                        <h3 style="margin-bottom: 0.5rem;">Напишите текст</h3>
+                        <p style="color: #94a3b8;">Имена, дату, время, место и программу мероприятия</p>
+                    </div>
+                    <div style="text-align: center;">
+                        <div
+                            style="width: 60px; height: 60px; background: linear-gradient(135deg, #A8D8EA, #FAC0C0); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1rem; font-size: 1.5rem; font-weight: bold; color: white;">
+                            3</div>
+                        <h3 style="margin-bottom: 0.5rem;">Оплатите и получите ссылку</h3>
+                        <p style="color: #94a3b8;">299 ₽ — и готовое приглашение доступно по уникальной ссылке</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section style="padding: 3rem 2rem; background: #f8fafc; border-radius: 50px 50px 50px 50px;">
+            <div class="container">
+                <h2 class="section-title">Почему мы можем предложить такую цену?</h2>
+                <div style="max-width: 800px; margin: 0 auto; text-align: center;">
+                    <p style="font-size: 1.2rem; line-height: 1.6; color: #475569;">
+                        Сервис полностью автоматизирован. Нам не нужен штат дизайнеров и программистов —
+                        всё работает само. Поэтому <strong>299 ₽</strong> — это честная цена без наценок.
+                    </p>
+                </div>
             </div>
         </section>
 
         <section id="gallery" class="gallery-section">
             <div class="container">
-                <h2 class="section-title">Примеры приглашений</h2>
-                <div class="gallery-grid" id="galleryGrid"></div>
+                <h2 class="section-title">Примеры наших работ</h2>
+                <div class="gallery-grid" id="galleryGrid">
+                </div>
             </div>
         </section>
 
         <section id="faq" class="faq-section">
             <div class="container">
-                <h2 class="section-title">Частые вопросы</h2>
+                <h2 class="section-title">Часто задаваемые вопросы</h2>
                 <div class="faq-list">
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Как создать приглашение?</span>
+                            <span>Сколько стоит создание приглашения?</span>
                             <span class="material-symbols-outlined">expand_more</span>
                         </button>
                         <div class="faq-answer">
-                            Нажмите кнопку "Создать приглашение", выберите фон, рамку, напишите текст и добавьте декор. Готовое приглашение сохранится по уникальной ссылке.
+                            299 рублей — это разовая оплата за готовое цифровое приглашение. Никаких подписок и скрытых
+                            платежей.
                         </div>
                     </div>
+
                     <div class="faq-item">
                         <button class="faq-question">
-                            <span>Это бесплатно?</span>
+                            <span>Как сделать приглашение онлайн?</span>
                             <span class="material-symbols-outlined">expand_more</span>
                         </button>
                         <div class="faq-answer">
-                            Да, полностью бесплатно. Вы можете создавать сколько угодно приглашений.
+                            Нажмите «Создать приглашение», выберите фон, рамку, напишите текст, добавьте декор. После
+                            оплаты вы получите уникальную ссылку.
                         </div>
                     </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Можно ли создать пригласительные на свадьбу?</span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        <div class="faq-answer">
+                            Да, в конструкторе есть паттерны для свадьбы, а также для дня рождения, юбилея, корпоратива
+                            и других событий.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Как выглядит ссылка на приглашение?</span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        <div class="faq-answer">
+                            Ваше приглашение будет доступно по адресу:
+                            <strong>www.invitation-online.ru/invitation/#ваш-текст</strong>. Например:
+                            www.invitation-online.ru/invitation/#ivan-i-maria.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Можно ли на своём домене?</span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        <div class="faq-answer">
+                            Да, можно. Пишите в поддержку: <strong>secretplace122@gmail.com</strong>. Подключим ваш
+                            личный домен (например, свадьба-петра-и-марии.рф).
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Почему так дёшево?</span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        <div class="faq-answer">
+                            Сервис полностью автоматизирован. Нам не нужен штат дизайнеров и программистов — всё
+                            работает само. Поэтому мы можем предложить такую цену без наценок.
+                        </div>
+                    </div>
+
                     <div class="faq-item">
                         <button class="faq-question">
                             <span>Нужна регистрация?</span>
                             <span class="material-symbols-outlined">expand_more</span>
                         </button>
                         <div class="faq-answer">
-                            Нет, регистрация не требуется. Всё сохраняется по ссылке.
+                            Нет, регистрация не требуется. Всё сохраняется по ссылке после оплаты.
+                        </div>
+                    </div>
+
+                    <div class="faq-item">
+                        <button class="faq-question">
+                            <span>Как оплатить?</span>
+                            <span class="material-symbols-outlined">expand_more</span>
+                        </button>
+                        <div class="faq-answer">
+                            Оплата проходит через защищённые платёжные системы картой или электронными деньгами.
                         </div>
                     </div>
                 </div>
@@ -97,53 +235,29 @@
             <div class="footer-content">
                 <div class="footer-info">
                     <div class="logo">
-                        <svg class="logo-svg" viewBox="0 0 24 24">
-                            <path d="M20 12c0 4.4-3.6 8-8 8s-8-3.6-8-8 3.6-8 8-8 8 3.6 8 8z"/>
-                            <path d="M16 10l-4 4-4-4"/>
-                        </svg>
+                        <img src="/images/logo.png" alt="invitation-online" height="32"
+                            style="height: 32px; width: auto;">
                         invitation-online
                     </div>
                     <p>Создавайте уникальные приглашения<br>для любых мероприятий</p>
+                    <p style="margin-top: 1rem; font-size: 0.9rem; color: #475569;">
+                        ИНН: 504416865478
+                    </p>
                 </div>
                 <div class="footer-links">
                     <h4>Навигация</h4>
                     <a href="/">Главная</a>
                     <a href="/editor/">Редактор</a>
+                    <a href="/legal/">Правовая информация</a>
                 </div>
             </div>
             <div class="footer-bottom">
-                <p>&copy; 2026 invitation-online. Все права защищены.</p>
+                <p>© 2026 invitation-online. Все права защищены.</p>
             </div>
         </div>
     </footer>
 
-    <script>
-        const examples = [
-            { image: '/images/examples/wedding-1.jpg', title: 'Свадьба' },
-            { image: '/images/examples/birthday-1.jpg', title: 'День рождения' },
-            { image: '/images/examples/corporate-1.jpg', title: 'Корпоратив' },
-            { image: '/images/examples/wedding-2.jpg', title: 'Нежная свадьба' },
-            { image: '/images/examples/birthday-2.jpg', title: 'Детский праздник' },
-            { image: '/images/examples/housewarming-1.jpg', title: 'Новоселье' }
-        ];
-
-        const galleryGrid = document.getElementById('galleryGrid');
-        if (galleryGrid) {
-            galleryGrid.innerHTML = examples.map(ex => `
-                <div class="gallery-item">
-                    <img src="${ex.image}" alt="${ex.title}" loading="lazy">
-                    <div class="gallery-item-title">${ex.title}</div>
-                </div>
-            `).join('');
-        }
-
-        document.querySelectorAll('.faq-question').forEach(btn => {
-            btn.addEventListener('click', () => {
-                const item = btn.closest('.faq-item');
-                item.classList.toggle('active');
-            });
-        });
-    </script>
     <script src="js/script.js"></script>
 </body>
+
 </html>

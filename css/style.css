@@ -132,8 +132,32 @@ body {
 }
 
 .hero {
+    background-image: url('/images/hero-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 0 0 50px 50px;
+    overflow: hidden;
     padding: 6rem 2rem;
     text-align: center;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.35);
+    z-index: 1;
+    border-radius: 0 0 50px 50px;
+}
+
+.hero .container {
+    position: relative;
+    z-index: 2;
 }
 
 .hero-title {
@@ -144,7 +168,7 @@ body {
 }
 
 .gradient-text {
-    background: linear-gradient(135deg, var(--primary-blue-dark), var(--primary-pink-dark));
+    background: linear-gradient(135deg, var(--text-dark), var(--primary-pink-dark));
     -webkit-background-clip: text;
     background-clip: text;
     -webkit-text-fill-color: transparent;
@@ -152,7 +176,7 @@ body {
 
 .hero-subtitle {
     font-size: clamp(1rem, 2vw, 1.25rem);
-    color: var(--text-light);
+    color: var(--text-dark);
     max-width: 700px;
     margin: 0 auto 2rem;
 }
@@ -220,8 +244,9 @@ body {
 }
 
 .gallery-section {
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
     background: var(--white);
+    border-radius: 50px 50px 50px 50px;
 }
 
 .gallery-grid {
@@ -260,7 +285,7 @@ body {
 }
 
 .faq-section {
-    padding: 4rem 2rem;
+    padding: 2rem 2rem;
 }
 
 .faq-list {
@@ -313,10 +338,32 @@ body {
 }
 
 .footer {
-    background: linear-gradient(135deg, rgba(168, 216, 234, 0.1), rgba(250, 192, 192, 0.1));
+    background-image: url('/images/footer-bg.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    position: relative;
+    border-radius: 50px 50px 0 0;
+    overflow: hidden;
     padding: 3rem 2rem 1rem;
     margin-top: 4rem;
-    border-top: 1px solid rgba(168, 216, 234, 0.3);
+}
+
+.footer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.35);
+    z-index: 1;
+    border-radius: 50px 50px 0 0;
+}
+
+.footer .container {
+    position: relative;
+    z-index: 2;
 }
 
 .footer-content {
@@ -333,7 +380,7 @@ body {
 }
 
 .footer-info p {
-    color: var(--text-light);
+    color: var(--text-dark);
 }
 
 .footer-links h4 {
@@ -343,7 +390,7 @@ body {
 
 .footer-links a {
     display: block;
-    color: var(--text-light);
+    color: var(--text-dark);
     text-decoration: none;
     margin-bottom: 0.5rem;
     transition: color 0.3s;
@@ -358,11 +405,93 @@ body {
     margin: 0 auto;
     text-align: center;
     padding-top: 2rem;
-    border-top: 1px solid rgba(168, 216, 234, 0.3);
-    color: var(--text-light);
+    color: var(--text-dark);
+}
+
+.legal-page {
+    padding: 4rem 2rem;
+    min-height: calc(100vh - 200px);
+}
+
+.legal-container {
+    max-width: 900px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 30px;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    padding: 3rem;
+    border: 1px solid rgba(168, 216, 234, 0.3);
+}
+
+.legal-container h1 {
+    font-size: 2.2rem;
+    color: #475569;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #A8D8EA;
+}
+
+.legal-container h2 {
+    font-size: 1.5rem;
+    color: #475569;
+    margin: 2rem 0 1rem;
+    padding-left: 0.5rem;
+    border-left: 4px solid #FAC0C0;
+}
+
+.legal-container h3 {
+    font-size: 1.2rem;
+    color: #64748b;
+    margin: 1.5rem 0 0.8rem;
+}
+
+.legal-container p {
+    line-height: 1.6;
+    color: #475569;
+    margin-bottom: 1rem;
+}
+
+.legal-container ul {
+    margin: 1rem 0 1.5rem 2rem;
+    color: #475569;
+}
+
+.legal-container li {
+    margin-bottom: 0.5rem;
+    line-height: 1.5;
+}
+
+.legal-container strong {
+    color: #07abdd;
+    font-weight: 600;
+}
+
+.legal-footer-info {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid #e2e8f0;
+    background: #f8fafc;
+    border-radius: 20px;
+    padding: 2rem;
+}
+
+.legal-footer-info p {
+    margin-bottom: 0.5rem;
 }
 
 @media (max-width: 768px) {
+    .legal-page {
+        padding: 2rem 1rem;
+    }
+
+    .legal-container {
+        padding: 1.5rem;
+    }
+
+    .legal-container h1 {
+        font-size: 1.8rem;
+    }
+
     .mobile-menu-btn {
         display: flex;
     }
