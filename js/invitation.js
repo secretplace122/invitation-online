@@ -72,7 +72,7 @@ function displayInvitation(data) {
         messageHtml += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
 
         if (data.enablePerLineDecor && index < lines.length - 1) {
-            messageHtml += `<div class="message-line-decor" style="width:430px; height:2px; background:${data.textColor || '#475569'}; opacity:0.3; pointer-events:none;"></div>`;
+            messageHtml += `<div class="message-line-decor" style="width:80%; height:1px; background:${data.textColor || '#475569'}; opacity:0.3; pointer-events:none;"></div>`;
         }
     });
 

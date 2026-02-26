@@ -481,6 +481,72 @@
     padding-bottom: 0;
 }
 
+.decor-line {
+    width: 80px;
+    height: 2px;
+    background: currentColor;
+    margin: 0.5rem auto;
+    opacity: 0.5;
+}
+
+.btn .spinner-small {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    border-radius: 50%;
+    border-top-color: white;
+    animation: spin 0.8s linear infinite;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.user-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    animation: slideIn 0.3s ease;
+}
+
+.user-notification-success {
+    background: #4CAF50;
+    color: white;
+}
+
+.user-notification-error {
+    background: #F44336;
+    color: white;
+}
+
+.user-notification-warning {
+    background: #FF9800;
+    color: white;
+}
+
+.user-notification-info {
+    background: #2196F3;
+    color: white;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(100%);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
 /* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
 @media (max-width: 768px) {
     body {
@@ -684,7 +750,7 @@
     }
 
     .message-line-decor {
-        width: 430px;
+        width: 80%;
     }
 }
 

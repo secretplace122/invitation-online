@@ -3,42 +3,37 @@ class AnimationManager {
         this.interval = null;
         this.elements = [];
         this.isRunning = false;
-        this.isStopping = false;
         this.container = null;
     }
 
     start(config) {
         if (!config || !config.enabled) {
-            this.stop(true);
+            this.stop();
             return;
         }
 
         if (this.isRunning) return;
 
         this.isRunning = true;
-        this.isStopping = false;
 
         this.createContainer(config.position);
 
         const colors = config.colors || ['#FF69B4', '#FFD700', '#87CEEB'];
         const intensity = config.intensity || 5;
-        const size = config.size || 60;
+        const size = config.size || 30;
         const speed = config.speed || 3;
         const type = config.type || 'balloons';
 
         const intervalTime = Math.max(200, 1000 / intensity);
 
         this.interval = setInterval(() => {
-            if (!this.isRunning || this.isStopping || !this.container) return;
+            if (!this.isRunning || !this.container) return;
             this.createElement(type, colors, size, speed);
         }, intervalTime);
     }
 
     createContainer(position) {
-        if (this.container?.parentNode) {
-            this.container.remove();
-            this.container = null;
-        }
+        this.destroyContainer();
 
         this.container = document.createElement('div');
         this.container.className = 'animation-container';
@@ -97,6 +92,13 @@ class AnimationManager {
             }
         }
         document.body.appendChild(this.container);
+    }
+
+    destroyContainer() {
+        if (this.container?.parentNode) {
+            this.container.remove();
+            this.container = null;
+        }
     }
 
     createElement(type, colors, baseSize, speed) {
@@ -169,12 +171,13 @@ class AnimationManager {
         this.container.appendChild(element);
         this.elements.push(element);
 
+        // Удаляем элемент после завершения анимации
         setTimeout(() => {
             if (element?.parentNode) {
                 element.remove();
                 this.elements = this.elements.filter(el => el !== element);
             }
-        }, (duration + delay) * 1000 + 1000);
+        }, (duration + delay) * 1000 + 100);
     }
 
     cleanup() {
@@ -186,46 +189,10 @@ class AnimationManager {
         this.elements = [];
     }
 
-    stop(graceful = true) {
-        if (graceful) {
-            this.isStopping = true;
-            if (this.interval) {
-                clearInterval(this.interval);
-                this.interval = null;
-            }
-            
-            // Ждём пока все текущие анимации закончатся
-            setTimeout(() => {
-                // Удаляем ТОЛЬКО элементы анимации, но НЕ контейнер
-                this.elements.forEach(el => el?.parentNode?.remove());
-                this.elements = [];
-                
-                // Контейнер оставляем, но очищаем
-                if (this.container) {
-                    // Просто убеждаемся что в контейнере пусто
-                    while (this.container.firstChild) {
-                        this.container.removeChild(this.container.firstChild);
-                    }
-                }
-                
-                this.isRunning = false;
-                this.isStopping = false;
-                
-                // Контейнер НЕ УДАЛЯЕМ! Он может понадобиться снова
-                // При следующем запуске createContainer сам создаст новый
-            }, 10000);
-            
-        } else {
-            this.isRunning = false;
-            this.cleanup();
-            
-            // При резкой остановке тоже не удаляем контейнер полностью
-            if (this.container) {
-                while (this.container.firstChild) {
-                    this.container.removeChild(this.container.firstChild);
-                }
-            }
-        }
+    stop() {
+        this.isRunning = false;
+        this.cleanup();
+        this.destroyContainer();
     }
 }
 

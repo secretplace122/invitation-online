@@ -53,7 +53,7 @@ const EditorState = {
     animationIntensity: 5,
     animationSpeed: 3,
     animationColors: ['#FF69B4', '#FFD700', '#87CEEB', '#98FB98', '#FFA07A', '#DDA0DD'],
-    animationSize: 60,
+    animationSize: 30,
     animationPosition: 'whole'
 };
 
@@ -147,7 +147,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initMobileTabs();
     initColorPresets();
     initAccordion();
-    initMobileMenu();
     initFontSelectors();
     initBoldItalicButtons();
     initAnimationControls();
@@ -336,32 +335,7 @@ function initAccordion() {
     });
 }
 
-function initMobileMenu() {
-    const menuBtn = document.getElementById('mobileMenuBtn');
-    const navLinks = document.getElementById('navLinks');
 
-    if (menuBtn && navLinks) {
-        menuBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            navLinks.classList.toggle('active');
-            menuBtn.querySelectorAll('span').forEach(span => span.classList.toggle('active'));
-        });
-
-        document.addEventListener('click', (e) => {
-            if (!navLinks.contains(e.target) && !menuBtn.contains(e.target)) {
-                navLinks.classList.remove('active');
-                menuBtn?.querySelectorAll('span').forEach(span => span.classList.remove('active'));
-            }
-        });
-
-        document.querySelectorAll('#navLinks a').forEach(link => {
-            link.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-                menuBtn?.querySelectorAll('span').forEach(span => span.classList.remove('active'));
-            });
-        });
-    }
-}
 
 function initAnimationControls() {
     const enableAnimations = document.getElementById('enableAnimations');
@@ -1063,31 +1037,48 @@ function initColorPresets() {
 
 async function saveInvitation() {
     const slug = document.getElementById('customSlug')?.value.trim();
+    const btn = document.getElementById('saveInvitationBtn');
+    const originalHTML = btn.innerHTML;
 
     if (!slug) {
-        alert('Введите ссылку');
+        showUserNotification('Введите ссылку для приглашения', 'warning');
         return;
     }
 
     if (!/^[a-z0-9-]+$/.test(slug)) {
-        alert('Только латинские буквы, цифры и дефисы');
+        showUserNotification('Используйте только латинские буквы, цифры и дефисы', 'warning');
         return;
     }
 
-    const btn = document.getElementById('saveInvitationBtn');
-    const originalText = btn.textContent;
-    btn.textContent = 'Сохранение...';
+    // Показываем состояние загрузки
     btn.disabled = true;
+    btn.innerHTML = `
+        <span class="spinner-small" style="
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 0.8s linear infinite;
+            margin-right: 8px;
+        "></span>
+        Сохранение...
+    `;
 
     try {
         const existing = await db.collection('invitations').where('slug', '==', slug).get();
 
         if (!existing.empty) {
-            alert('Эта ссылка уже занята. Придумайте другую');
-            btn.textContent = originalText;
             btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            showUserNotification('Эта ссылка уже занята. Придумайте другую', 'error');
             return;
         }
+
+        // Здесь должна быть интеграция с платежной системой
+        // симулируем задержку
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
         const invitationData = {
             slug: slug,
@@ -1151,12 +1142,107 @@ async function saveInvitation() {
         };
 
         await db.collection('invitations').add(invitationData);
-        window.location.href = `/invitation/#${slug}`;
+
+        showUserNotification('Приглашение успешно создано! Перенаправляем...', 'success');
+
+        setTimeout(() => {
+            window.location.href = `/invitation/#${slug}`;
+        }, 1500);
 
     } catch (error) {
         console.error('Save error:', error);
-        alert('Ошибка при сохранении: ' + error.message);
-        btn.textContent = originalText;
+
         btn.disabled = false;
+        btn.innerHTML = originalHTML;
+
+        showUserNotification(
+            'Не удалось сохранить приглашение. Проверьте подключение к интернету и попробуйте снова. ' +
+            'Если ошибка повторяется, напишите нам: secretplace122.95@gmail.com',
+            'error'
+        );
     }
+}
+
+function showUserNotification(message, type = 'info') {
+    const oldNotification = document.querySelector('.user-notification');
+    if (oldNotification) oldNotification.remove();
+
+    const notification = document.createElement('div');
+    notification.className = `user-notification user-notification-${type}`;
+
+    const icons = {
+        success: 'check_circle',
+        error: 'error',
+        warning: 'warning',
+        info: 'info'
+    };
+
+    notification.innerHTML = `
+        <div style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 10000;
+            background: ${type === 'success' ? '#4CAF50' : type === 'error' ? '#F44336' : type === 'warning' ? '#FF9800' : '#2196F3'};
+            color: white;
+            padding: 16px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            max-width: 400px;
+            animation: slideIn 0.3s ease;
+            font-size: 14px;
+            line-height: 1.5;
+        ">
+            <span class="material-symbols-outlined" style="font-size: 24px;">${icons[type]}</span>
+            <span style="flex: 1;">${message}</span>
+            <button onclick="this.parentElement.remove()" style="
+                background: none;
+                border: none;
+                color: white;
+                cursor: pointer;
+                padding: 4px;
+                display: flex;
+                align-items: center;
+                opacity: 0.7;
+                hover: opacity: 1;
+            ">
+                <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
+            </button>
+        </div>
+    `;
+
+    document.body.appendChild(notification);
+
+    if (!document.getElementById('notification-styles')) {
+        const style = document.createElement('style');
+        style.id = 'notification-styles';
+        style.textContent = `
+            @keyframes slideIn {
+                from {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                to {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            @keyframes spin {
+                to { transform: rotate(360deg); }
+            }
+        `;
+        document.head.appendChild(style);
+    }
+
+    setTimeout(() => {
+        const notif = document.querySelector('.user-notification');
+        if (notif) {
+            notif.style.transition = 'opacity 0.3s';
+            notif.style.opacity = '0';
+            setTimeout(() => notif.remove(), 300);
+        }
+    }, 5000);
 }
