@@ -425,7 +425,6 @@
                                         </optgroup>
                                     </select>
                                 </div>
-
                                 <div class="setting-group">
                                     <label>Интенсивность <span id="animationIntensityValue">5</span></label>
                                     <input type="range" id="animationIntensity" min="1" max="10" step="1" value="5">
@@ -479,6 +478,83 @@
                                 </div>
                             </div>
                         </div>
+
+                        <!-- ДЕКОРАЦИИ -->
+                        <div class="accordion-item">
+                            <button class="accordion-header">
+                                <span>🌸 Декорации</span>
+                                <span class="material-symbols-outlined">expand_more</span>
+                            </button>
+                            <div class="accordion-content">
+                                <!-- Библиотека декораций -->
+                                <div class="setting-group">
+                                    <label>Выберите декорацию</label>
+                                    <div class="decor-library-grid" id="decorLibrary"></div>
+                                </div>
+
+                                <!-- Список добавленных декораций -->
+                                <div class="setting-group">
+                                    <label>Добавленные декорации</label>
+                                    <div class="decor-list" id="decorList"></div>
+                                </div>
+
+                                <!-- Панель управления -->
+                                <div class="decor-controls" id="decorControls" style="display: none;">
+                                    <div class="setting-group">
+                                        <label>Размер <span id="decorSizeValue">150</span>px</label>
+                                        <input type="range" id="decorSize" min="30" max="400" step="5" value="150">
+                                    </div>
+
+                                    <div class="decor-rotation-controls">
+                                        <button class="decor-rotate-btn" id="rotateLeft" title="Повернуть на 90° влево">
+                                            <span class="material-symbols-outlined">rotate_left</span>
+                                        </button>
+                                        <span class="decor-angle" id="decorAngle">0°</span>
+                                        <button class="decor-rotate-btn" id="rotateRight"
+                                            title="Повернуть на 90° вправо">
+                                            <span class="material-symbols-outlined">rotate_right</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Позиция X <span id="decorPosXValue">50%</span></label>
+                                        <input type="range" id="decorPosX" min="0" max="100" step="1" value="50">
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Позиция Y <span id="decorPosYValue">50%</span></label>
+                                        <input type="range" id="decorPosY" min="0" max="100" step="1" value="50">
+                                    </div>
+
+                                    <div class="setting-group">
+                                        <label>Прозрачность <span id="decorOpacityValue">1.0</span></label>
+                                        <input type="range" id="decorOpacity" min="0" max="1" step="0.1" value="1">
+                                    </div>
+
+                                    <div class="setting-group"
+                                        style="display: flex; flex-direction: column; gap: 0.5rem;">
+                                        <label style="display: flex; align-items: center;">
+                                            <input type="checkbox" id="decorAboveText">
+                                            <span style="margin-left: 0.5rem;">📄 Поверх текста</span>
+                                        </label>
+
+                                        <label style="display: flex; align-items: center;">
+                                            <input type="checkbox" id="decorClipToFrame" checked>
+                                            <span style="margin-left: 0.5rem;">✂️ Обрезать рамкой</span>
+                                        </label>
+                                        <p style="font-size: 0.8rem; color: #94a3b8; margin-left: 1.7rem;">
+                                            Если выключено, декорации могут выходить за границы рамки
+                                        </p>
+                                    </div>
+
+                                    <button class="btn btn-secondary" id="deleteDecorBtn"
+                                        style="width: 100%; margin-top: 1rem;">
+                                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span>
+                                        Удалить декорацию
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -486,7 +562,7 @@
                     <button class="btn btn-primary" id="saveInvitationBtn">Сохранить</button>
                     <div class="slug-input">
                         <label>Ссылка: /invitation/#</label>
-                        <input type="text" id="customSlug" placeholder="moya-svadba" pattern="[a-z0-9-]+">
+                        <input type="text" id="customSlug" placeholder="moya-svadba" pattern="[-a-z0-9]+">
                     </div>
                 </div>
             </div>
@@ -527,6 +603,7 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/animations.js"></script>
     <script src="../js/editor.js"></script>
+    <script src="../js/decorations.js"></script>
     <script src="../js/script.js"></script>
 </body>
 

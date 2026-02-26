@@ -65,7 +65,7 @@
     display: flex;
     align-items: flex-start;
     justify-content: center;
-    padding: 2rem;
+    padding: 50px;
     position: relative;
 }
 
@@ -103,6 +103,12 @@
     background: white;
     transition: all 0.3s;
     transform-origin: center top;
+    overflow: visible;
+}
+
+/* Режим с обрезкой рамкой */
+.invitation-card.clip-decorations {
+    overflow: hidden;
 }
 
 .card-header,
@@ -154,6 +160,22 @@
     font-size: 1rem;
     line-height: 1.5;
     white-space: pre-line;
+}
+
+/* ===== ТЕКСТ ПОВЕРХ ДЕКОРАЦИЙ ===== */
+.card-header,
+.card-body,
+.card-footer,
+.event-type,
+.names,
+.greeting,
+.details,
+.message,
+.card-header *,
+.card-body *,
+.card-footer * {
+    position: relative;
+    z-index: 10;
 }
 
 /* ===== АККОРДЕОН ===== */
@@ -544,6 +566,205 @@
     to {
         transform: translateX(0);
         opacity: 1;
+    }
+}
+
+/* ===== ДЕКОРАЦИИ ===== */
+.decor-library-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 8px;
+}
+
+.decor-library-item {
+    aspect-ratio: 1;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: white;
+    transition: all 0.2s;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.decor-library-item:hover {
+    transform: scale(1.05);
+    border-color: #A8D8EA;
+}
+
+.decor-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    max-height: 200px;
+    overflow-y: auto;
+    padding: 0.5rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+}
+
+.decor-list-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.decor-list-item:hover {
+    background: #f0f9ff;
+}
+
+.decor-list-item.active {
+    border-color: #A8D8EA;
+    background: #e6f3ff;
+}
+
+.decor-list-thumb {
+    width: 40px;
+    height: 40px;
+    border-radius: 4px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-color: #f0f0f0;
+    flex-shrink: 0;
+}
+
+.decor-list-info {
+    flex: 1;
+    font-size: 0.9rem;
+    color: #475569;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.decor-list-actions {
+    display: flex;
+    gap: 0.25rem;
+    flex-shrink: 0;
+}
+
+.decor-list-btn {
+    width: 30px;
+    height: 30px;
+    border: none;
+    background: none;
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #94a3b8;
+    transition: all 0.2s;
+}
+
+.decor-list-btn:hover {
+    background: #f0f0f0;
+    color: #475569;
+}
+
+.decor-list-btn.delete:hover {
+    background: #fee2e2;
+    color: #ef4444;
+}
+
+.decor-controls {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: #f8fafc;
+    border-radius: 8px;
+    border-left: 3px solid #A8D8EA;
+}
+
+.decor-rotation-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+    margin: 1rem 0;
+}
+
+.decor-rotate-btn {
+    width: 40px;
+    height: 40px;
+    border: 1px solid #e2e8f0;
+    background: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.decor-rotate-btn:hover {
+    background: #A8D8EA;
+    color: white;
+}
+
+.decor-angle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #475569;
+    min-width: 50px;
+    text-align: center;
+}
+
+/* Стили для декораций внутри приглашения */
+.invitation-decor {
+    position: absolute;
+    pointer-events: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    transition: all 0.1s;
+    z-index: 5;
+}
+
+.invitation-decor.above-text {
+    z-index: 20;
+}
+
+/* Мобильные стили для декораций */
+@media (max-width: 768px) {
+    .decor-library-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+
+    .decor-list-thumb {
+        width: 35px;
+        height: 35px;
+    }
+
+    .decor-list-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .decor-rotate-btn {
+        width: 35px;
+        height: 35px;
+    }
+}
+
+@media (max-width: 480px) {
+    .decor-library-grid {
+        grid-template-columns: repeat(2, 1fr);
     }
 }
 

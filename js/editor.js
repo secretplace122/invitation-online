@@ -1,5 +1,5 @@
 const EditorState = {
-    pattern: 'wedding6.png',
+    pattern: 'wedding6.webp',
     bgOpacity: 0.8,
     borderColor: '#D4AF37',
     borderWidth: 2,
@@ -54,7 +54,11 @@ const EditorState = {
     animationSpeed: 3,
     animationColors: ['#FF69B4', '#FFD700', '#87CEEB', '#98FB98', '#FFA07A', '#DDA0DD'],
     animationSize: 30,
-    animationPosition: 'whole'
+    animationPosition: 'whole',
+    // Добавленные поля для декораций
+    decorations: [],
+    activeDecorId: null,
+    clipDecorations: true
 };
 
 const patterns = [
@@ -168,7 +172,30 @@ document.addEventListener('DOMContentLoaded', () => {
     applyMobileScale();
     fixMobileTabsPosition();
     fixBackgroundScroll();
+    
+    // Инициализация декораций
+    setTimeout(() => {
+        if (window.decorationsAPI) {
+            window.decorationsAPI.initDecorations();
+        }
+    }, 300);
+    
+    // Наблюдение за изменением размера карточки
+    setTimeout(observeCardResize, 500);
 });
+
+function observeCardResize() {
+    const card = document.getElementById('previewCard');
+    if (!card) return;
+    
+    const resizeObserver = new ResizeObserver(() => {
+        if (window.decorationsAPI) {
+            window.decorationsAPI.updatePreviewDecorations();
+        }
+    });
+    
+    resizeObserver.observe(card);
+}
 
 function fixBackgroundScroll() {
     const previewContainer = document.getElementById('previewContainer');
@@ -334,8 +361,6 @@ function initAccordion() {
         });
     });
 }
-
-
 
 function initAnimationControls() {
     const enableAnimations = document.getElementById('enableAnimations');
@@ -936,6 +961,14 @@ function updatePreview() {
 
     updateAllText();
     applyMobileScale();
+    
+    // Обновление декораций
+    if (window.decorationsAPI) {
+        setTimeout(() => {
+            window.decorationsAPI.updatePreviewDecorations();
+            window.decorationsAPI.applyClipToFrame();
+        }, 10);
+    }
 }
 
 function hexToRgb(hex) {
@@ -1050,7 +1083,6 @@ async function saveInvitation() {
         return;
     }
 
-    // Показываем состояние загрузки
     btn.disabled = true;
     btn.innerHTML = `
         <span class="spinner-small" style="
@@ -1076,8 +1108,6 @@ async function saveInvitation() {
             return;
         }
 
-        // Здесь должна быть интеграция с платежной системой
-        // симулируем задержку
         await new Promise(resolve => setTimeout(resolve, 1500));
 
         const invitationData = {
@@ -1138,6 +1168,8 @@ async function saveInvitation() {
             animationColors: EditorState.animationColors,
             animationSize: EditorState.animationSize,
             animationPosition: EditorState.animationPosition,
+            decorations: EditorState.decorations,
+            clipDecorations: EditorState.clipDecorations,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };
 

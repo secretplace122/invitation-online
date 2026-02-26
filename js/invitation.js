@@ -81,7 +81,7 @@ function displayInvitation(data) {
 
     const content = document.getElementById('invitationContent');
     content.innerHTML = `
-        <div class="invitation-card" style="
+        <div class="invitation-card" id="invitationCard" style="
             border: ${data.borderWidth || 2}px solid ${data.borderColor || '#D4AF37'};
             border-radius: ${data.borderRadius || 30}px;
             background-color: rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${containerBgOpacity});
@@ -96,6 +96,7 @@ function displayInvitation(data) {
             `0 0 ${data.borderGlowSize || 10}px ${data.borderGlowColor || data.borderColor || '#D4AF37'}, 0 25px 50px -12px rgba(0,0,0,0.25)` :
             '0 25px 50px -12px rgba(0,0,0,0.25)'};
             transform-origin: center top;
+            overflow: ${data.clipDecorations ? 'hidden' : 'visible'};
         ">
             <div class="card-header" style="text-align: center; margin-bottom: 1rem;">
                 <div class="decor-line" style="
@@ -205,6 +206,14 @@ function displayInvitation(data) {
         </div>
     `;
 
+    // Отрисовка сохраненных декораций
+    const card = document.getElementById('invitationCard');
+    if (card && data.decorations && Array.isArray(data.decorations)) {
+        setTimeout(() => {
+            renderSavedDecorations(card, data.decorations);
+        }, 50);
+    }
+
     applyMobileScale();
 
     if (data.enableAnimations && window.animationManager) {
@@ -220,6 +229,51 @@ function displayInvitation(data) {
             });
         }, 500);
     }
+}
+
+// Отрисовка сохраненных декораций
+function renderSavedDecorations(card, decorations) {
+    if (!decorations || !card) return;
+    
+    const cardWidth = card.offsetWidth;
+    const cardHeight = card.offsetHeight;
+    
+    decorations.forEach(decor => {
+        const decorEl = document.createElement('div');
+        decorEl.className = `invitation-decor ${decor.aboveText ? 'above-text' : ''}`;
+        
+        // Используем проценты для обоих смещений
+        const posXPercent = (decor.posX ?? 50) + (decor.offsetX || 0);
+        const posYPercent = (decor.posY ?? 50) + (decor.offsetY || 0);
+        
+        const posX = (posXPercent / 100) * cardWidth;
+        const posY = (posYPercent / 100) * cardHeight;
+        
+        decorEl.style.cssText = `
+            position: absolute;
+            width: ${decor.width || 150}px;
+            height: ${decor.width || 150}px;
+            left: ${posX}px;
+            top: ${posY}px;
+            transform: translate(-50%, -50%) rotate(${decor.rotation || 0}deg);
+            background-image: url('/images/decor/${decor.file}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: ${decor.opacity || 1};
+            z-index: ${decor.zIndex || (decor.aboveText ? 20 : 5)};
+            pointer-events: none;
+        `;
+        
+        // Добавляем обработчик ошибки загрузки изображения
+        decorEl.onerror = function() {
+            this.style.backgroundColor = '#f0f0f0';
+            this.style.backgroundImage = 'none';
+            console.warn('Failed to load decor image:', decor.file);
+        };
+        
+        card.appendChild(decorEl);
+    });
 }
 
 function hexToRgb(hex) {
