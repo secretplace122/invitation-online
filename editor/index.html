@@ -77,8 +77,8 @@
                                     <div class="pattern-grid scrollable-grid" id="patternGrid"></div>
                                 </div>
                                 <div class="setting-group">
-                                    <label>Прозрачность <span id="bgOpacityValue">0.2</span></label>
-                                    <input type="range" id="bgOpacity" min="0" max="1" step="0.05" value="0.2">
+                                    <label>Прозрачность <span id="bgOpacityValue">0.8</span></label>
+                                    <input type="range" id="bgOpacity" min="0" max="1" step="0.05">
                                 </div>
                             </div>
                         </div>
@@ -124,11 +124,11 @@
                                 </div>
                                 <div class="setting-group">
                                     <label>Толщина <span id="borderWidthValue">2</span>px</label>
-                                    <input type="range" id="borderWidth" min="0" max="10" step="1" value="2">
+                                    <input type="range" id="borderWidth" min="0" max="10" step="1">
                                 </div>
                                 <div class="setting-group">
                                     <label>Скругление <span id="borderRadiusValue">30</span>px</label>
-                                    <input type="range" id="borderRadius" min="0" max="250" step="5" value="30">
+                                    <input type="range" id="borderRadius" min="0" max="250" step="5">
                                 </div>
                                 <div class="setting-group" style="margin-top: 1rem;">
                                     <label style="display: flex; align-items: center;">
@@ -144,14 +144,12 @@
 
                                         <div class="setting-group">
                                             <label>Размер свечения <span id="borderGlowSizeValue">10</span>px</label>
-                                            <input type="range" id="borderGlowSize" min="0" max="30" step="1"
-                                                value="10">
+                                            <input type="range" id="borderGlowSize" min="0" max="30" step="1">
                                         </div>
 
                                         <div class="setting-group">
                                             <label>Интенсивность <span id="borderGlowIntensityValue">0.50</span></label>
-                                            <input type="range" id="borderGlowIntensity" min="0" max="1" step="0.05"
-                                                value="0.5">
+                                            <input type="range" id="borderGlowIntensity" min="0" max="1" step="0.05">
                                         </div>
                                     </div>
                                 </div>
@@ -200,8 +198,7 @@
                                 </div>
                                 <div class="setting-group">
                                     <label>Прозрачность <span id="containerBgOpacityValue">0.95</span></label>
-                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05"
-                                        value="0.95">
+                                    <input type="range" id="containerBgOpacity" min="0" max="1" step="0.05">
                                 </div>
                             </div>
                         </div>
@@ -218,7 +215,7 @@
                                     <label>Тип мероприятия</label>
                                     <input type="text" id="eventType" value="Свадебное приглашение">
                                     <div class="size-control">
-                                        <input type="range" id="eventTypeSize" min="12" max="32" step="1" value="16">
+                                        <input type="range" id="eventTypeSize" min="12" max="32" step="1">
                                         <span id="eventTypeSizeValue">16</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -233,7 +230,7 @@
                                     <label>Имена</label>
                                     <input type="text" id="names" value="Александр & Елена">
                                     <div class="size-control">
-                                        <input type="range" id="namesSize" min="24" max="72" step="2" value="48">
+                                        <input type="range" id="namesSize" min="24" max="72" step="2">
                                         <span id="namesSizeValue">48</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -248,7 +245,7 @@
                                     <label>Приветствие</label>
                                     <input type="text" id="greeting" value="приглашают вас разделить с ними радость">
                                     <div class="size-control">
-                                        <input type="range" id="greetingSize" min="12" max="32" step="1" value="18">
+                                        <input type="range" id="greetingSize" min="12" max="32" step="1">
                                         <span id="greetingSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -263,7 +260,7 @@
                                     <label>Дата</label>
                                     <input type="text" id="dateText" value="15 июня 2026">
                                     <div class="size-control">
-                                        <input type="range" id="dateSize" min="12" max="32" step="1" value="18">
+                                        <input type="range" id="dateSize" min="12" max="32" step="1">
                                         <span id="dateSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -278,7 +275,7 @@
                                     <label>Время</label>
                                     <input type="text" id="timeText" value="в 16:00">
                                     <div class="size-control">
-                                        <input type="range" id="timeSize" min="12" max="32" step="1" value="18">
+                                        <input type="range" id="timeSize" min="12" max="32" step="1">
                                         <span id="timeSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -293,7 +290,7 @@
                                     <label>Место</label>
                                     <input type="text" id="placeText" value="ЗАГС, г. Москва">
                                     <div class="size-control">
-                                        <input type="range" id="placeSize" min="12" max="32" step="1" value="18">
+                                        <input type="range" id="placeSize" min="12" max="32" step="1">
                                         <span id="placeSizeValue">18</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -311,7 +308,7 @@
 3. Фуршет - 17:00
 4. Танцы - 18:00"></textarea>
                                     <div class="size-control">
-                                        <input type="range" id="messageSize" min="12" max="32" step="1" value="16">
+                                        <input type="range" id="messageSize" min="12" max="32" step="1">
                                         <span id="messageSizeValue">16</span>px
                                     </div>
                                     <div class="text-format-row">
@@ -427,17 +424,17 @@
                                 </div>
                                 <div class="setting-group">
                                     <label>Интенсивность <span id="animationIntensityValue">5</span></label>
-                                    <input type="range" id="animationIntensity" min="1" max="10" step="1" value="5">
+                                    <input type="range" id="animationIntensity" min="1" max="10" step="1">
                                 </div>
 
                                 <div class="setting-group">
                                     <label>Скорость <span id="animationSpeedValue">3</span>с</label>
-                                    <input type="range" id="animationSpeed" min="1" max="10" step="1" value="3">
+                                    <input type="range" id="animationSpeed" min="1" max="10" step="1">
                                 </div>
 
                                 <div class="setting-group">
                                     <label>Размер элементов <span id="animationSizeValue">60</span>px</label>
-                                    <input type="range" id="animationSize" min="10" max="100" step="5" value="30">
+                                    <input type="range" id="animationSize" min="10" max="100" step="5">
                                 </div>
 
                                 <div class="setting-group">
@@ -501,8 +498,8 @@
                                 <!-- Панель управления -->
                                 <div class="decor-controls" id="decorControls" style="display: none;">
                                     <div class="setting-group">
-                                        <label>Размер <span id="decorSizeValue">150</span>px</label>
-                                        <input type="range" id="decorSize" min="30" max="400" step="5" value="150">
+                                        <label>Размер <span id="decorSizeValue">150</span></label>
+                                        <input type="range" id="decorSize" min="30" max="400" step="5">
                                     </div>
 
                                     <div class="decor-rotation-controls">
@@ -518,17 +515,17 @@
 
                                     <div class="setting-group">
                                         <label>Позиция X <span id="decorPosXValue">50%</span></label>
-                                        <input type="range" id="decorPosX" min="0" max="100" step="1" value="50">
+                                        <input type="range" id="decorPosX" min="0" max="100" step="1">
                                     </div>
 
                                     <div class="setting-group">
                                         <label>Позиция Y <span id="decorPosYValue">50%</span></label>
-                                        <input type="range" id="decorPosY" min="0" max="100" step="1" value="50">
+                                        <input type="range" id="decorPosY" min="0" max="100" step="1">
                                     </div>
 
                                     <div class="setting-group">
                                         <label>Прозрачность <span id="decorOpacityValue">1.0</span></label>
-                                        <input type="range" id="decorOpacity" min="0" max="1" step="0.1" value="1">
+                                        <input type="range" id="decorOpacity" min="0" max="1" step="0.1">
                                     </div>
 
                                     <div class="setting-group"
@@ -617,7 +614,7 @@
                             <span>Размер</span>
                             <span id="mobileDecorSizeValue">150px</span>
                         </div>
-                        <input type="range" id="mobileDecorSize" min="30" max="400" step="5" value="150">
+                        <input type="range" id="mobileDecorSize" min="30" max="400" step="5">
                     </div>
 
                     <!-- Позиция X -->
@@ -626,7 +623,7 @@
                             <span>По X</span>
                             <span id="mobileDecorPosXValue">50%</span>
                         </div>
-                        <input type="range" id="mobileDecorPosX" min="0" max="100" step="1" value="50">
+                        <input type="range" id="mobileDecorPosX" min="0" max="100" step="1">
                     </div>
 
                     <!-- Позиция Y -->
@@ -635,7 +632,7 @@
                             <span>По Y</span>
                             <span id="mobileDecorPosYValue">50%</span>
                         </div>
-                        <input type="range" id="mobileDecorPosY" min="0" max="100" step="1" value="50">
+                        <input type="range" id="mobileDecorPosY" min="0" max="100" step="1">
                     </div>
 
                     <!-- Прозрачность -->
@@ -644,7 +641,7 @@
                             <span>Прозрачность</span>
                             <span id="mobileDecorOpacityValue">100%</span>
                         </div>
-                        <input type="range" id="mobileDecorOpacity" min="0" max="1" step="0.1" value="1">
+                        <input type="range" id="mobileDecorOpacity" min="0" max="1" step="0.01">
                     </div>
                 </div>
 

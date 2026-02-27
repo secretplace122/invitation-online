@@ -18,35 +18,33 @@ window.decorLibrary = [
     { id: 'decor-15', file: '15.webp', name: 'Бокалы', category: 'celebration' },
 ];
 
-// ===== ИНИЦИАЛИЗАЦИЯ =====
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         initDecorations();
         initMobileDecorPanel();
     }, 100);
-
+    
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
         resizeTimeout = setTimeout(() => {
             const wasMobile = isMobileView;
             isMobileView = window.innerWidth <= 768;
-
+            
             if (wasMobile && !isMobileView) {
                 closeMobileDecorPanel();
             }
-
+            
             updatePreviewDecorations();
         }, 150);
     });
 });
 
-// ===== ОСНОВНЫЕ ФУНКЦИИ =====
 function initDecorations() {
     renderDecorLibrary();
     renderDecorList();
     initDecorControls();
-
+    
     const clipCheckbox = document.getElementById('decorClipToFrame');
     if (clipCheckbox) {
         clipCheckbox.checked = EditorState.clipDecorations;
@@ -60,7 +58,7 @@ function initDecorations() {
 function renderDecorLibrary() {
     const library = document.getElementById('decorLibrary');
     if (!library) return;
-
+    
     library.innerHTML = window.decorLibrary.map(decor => `
         <div class="decor-library-item" 
              data-decor-id="${decor.id}"
@@ -70,7 +68,7 @@ function renderDecorLibrary() {
              style="background-image: url('/images/decorations/${decor.file}')">
         </div>
     `).join('');
-
+    
     library.querySelectorAll('.decor-library-item').forEach(item => {
         item.addEventListener('click', () => {
             const file = item.dataset.decorFile;
@@ -83,12 +81,12 @@ function renderDecorLibrary() {
 function renderDecorList() {
     const list = document.getElementById('decorList');
     if (!list) return;
-
+    
     if (!EditorState.decorations || EditorState.decorations.length === 0) {
         list.innerHTML = '<div style="text-align: center; padding: 1rem; color: #94a3b8;">Нет добавленных декораций</div>';
         return;
     }
-
+    
     list.innerHTML = EditorState.decorations.map(decor => `
         <div class="decor-list-item ${decor.id === EditorState.activeDecorId ? 'active' : ''}" data-decor-id="${decor.id}">
             <div class="decor-list-thumb" style="background-image: url('/images/decorations/${decor.file}')"></div>
@@ -106,42 +104,42 @@ function renderDecorList() {
             </div>
         </div>
     `).join('');
-
+    
     list.querySelectorAll('.decor-list-item').forEach(item => {
         const decorId = item.dataset.decorId;
-
+        
         item.addEventListener('click', (e) => {
             if (e.target.closest('.decor-list-btn')) return;
             selectDecor(decorId);
-
+            
             if (window.innerWidth <= 768) {
                 openMobileDecorPanel(decorId);
             }
         });
-
+        
         const upBtn = item.querySelector('.move-up');
         const downBtn = item.querySelector('.move-down');
         const deleteBtn = item.querySelector('.delete');
-
+        
         if (upBtn && !upBtn.disabled) {
             upBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 moveDecor(decorId, 'up');
             });
         }
-
+        
         if (downBtn && !downBtn.disabled) {
             downBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 moveDecor(decorId, 'down');
             });
         }
-
+        
         if (deleteBtn) {
             deleteBtn.addEventListener('click', (e) => {
                 e.stopPropagation();
                 deleteDecor(decorId);
-
+                
                 if (decorId === EditorState.activeDecorId && window.innerWidth <= 768) {
                     closeMobileDecorPanel();
                 }
@@ -153,7 +151,7 @@ function renderDecorList() {
 function initDecorControls() {
     const sizeInput = document.getElementById('decorSize');
     const sizeValue = document.getElementById('decorSizeValue');
-
+    
     if (sizeInput) {
         sizeInput.addEventListener('input', (e) => {
             if (!EditorState.activeDecorId) return;
@@ -165,30 +163,30 @@ function initDecorControls() {
             }
         });
     }
-
+    
     document.getElementById('rotateLeft')?.addEventListener('click', () => {
         if (!EditorState.activeDecorId) return;
         const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
         if (decor) {
-            decor.rotation = ((decor.rotation || 0) - 90 + 360) % 360;
+            decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) - 90 + 360) % 360;
             document.getElementById('decorAngle').textContent = decor.rotation + '°';
             updatePreviewDecorations();
         }
     });
-
+    
     document.getElementById('rotateRight')?.addEventListener('click', () => {
         if (!EditorState.activeDecorId) return;
         const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
         if (decor) {
-            decor.rotation = ((decor.rotation || 0) + 90) % 360;
+            decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) + 90) % 360;
             document.getElementById('decorAngle').textContent = decor.rotation + '°';
             updatePreviewDecorations();
         }
     });
-
+    
     const posX = document.getElementById('decorPosX');
     const posXValue = document.getElementById('decorPosXValue');
-
+    
     if (posX) {
         posX.addEventListener('input', (e) => {
             if (!EditorState.activeDecorId) return;
@@ -200,10 +198,10 @@ function initDecorControls() {
             }
         });
     }
-
+    
     const posY = document.getElementById('decorPosY');
     const posYValue = document.getElementById('decorPosYValue');
-
+    
     if (posY) {
         posY.addEventListener('input', (e) => {
             if (!EditorState.activeDecorId) return;
@@ -215,22 +213,23 @@ function initDecorControls() {
             }
         });
     }
-
+    
     const opacity = document.getElementById('decorOpacity');
     const opacityValue = document.getElementById('decorOpacityValue');
-
+    
     if (opacity) {
         opacity.addEventListener('input', (e) => {
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
-                decor.opacity = parseFloat(e.target.value);
-                if (opacityValue) opacityValue.textContent = decor.opacity.toFixed(1);
+                const val = parseFloat(e.target.value);
+                decor.opacity = val;
+                if (opacityValue) opacityValue.textContent = val.toFixed(2);
                 updatePreviewDecorations();
             }
         });
     }
-
+    
     document.getElementById('decorAboveText')?.addEventListener('change', (e) => {
         if (!EditorState.activeDecorId) return;
         const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
@@ -239,7 +238,7 @@ function initDecorControls() {
             updatePreviewDecorations();
         }
     });
-
+    
     document.getElementById('deleteDecorBtn')?.addEventListener('click', () => {
         if (!EditorState.activeDecorId) return;
         deleteDecor(EditorState.activeDecorId);
@@ -258,12 +257,12 @@ function addDecor(file, name) {
         opacity: 1,
         aboveText: false
     };
-
+    
     EditorState.decorations.push(newDecor);
     selectDecor(newDecor.id);
     renderDecorList();
     updatePreviewDecorations();
-
+    
     if (window.innerWidth <= 768) {
         setTimeout(() => {
             openMobileDecorPanel(newDecor.id);
@@ -278,8 +277,15 @@ function selectDecor(id) {
     } else {
         EditorState.activeDecorId = id;
         showDecorControls(id);
+        
+        if (window.innerWidth <= 768) {
+            const decor = EditorState.decorations.find(d => d.id === id);
+            if (decor && mobileDecorPanel && mobileDecorPanel.classList.contains('active')) {
+                updateMobilePanelValues(decor);
+            }
+        }
     }
-
+    
     renderDecorList();
     updatePreviewDecorations();
 }
@@ -287,24 +293,30 @@ function selectDecor(id) {
 function showDecorControls(id) {
     const controls = document.getElementById('decorControls');
     const decor = EditorState.decorations.find(d => d.id === id);
-
+    
     if (controls && decor) {
         controls.style.display = 'block';
-
-        document.getElementById('decorSize').value = decor.width || 150;
-        document.getElementById('decorSizeValue').textContent = (decor.width || 150) + 'px';
-
-        document.getElementById('decorAngle').textContent = (decor.rotation || 0) + '°';
-
-        document.getElementById('decorPosX').value = decor.posX || 50;
-        document.getElementById('decorPosXValue').textContent = (decor.posX || 50) + '%';
-
-        document.getElementById('decorPosY').value = decor.posY || 50;
-        document.getElementById('decorPosYValue').textContent = (decor.posY || 50) + '%';
-
-        document.getElementById('decorOpacity').value = decor.opacity || 1;
-        document.getElementById('decorOpacityValue').textContent = (decor.opacity || 1).toFixed(1);
-
+        
+        document.getElementById('decorSize').value = decor.width !== undefined ? decor.width : 150;
+        document.getElementById('decorSizeValue').textContent = (decor.width !== undefined ? decor.width : 150) + 'px';
+        
+        document.getElementById('decorAngle').textContent = (decor.rotation !== undefined ? decor.rotation : 0) + '°';
+        
+        document.getElementById('decorPosX').value = decor.posX !== undefined ? decor.posX : 50;
+        document.getElementById('decorPosXValue').textContent = (decor.posX !== undefined ? decor.posX : 50) + '%';
+        
+        document.getElementById('decorPosY').value = decor.posY !== undefined ? decor.posY : 50;
+        document.getElementById('decorPosYValue').textContent = (decor.posY !== undefined ? decor.posY : 50) + '%';
+        
+        const opacityInput = document.getElementById('decorOpacity');
+        const opacityValue = document.getElementById('decorOpacityValue');
+        if (opacityInput) {
+            opacityInput.value = decor.opacity !== undefined ? decor.opacity : 1;
+        }
+        if (opacityValue) {
+            opacityValue.textContent = (decor.opacity !== undefined ? decor.opacity : 1).toFixed(2);
+        }
+        
         document.getElementById('decorAboveText').checked = decor.aboveText || false;
     }
 }
@@ -318,15 +330,15 @@ function hideDecorControls() {
 
 function deleteDecor(id) {
     EditorState.decorations = EditorState.decorations.filter(d => d.id !== id);
-
+    
     if (EditorState.activeDecorId === id) {
         EditorState.activeDecorId = null;
         hideDecorControls();
     }
-
+    
     renderDecorList();
     updatePreviewDecorations();
-
+    
     if (window.innerWidth <= 768) {
         closeMobileDecorPanel();
     }
@@ -335,14 +347,14 @@ function deleteDecor(id) {
 function moveDecor(id, direction) {
     const index = EditorState.decorations.findIndex(d => d.id === id);
     if (index === -1) return;
-
+    
     const newIndex = direction === 'up' ? index - 1 : index + 1;
-
+    
     if (newIndex < 0 || newIndex >= EditorState.decorations.length) return;
-
-    [EditorState.decorations[index], EditorState.decorations[newIndex]] =
-        [EditorState.decorations[newIndex], EditorState.decorations[index]];
-
+    
+    [EditorState.decorations[index], EditorState.decorations[newIndex]] = 
+    [EditorState.decorations[newIndex], EditorState.decorations[index]];
+    
     renderDecorList();
     updatePreviewDecorations();
 }
@@ -350,23 +362,23 @@ function moveDecor(id, direction) {
 function updatePreviewDecorations() {
     const card = document.getElementById('previewCard');
     if (!card) return;
-
+    
     card.querySelectorAll('.invitation-decor').forEach(el => el.remove());
-
+    
     EditorState.decorations.forEach(decor => {
         const decorEl = document.createElement('div');
         decorEl.className = `invitation-decor ${decor.aboveText ? 'above-text' : ''}`;
         decorEl.id = `decor-${decor.id}`;
         decorEl.dataset.decorId = decor.id;
-
+        
         decorEl.style.cssText = `
             position: absolute;
-            width: ${decor.width || 150}px;
-            height: ${decor.width || 150}px;
-            left: ${decor.posX || 50}%;
-            top: ${decor.posY || 50}%;
-            transform: translate(-50%, -50%) rotate(${decor.rotation || 0}deg);
-            opacity: ${decor.opacity || 1};
+            width: ${decor.width !== undefined ? decor.width : 150}px;
+            height: ${decor.width !== undefined ? decor.width : 150}px;
+            left: ${decor.posX !== undefined ? decor.posX : 50}%;
+            top: ${decor.posY !== undefined ? decor.posY : 50}%;
+            transform: translate(-50%, -50%) rotate(${decor.rotation !== undefined ? decor.rotation : 0}deg);
+            opacity: ${decor.opacity !== undefined ? decor.opacity : 1};
             background-image: url('/images/decorations/${decor.file}');
             background-size: contain;
             background-repeat: no-repeat;
@@ -374,17 +386,17 @@ function updatePreviewDecorations() {
             pointer-events: none;
             z-index: ${decor.aboveText ? 20 : 5};
         `;
-
+        
         card.appendChild(decorEl);
     });
-
+    
     applyClipToFrame();
 }
 
 function applyClipToFrame() {
     const card = document.getElementById('previewCard');
     if (!card) return;
-
+    
     if (EditorState.clipDecorations) {
         card.classList.add('clip-decorations');
     } else {
@@ -392,43 +404,42 @@ function applyClipToFrame() {
     }
 }
 
-// ===== МОБИЛЬНАЯ ПАНЕЛЬ =====
 function initMobileDecorPanel() {
     mobileDecorPanel = document.getElementById('mobileDecorPanel');
     if (!mobileDecorPanel) return;
-
+    
     const closeBtn = document.getElementById('mobileDecorClose');
     if (closeBtn) closeBtn.addEventListener('click', closeMobileDecorPanel);
-
+    
     const doneBtn = document.getElementById('mobileDecorDone');
     if (doneBtn) doneBtn.addEventListener('click', closeMobileDecorPanel);
-
+    
     const rotateLeft = document.getElementById('mobileRotateLeft');
     if (rotateLeft) {
         rotateLeft.addEventListener('click', () => {
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
-                decor.rotation = ((decor.rotation || 0) - 90 + 360) % 360;
+                decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) - 90 + 360) % 360;
                 updateMobilePanelValues(decor);
                 updatePreviewDecorations();
             }
         });
     }
-
+    
     const rotateRight = document.getElementById('mobileRotateRight');
     if (rotateRight) {
         rotateRight.addEventListener('click', () => {
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
-                decor.rotation = ((decor.rotation || 0) + 90) % 360;
+                decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) + 90) % 360;
                 updateMobilePanelValues(decor);
                 updatePreviewDecorations();
             }
         });
     }
-
+    
     const mobileSize = document.getElementById('mobileDecorSize');
     if (mobileSize) {
         mobileSize.addEventListener('input', (e) => {
@@ -441,7 +452,7 @@ function initMobileDecorPanel() {
             }
         });
     }
-
+    
     const mobilePosX = document.getElementById('mobileDecorPosX');
     if (mobilePosX) {
         mobilePosX.addEventListener('input', (e) => {
@@ -454,7 +465,7 @@ function initMobileDecorPanel() {
             }
         });
     }
-
+    
     const mobilePosY = document.getElementById('mobileDecorPosY');
     if (mobilePosY) {
         mobilePosY.addEventListener('input', (e) => {
@@ -467,20 +478,21 @@ function initMobileDecorPanel() {
             }
         });
     }
-
+    
     const mobileOpacity = document.getElementById('mobileDecorOpacity');
     if (mobileOpacity) {
         mobileOpacity.addEventListener('input', (e) => {
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
-                decor.opacity = parseFloat(e.target.value);
-                document.getElementById('mobileDecorOpacityValue').textContent = Math.round(decor.opacity * 100) + '%';
+                const val = parseFloat(e.target.value);
+                decor.opacity = val;
+                document.getElementById('mobileDecorOpacityValue').textContent = Math.round(val * 100) + '%';
                 updatePreviewDecorations();
             }
         });
     }
-
+    
     const aboveText = document.getElementById('mobileDecorAboveText');
     if (aboveText) {
         aboveText.addEventListener('change', (e) => {
@@ -492,7 +504,7 @@ function initMobileDecorPanel() {
             }
         });
     }
-
+    
     const clipToFrame = document.getElementById('mobileDecorClipToFrame');
     if (clipToFrame) {
         clipToFrame.checked = EditorState.clipDecorations;
@@ -502,7 +514,7 @@ function initMobileDecorPanel() {
             updatePreviewDecorations();
         });
     }
-
+    
     const deleteBtn = document.getElementById('mobileDeleteDecorBtn');
     if (deleteBtn) {
         deleteBtn.addEventListener('click', () => {
@@ -511,7 +523,7 @@ function initMobileDecorPanel() {
             closeMobileDecorPanel();
         });
     }
-    
+
     const mobileTabs = document.getElementById('mobileTabs');
     if (mobileTabs) {
         const observer = new MutationObserver((mutations) => {
@@ -524,7 +536,7 @@ function initMobileDecorPanel() {
                 }
             });
         });
-
+        
         observer.observe(mobileTabs, {
             attributes: true,
             subtree: true,
@@ -535,12 +547,12 @@ function initMobileDecorPanel() {
 
 function openMobileDecorPanel(decorId) {
     if (!isMobileView) return;
-
+    
     const previewTab = document.querySelector('.mobile-tab[data-tab="preview"]');
     if (previewTab) previewTab.click();
-
+    
     if (mobileDecorPanel) mobileDecorPanel.classList.add('active');
-
+    
     const decor = EditorState.decorations.find(d => d.id === decorId);
     if (decor) updateMobilePanelValues(decor);
 }
@@ -552,39 +564,42 @@ function closeMobileDecorPanel() {
 function updateMobilePanelValues(decor) {
     const sizeInput = document.getElementById('mobileDecorSize');
     const sizeValue = document.getElementById('mobileDecorSizeValue');
-    if (sizeInput) sizeInput.value = decor.width || 150;
-    if (sizeValue) sizeValue.textContent = (decor.width || 150) + 'px';
-
-    const angle = decor.rotation || 0;
+    if (sizeInput) sizeInput.value = decor.width !== undefined ? decor.width : 150;
+    if (sizeValue) sizeValue.textContent = (decor.width !== undefined ? decor.width : 150) + 'px';
+    
+    const angle = decor.rotation !== undefined ? decor.rotation : 0;
     const angleSpan = document.getElementById('mobileDecorAngle');
     if (angleSpan) angleSpan.textContent = angle + '°';
-
+    
     const angleDisplay = document.querySelector('.mobile-decor-angle-display');
     if (angleDisplay) angleDisplay.textContent = angle + '°';
-
+    
     const posX = document.getElementById('mobileDecorPosX');
     const posXValue = document.getElementById('mobileDecorPosXValue');
-    if (posX) posX.value = decor.posX || 50;
-    if (posXValue) posXValue.textContent = (decor.posX || 50) + '%';
-
+    if (posX) posX.value = decor.posX !== undefined ? decor.posX : 50;
+    if (posXValue) posXValue.textContent = (decor.posX !== undefined ? decor.posX : 50) + '%';
+    
     const posY = document.getElementById('mobileDecorPosY');
     const posYValue = document.getElementById('mobileDecorPosYValue');
-    if (posY) posY.value = decor.posY || 50;
-    if (posYValue) posYValue.textContent = (decor.posY || 50) + '%';
-
+    if (posY) posY.value = decor.posY !== undefined ? decor.posY : 50;
+    if (posYValue) posYValue.textContent = (decor.posY !== undefined ? decor.posY : 50) + '%';
+    
     const opacity = document.getElementById('mobileDecorOpacity');
     const opacityValue = document.getElementById('mobileDecorOpacityValue');
-    if (opacity) opacity.value = decor.opacity || 1;
-    if (opacityValue) opacityValue.textContent = Math.round((decor.opacity || 1) * 100) + '%';
-
+    if (opacity) {
+        opacity.value = decor.opacity !== undefined ? decor.opacity : 1;
+    }
+    if (opacityValue) {
+        opacityValue.textContent = Math.round((decor.opacity !== undefined ? decor.opacity : 1) * 100) + '%';
+    }
+    
     const aboveText = document.getElementById('mobileDecorAboveText');
     if (aboveText) aboveText.checked = decor.aboveText || false;
-
+    
     const clipToFrame = document.getElementById('mobileDecorClipToFrame');
     if (clipToFrame) clipToFrame.checked = EditorState.clipDecorations;
 }
 
-// ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
 window.decorationsAPI = {
     initDecorations,
     renderDecorLibrary,

@@ -55,7 +55,6 @@ const EditorState = {
     animationColors: ['#FF69B4', '#FFD700', '#87CEEB', '#98FB98', '#FFA07A', '#DDA0DD'],
     animationSize: 30,
     animationPosition: 'whole',
-    // Добавленные поля для декораций
     decorations: [],
     activeDecorId: null,
     clipDecorations: true
@@ -133,8 +132,8 @@ const fonts = [
     { value: "'Pacifico', cursive", name: "Pacifico" },
     { value: "'Amatic SC', cursive", name: "Amatic SC" },
     { value: "'Parisienne', cursive", name: "Parisienne" },
-    { value: "'Press Start 2P', cursive", name: "Press Start 2P (Пиксельный)" },
-    { value: "'VT323', monospace", name: "VT323 (Консольный)" },
+    { value: "'Press Start 2P', cursive", name: "Press Start 2P" },
+    { value: "'VT323', monospace", name: "VT323" },
     { value: "'Courier Prime', monospace", name: "Courier Prime" },
     { value: "'Caveat', cursive", name: "Caveat" },
     { value: "'Comfortaa', sans-serif", name: "Comfortaa" }
@@ -173,14 +172,12 @@ document.addEventListener('DOMContentLoaded', () => {
     fixMobileTabsPosition();
     fixBackgroundScroll();
 
-    // Инициализация декораций
     setTimeout(() => {
         if (window.decorationsAPI) {
             window.decorationsAPI.initDecorations();
         }
     }, 300);
 
-    // Наблюдение за изменением размера карточки
     setTimeout(observeCardResize, 500);
 });
 
@@ -962,7 +959,6 @@ function updatePreview() {
     updateAllText();
     applyMobileScale();
 
-    // Обновление декораций
     if (window.decorationsAPI) {
         setTimeout(() => {
             window.decorationsAPI.updatePreviewDecorations();
