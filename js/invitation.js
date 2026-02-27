@@ -56,7 +56,7 @@ function displayInvitation(data) {
 
     const patternBg = document.querySelector('.pattern-bg');
     if (patternBg) {
-        patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'bg1.png'}')`;
+        patternBg.style.backgroundImage = `url('/images/patterns/${data.pattern || 'bg1.png'}')`;//поправить 
         patternBg.style.opacity = data.bgOpacity || 0.2;
     }
 
@@ -213,7 +213,9 @@ function displayInvitation(data) {
         }, 50);
     }
     
-    updateMetaTags(data);
+    // Обновляем заголовок страницы (не Open Graph)
+    document.title = data.eventType || 'Приглашение - invitation-online';
+    
     applyMobileScale();
 
     if (data.enableAnimations && window.animationManager) {
@@ -239,10 +241,8 @@ function renderSavedDecorations(card, decorations) {
 
     decorations.forEach(decor => {
         const decorEl = document.createElement('div');
-        // Класс above-text добавляется ТОЛЬКО если aboveText = true
         decorEl.className = `invitation-decor ${decor.aboveText ? 'above-text' : ''}`;
 
-        // Используем ТОЛЬКО posX/posY в процентах
         const posX = (decor.posX / 100) * cardWidth;
         const posY = (decor.posY / 100) * cardHeight;
 
@@ -253,7 +253,7 @@ function renderSavedDecorations(card, decorations) {
             left: ${posX}px;
             top: ${posY}px;
             transform: translate(-50%, -50%) rotate(${decor.rotation || 0}deg);
-            background-image: url('/images/decor/${decor.file}');
+            background-image: url('/images/decorations/${decor.file}');
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
@@ -261,7 +261,6 @@ function renderSavedDecorations(card, decorations) {
             pointer-events: none;
         `;
 
-        // Добавляем обработчик ошибки загрузки изображения
         decorEl.onerror = function () {
             this.style.backgroundColor = '#f0f0f0';
             this.style.backgroundImage = 'none';
@@ -291,7 +290,6 @@ function copyInvitationLink() {
     const path = window.location.pathname;
     const hash = window.location.hash;
 
-
     const wwwLink = `www.invitation-online.ru${path}${hash}`;
 
     navigator.clipboard.writeText(wwwLink).then(() => {
@@ -300,28 +298,4 @@ function copyInvitationLink() {
         btn.innerHTML = '<span class="material-symbols-outlined">check</span> Скопировано!';
         setTimeout(() => { btn.innerHTML = originalText; }, 2000);
     });
-}
-function updateMetaTags(data) {
-    let ogTitle = document.querySelector('meta[property="og:title"]');
-    if (!ogTitle) {
-        ogTitle = document.createElement('meta');
-        ogTitle.setAttribute('property', 'og:title');
-        document.head.appendChild(ogTitle);
-    }
-    ogTitle.setAttribute('content', data.eventType || 'Создать приглашение онлайн — конструктор пригласительных');
-
-    let ogDescription = document.querySelector('meta[property="og:description"]');
-    if (!ogDescription) {
-        ogDescription = document.createElement('meta');
-        ogDescription.setAttribute('property', 'og:description');
-        document.head.appendChild(ogDescription);
-    }
-
-    const names = data.names || 'Александр & Елена';
-    const greeting = data.greeting || 'приглашают вас разделить с ними радость';
-    const description = `${names} ${greeting}`;
-
-    ogDescription.setAttribute('content', description);
-
-    document.title = data.eventType || 'Приглашение - invitation-online';
 }

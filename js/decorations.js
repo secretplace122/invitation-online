@@ -1,9 +1,5 @@
-// decorations.js - Полный файл с реализацией декораций
-
-// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
 let mobileDecorPanel = null;
 
-// Библиотека декораций (сгенерированные изображения)
 window.decorLibrary = [
     { id: 'decor-1', file: '1.webp', name: 'Уголок золотой 1', category: 'corners' },
     { id: 'decor-2', file: '2.webp', name: 'Уголок золотой 2', category: 'corners' },
