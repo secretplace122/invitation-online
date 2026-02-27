@@ -172,14 +172,14 @@ document.addEventListener('DOMContentLoaded', () => {
     applyMobileScale();
     fixMobileTabsPosition();
     fixBackgroundScroll();
-    
+
     // Инициализация декораций
     setTimeout(() => {
         if (window.decorationsAPI) {
             window.decorationsAPI.initDecorations();
         }
     }, 300);
-    
+
     // Наблюдение за изменением размера карточки
     setTimeout(observeCardResize, 500);
 });
@@ -187,13 +187,13 @@ document.addEventListener('DOMContentLoaded', () => {
 function observeCardResize() {
     const card = document.getElementById('previewCard');
     if (!card) return;
-    
+
     const resizeObserver = new ResizeObserver(() => {
         if (window.decorationsAPI) {
             window.decorationsAPI.updatePreviewDecorations();
         }
     });
-    
+
     resizeObserver.observe(card);
 }
 
@@ -961,7 +961,7 @@ function updatePreview() {
 
     updateAllText();
     applyMobileScale();
-    
+
     // Обновление декораций
     if (window.decorationsAPI) {
         setTimeout(() => {
@@ -1168,7 +1168,17 @@ async function saveInvitation() {
             animationColors: EditorState.animationColors,
             animationSize: EditorState.animationSize,
             animationPosition: EditorState.animationPosition,
-            decorations: EditorState.decorations,
+            decorations: EditorState.decorations.map(d => ({
+                id: d.id,
+                file: d.file,
+                name: d.name,
+                width: d.width,
+                rotation: d.rotation,
+                posX: d.posX,
+                posY: d.posY,
+                opacity: d.opacity,
+                aboveText: d.aboveText,
+            })),
             clipDecorations: EditorState.clipDecorations,
             createdAt: firebase.firestore.FieldValue.serverTimestamp()
         };

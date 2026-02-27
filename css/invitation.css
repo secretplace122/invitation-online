@@ -146,6 +146,36 @@
     pointer-events: none;
 }
 
+/* ===== ДЕКОРАЦИИ ===== */
+.invitation-decor {
+    position: absolute;
+    pointer-events: none;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    z-index: 5;
+}
+
+.invitation-decor.above-text {
+    z-index: 20;
+}
+
+/* ===== ТЕКСТ ПОВЕРХ ДЕКОРАЦИЙ ===== */
+.invitation-card .card-header,
+.invitation-card .card-body,
+.invitation-card .card-footer,
+.invitation-card .event-type,
+.invitation-card .names,
+.invitation-card .greeting,
+.invitation-card .details,
+.invitation-card .message,
+.invitation-card .card-header *,
+.invitation-card .card-body *,
+.invitation-card .card-footer * {
+    position: relative;
+    z-index: 10;
+}
+
 @media (max-width: 768px) {
     .invitation-card {
         transform: scale(0.7);
