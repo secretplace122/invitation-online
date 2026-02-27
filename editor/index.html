@@ -598,6 +598,100 @@
         </div>
     </main>
 
+    <!-- Мобильная панель управления декорациями -->
+    <div class="mobile-decor-panel" id="mobileDecorPanel">
+        <div class="mobile-decor-panel-header">
+            <span class="material-symbols-outlined">brush</span>
+            <span>Настройки</span>
+            <button class="mobile-decor-close" id="mobileDecorClose">
+                <span class="material-symbols-outlined">close</span>
+            </button>
+        </div>
+        <div class="mobile-decor-panel-content">
+            <div class="mobile-decor-grid">
+                <!-- Левая колонка - шкалы -->
+                <div class="mobile-decor-left">
+                    <!-- Размер -->
+                    <div class="mobile-decor-control">
+                        <div class="mobile-decor-control-header">
+                            <span>Размер</span>
+                            <span id="mobileDecorSizeValue">150px</span>
+                        </div>
+                        <input type="range" id="mobileDecorSize" min="30" max="400" step="5" value="150">
+                    </div>
+
+                    <!-- Позиция X -->
+                    <div class="mobile-decor-control">
+                        <div class="mobile-decor-control-header">
+                            <span>По X</span>
+                            <span id="mobileDecorPosXValue">50%</span>
+                        </div>
+                        <input type="range" id="mobileDecorPosX" min="0" max="100" step="1" value="50">
+                    </div>
+
+                    <!-- Позиция Y -->
+                    <div class="mobile-decor-control">
+                        <div class="mobile-decor-control-header">
+                            <span>По Y</span>
+                            <span id="mobileDecorPosYValue">50%</span>
+                        </div>
+                        <input type="range" id="mobileDecorPosY" min="0" max="100" step="1" value="50">
+                    </div>
+
+                    <!-- Прозрачность -->
+                    <div class="mobile-decor-control">
+                        <div class="mobile-decor-control-header">
+                            <span>Прозрачность</span>
+                            <span id="mobileDecorOpacityValue">100%</span>
+                        </div>
+                        <input type="range" id="mobileDecorOpacity" min="0" max="1" step="0.1" value="1">
+                    </div>
+                </div>
+
+                <!-- Правая колонка - чекбоксы и кнопки -->
+                <div class="mobile-decor-right">
+                    <!-- Поворот -->
+                    <div class="mobile-decor-control">
+                        <div class="mobile-decor-control-header">
+                            <span>Поворот</span>
+                            <span id="mobileDecorAngle">0°</span>
+                        </div>
+                        <div class="mobile-decor-rotation">
+                            <button class="mobile-decor-rotate-btn" id="mobileRotateLeft">
+                                <span class="material-symbols-outlined">rotate_left</span>
+                            </button>
+                            <div class="mobile-decor-angle-display">0°</div>
+                            <button class="mobile-decor-rotate-btn" id="mobileRotateRight">
+                                <span class="material-symbols-outlined">rotate_right</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Чекбоксы -->
+                    <div class="mobile-decor-checkboxes">
+                        <label class="mobile-decor-checkbox">
+                            <input type="checkbox" id="mobileDecorAboveText">
+                            <span>📄 Поверх</span>
+                        </label>
+                        <label class="mobile-decor-checkbox">
+                            <input type="checkbox" id="mobileDecorClipToFrame" checked>
+                            <span>✂️ Обрезка</span>
+                        </label>
+                    </div>
+
+                    <!-- Кнопки действий -->
+                    <div class="mobile-decor-actions">
+                        <button class="mobile-decor-btn mobile-decor-btn-delete" id="mobileDeleteDecorBtn">
+                            <span class="material-symbols-outlined">delete</span>
+                        </button>
+                        <button class="mobile-decor-btn mobile-decor-btn-done" id="mobileDecorDone">
+                            <span class="material-symbols-outlined">check</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="../js/firebase-config.js"></script>

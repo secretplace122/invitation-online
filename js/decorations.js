@@ -1,58 +1,390 @@
-// ===== ДЕКОРАЦИИ =====
+// decorations.js - Полный файл с реализацией декораций
 
-// Массив доступных декораций
-const decorLibrary = [
-    { id: 'decor-1', file: '1.webp', name: 'Цветок 1' },
-    { id: 'decor-2', file: '2.webp', name: 'Цветок 1' },
-    { id: 'decor-3', file: '3.webp', name: 'Цветок 1' },
-    { id: 'decor-4', file: '4.webp', name: 'Цветок 1' },
-    { id: 'decor-5', file: '5.webp', name: 'Цветок 1' },
-    { id: 'decor-6', file: '6.webp', name: 'Цветок 1' },
-    { id: 'decor-7', file: '7.webp', name: 'Цветок 1' },
-    { id: 'decor-8', file: '8.webp', name: 'Цветок 1' },
-    { id: 'decor-9', file: '9.webp', name: 'Цветок 1' },
-    { id: 'decor-10', file: '10.webp', name: 'Цветок 1' },
-    { id: 'decor-11', file: '11.webp', name: 'Цветок 1' },
-    { id: 'decor-12', file: '12.webp', name: 'Цветок 1' },
-    { id: 'decor-13', file: '13.webp', name: 'Цветок 1' },
-    { id: 'decor-14', file: '14.webp', name: 'Цветок 1' },
-    { id: 'decor-15', file: '15.webp', name: 'Цветок 1' },
-    { id: 'decor-16', file: '16.webp', name: 'Цветок 1' },
-    { id: 'decor-17', file: '17.webp', name: 'Цветок 1' },
-    { id: 'decor-18', file: '18.webp', name: 'Цветок 1' },
-    { id: 'decor-19', file: '19.webp', name: 'Цветок 1' },
-    { id: 'decor-20', file: '20.webp', name: 'Цветок 1' },
-    { id: 'decor-21', file: '21.webp', name: 'Цветок 1' },
-    { id: 'decor-22', file: '22.webp', name: 'Цветок 1' },
-    { id: 'decor-23', file: '23.webp', name: 'Цветок 1' },
-    { id: 'decor-24', file: '24.webp', name: 'Цветок 1' },
-    { id: 'decor-25', file: '25.webp', name: 'Цветок 1' },
-    { id: 'decor-26', file: '26.webp', name: 'Цветок 1' },
-    { id: 'decor-27', file: '27.webp', name: 'Цветок 1' },
-    { id: 'decor-28', file: '28.webp', name: 'Цветок 1' },
-    { id: 'decor-29', file: '29.webp', name: 'Цветок 1' },
+// ===== ГЛОБАЛЬНЫЕ ПЕРЕМЕННЫЕ =====
+let mobileDecorPanel = null;
+
+// Библиотека декораций (сгенерированные изображения)
+window.decorLibrary = [
+    { id: 'decor-1', file: '1.webp', name: 'Уголок золотой 1', category: 'corners' },
+    { id: 'decor-2', file: '2.webp', name: 'Уголок золотой 2', category: 'corners' },
+    { id: 'decor-3', file: '3.webp', name: 'Уголок цветочный', category: 'corners' },
+    { id: 'decor-4', file: '4.webp', name: 'Розы букет', category: 'flowers' },
+    { id: 'decor-5', file: '5.webp', name: 'Пионы', category: 'flowers' },
+    { id: 'decor-6', file: '6.webp', name: 'Кольца обручальные', category: 'rings' },
+    { id: 'decor-7', file: '7.webp', name: 'Кольца с бриллиантами', category: 'rings' },
+    { id: 'decor-8', file: '8.webp', name: 'Сердце объемное', category: 'hearts' },
+    { id: 'decor-9', file: '9.webp', name: 'Сердце из цветов', category: 'hearts' },
+    { id: 'decor-10', file: '10.webp', name: 'Узор резной 1', category: 'patterns' },
+    { id: 'decor-11', file: '11.webp', name: 'Узор резной 2', category: 'patterns' },
+    { id: 'decor-12', file: '12.webp', name: 'Цветочная гирлянда', category: 'garlands' },
+    { id: 'decor-13', file: '13.webp', name: 'Свадебная арка', category: 'arches' },
+    { id: 'decor-14', file: '14.webp', name: 'Лебеди', category: 'animals' },
+    { id: 'decor-15', file: '15.webp', name: 'Бокалы', category: 'celebration' },
 ];
 
-// Инициализация декораций
+// ===== ИНИЦИАЛИЗАЦИЯ =====
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        initDecorations();
+        initMobileDecorPanel();
+    }, 100);
+    
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            const wasMobile = isMobileView;
+            isMobileView = window.innerWidth <= 768;
+            
+            if (wasMobile && !isMobileView) {
+                closeMobileDecorPanel();
+            }
+            
+            updatePreviewDecorations();
+        }, 150);
+    });
+});
+
+// ===== ОСНОВНЫЕ ФУНКЦИИ =====
 function initDecorations() {
-    if (!document.getElementById('decorLibrary')) {
-        console.warn('Decor elements not found, retrying...');
-        setTimeout(initDecorations, 100);
+    renderDecorLibrary();
+    renderDecorList();
+    initDecorControls();
+    
+    const clipCheckbox = document.getElementById('decorClipToFrame');
+    if (clipCheckbox) {
+        clipCheckbox.checked = EditorState.clipDecorations;
+        clipCheckbox.addEventListener('change', (e) => {
+            EditorState.clipDecorations = e.target.checked;
+            applyClipToFrame();
+        });
+    }
+}
+
+function renderDecorLibrary() {
+    const library = document.getElementById('decorLibrary');
+    if (!library) return;
+    
+    library.innerHTML = window.decorLibrary.map(decor => `
+        <div class="decor-library-item" 
+             data-decor-id="${decor.id}"
+             data-decor-file="${decor.file}"
+             data-decor-name="${decor.name}"
+             title="${decor.name}"
+             style="background-image: url('/images/decorations/${decor.file}')">
+        </div>
+    `).join('');
+    
+    library.querySelectorAll('.decor-library-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const file = item.dataset.decorFile;
+            const name = item.dataset.decorName;
+            addDecor(file, name);
+        });
+    });
+}
+
+function renderDecorList() {
+    const list = document.getElementById('decorList');
+    if (!list) return;
+    
+    if (!EditorState.decorations || EditorState.decorations.length === 0) {
+        list.innerHTML = '<div style="text-align: center; padding: 1rem; color: #94a3b8;">Нет добавленных декораций</div>';
         return;
     }
     
-    if (!EditorState.decorations) {
-        EditorState.decorations = [];
-        EditorState.activeDecorId = null;
-        EditorState.clipDecorations = true;
+    list.innerHTML = EditorState.decorations.map(decor => `
+        <div class="decor-list-item ${decor.id === EditorState.activeDecorId ? 'active' : ''}" data-decor-id="${decor.id}">
+            <div class="decor-list-thumb" style="background-image: url('/images/decorations/${decor.file}')"></div>
+            <div class="decor-list-info">${decor.name}</div>
+            <div class="decor-list-actions">
+                <button class="decor-list-btn move-up" title="Переместить вверх" ${decor === EditorState.decorations[0] ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined">arrow_upward</span>
+                </button>
+                <button class="decor-list-btn move-down" title="Переместить вниз" ${decor === EditorState.decorations[EditorState.decorations.length - 1] ? 'disabled' : ''}>
+                    <span class="material-symbols-outlined">arrow_downward</span>
+                </button>
+                <button class="decor-list-btn delete" title="Удалить">
+                    <span class="material-symbols-outlined">delete</span>
+                </button>
+            </div>
+        </div>
+    `).join('');
+    
+    list.querySelectorAll('.decor-list-item').forEach(item => {
+        const decorId = item.dataset.decorId;
+        
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.decor-list-btn')) return;
+            selectDecor(decorId);
+            
+            if (window.innerWidth <= 768) {
+                openMobileDecorPanel(decorId);
+            }
+        });
+        
+        const upBtn = item.querySelector('.move-up');
+        const downBtn = item.querySelector('.move-down');
+        const deleteBtn = item.querySelector('.delete');
+        
+        if (upBtn && !upBtn.disabled) {
+            upBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moveDecor(decorId, 'up');
+            });
+        }
+        
+        if (downBtn && !downBtn.disabled) {
+            downBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                moveDecor(decorId, 'down');
+            });
+        }
+        
+        if (deleteBtn) {
+            deleteBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                deleteDecor(decorId);
+                
+                if (decorId === EditorState.activeDecorId && window.innerWidth <= 768) {
+                    closeMobileDecorPanel();
+                }
+            });
+        }
+    });
+}
+
+function initDecorControls() {
+    const sizeInput = document.getElementById('decorSize');
+    const sizeValue = document.getElementById('decorSizeValue');
+    
+    if (sizeInput) {
+        sizeInput.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.width = parseInt(e.target.value);
+                if (sizeValue) sizeValue.textContent = decor.width + 'px';
+                updatePreviewDecorations();
+            }
+        });
     }
     
-    renderDecorLibrary();
+    document.getElementById('rotateLeft')?.addEventListener('click', () => {
+        if (!EditorState.activeDecorId) return;
+        const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+        if (decor) {
+            decor.rotation = ((decor.rotation || 0) - 90 + 360) % 360;
+            document.getElementById('decorAngle').textContent = decor.rotation + '°';
+            updatePreviewDecorations();
+        }
+    });
+    
+    document.getElementById('rotateRight')?.addEventListener('click', () => {
+        if (!EditorState.activeDecorId) return;
+        const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+        if (decor) {
+            decor.rotation = ((decor.rotation || 0) + 90) % 360;
+            document.getElementById('decorAngle').textContent = decor.rotation + '°';
+            updatePreviewDecorations();
+        }
+    });
+    
+    const posX = document.getElementById('decorPosX');
+    const posXValue = document.getElementById('decorPosXValue');
+    
+    if (posX) {
+        posX.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.posX = parseInt(e.target.value);
+                if (posXValue) posXValue.textContent = decor.posX + '%';
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    const posY = document.getElementById('decorPosY');
+    const posYValue = document.getElementById('decorPosYValue');
+    
+    if (posY) {
+        posY.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.posY = parseInt(e.target.value);
+                if (posYValue) posYValue.textContent = decor.posY + '%';
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    const opacity = document.getElementById('decorOpacity');
+    const opacityValue = document.getElementById('decorOpacityValue');
+    
+    if (opacity) {
+        opacity.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.opacity = parseFloat(e.target.value);
+                if (opacityValue) opacityValue.textContent = decor.opacity.toFixed(1);
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    document.getElementById('decorAboveText')?.addEventListener('change', (e) => {
+        if (!EditorState.activeDecorId) return;
+        const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+        if (decor) {
+            decor.aboveText = e.target.checked;
+            updatePreviewDecorations();
+        }
+    });
+    
+    document.getElementById('deleteDecorBtn')?.addEventListener('click', () => {
+        if (!EditorState.activeDecorId) return;
+        deleteDecor(EditorState.activeDecorId);
+    });
+}
+
+function addDecor(file, name) {
+    const newDecor = {
+        id: 'decor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+        file: file,
+        name: name,
+        width: 150,
+        rotation: 0,
+        posX: 50,
+        posY: 50,
+        opacity: 1,
+        aboveText: false
+    };
+    
+    EditorState.decorations.push(newDecor);
+    selectDecor(newDecor.id);
     renderDecorList();
+    updatePreviewDecorations();
+    
+    if (window.innerWidth <= 768) {
+        setTimeout(() => {
+            openMobileDecorPanel(newDecor.id);
+        }, 50);
+    }
+}
+
+function selectDecor(id) {
+    if (EditorState.activeDecorId === id) {
+        EditorState.activeDecorId = null;
+        hideDecorControls();
+    } else {
+        EditorState.activeDecorId = id;
+        showDecorControls(id);
+    }
+    
+    renderDecorList();
+    updatePreviewDecorations();
+}
+
+function showDecorControls(id) {
+    const controls = document.getElementById('decorControls');
+    const decor = EditorState.decorations.find(d => d.id === id);
+    
+    if (controls && decor) {
+        controls.style.display = 'block';
+        
+        document.getElementById('decorSize').value = decor.width || 150;
+        document.getElementById('decorSizeValue').textContent = (decor.width || 150) + 'px';
+        
+        document.getElementById('decorAngle').textContent = (decor.rotation || 0) + '°';
+        
+        document.getElementById('decorPosX').value = decor.posX || 50;
+        document.getElementById('decorPosXValue').textContent = (decor.posX || 50) + '%';
+        
+        document.getElementById('decorPosY').value = decor.posY || 50;
+        document.getElementById('decorPosYValue').textContent = (decor.posY || 50) + '%';
+        
+        document.getElementById('decorOpacity').value = decor.opacity || 1;
+        document.getElementById('decorOpacityValue').textContent = (decor.opacity || 1).toFixed(1);
+        
+        document.getElementById('decorAboveText').checked = decor.aboveText || false;
+    }
+}
+
+function hideDecorControls() {
+    const controls = document.getElementById('decorControls');
+    if (controls) {
+        controls.style.display = 'none';
+    }
+}
+
+function deleteDecor(id) {
+    EditorState.decorations = EditorState.decorations.filter(d => d.id !== id);
+    
+    if (EditorState.activeDecorId === id) {
+        EditorState.activeDecorId = null;
+        hideDecorControls();
+    }
+    
+    renderDecorList();
+    updatePreviewDecorations();
+    
+    if (window.innerWidth <= 768) {
+        closeMobileDecorPanel();
+    }
+}
+
+function moveDecor(id, direction) {
+    const index = EditorState.decorations.findIndex(d => d.id === id);
+    if (index === -1) return;
+    
+    const newIndex = direction === 'up' ? index - 1 : index + 1;
+    
+    if (newIndex < 0 || newIndex >= EditorState.decorations.length) return;
+    
+    [EditorState.decorations[index], EditorState.decorations[newIndex]] = 
+    [EditorState.decorations[newIndex], EditorState.decorations[index]];
+    
+    renderDecorList();
+    updatePreviewDecorations();
+}
+
+function updatePreviewDecorations() {
+    const card = document.getElementById('previewCard');
+    if (!card) return;
+    
+    card.querySelectorAll('.invitation-decor').forEach(el => el.remove());
+    
+    EditorState.decorations.forEach(decor => {
+        const decorEl = document.createElement('div');
+        decorEl.className = `invitation-decor ${decor.aboveText ? 'above-text' : ''}`;
+        decorEl.id = `decor-${decor.id}`;
+        decorEl.dataset.decorId = decor.id;
+        
+        decorEl.style.cssText = `
+            position: absolute;
+            width: ${decor.width || 150}px;
+            height: ${decor.width || 150}px;
+            left: ${decor.posX || 50}%;
+            top: ${decor.posY || 50}%;
+            transform: translate(-50%, -50%) rotate(${decor.rotation || 0}deg);
+            opacity: ${decor.opacity || 1};
+            background-image: url('/images/decorations/${decor.file}');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            pointer-events: none;
+            z-index: ${decor.aboveText ? 20 : 5};
+        `;
+        
+        card.appendChild(decorEl);
+    });
+    
     applyClipToFrame();
 }
 
-// Применение обрезки рамкой
 function applyClipToFrame() {
     const card = document.getElementById('previewCard');
     if (!card) return;
@@ -64,360 +396,190 @@ function applyClipToFrame() {
     }
 }
 
-// Отрисовка библиотеки декораций
-function renderDecorLibrary() {
-    const container = document.getElementById('decorLibrary');
-    if (!container) return;
+// ===== МОБИЛЬНАЯ ПАНЕЛЬ =====
+function initMobileDecorPanel() {
+    mobileDecorPanel = document.getElementById('mobileDecorPanel');
+    if (!mobileDecorPanel) return;
     
-    container.innerHTML = decorLibrary.map(decor => `
-        <div class="decor-library-item" 
-             data-decor-id="${decor.id}"
-             data-decor-file="${decor.file}"
-             data-decor-name="${decor.name}"
-             style="background-image: url('/images/decor/${decor.file}')"
-             title="${decor.name}">
-        </div>
-    `).join('');
+    const closeBtn = document.getElementById('mobileDecorClose');
+    if (closeBtn) closeBtn.addEventListener('click', closeMobileDecorPanel);
     
-    container.querySelectorAll('.decor-library-item').forEach(item => {
-        item.addEventListener('click', () => {
-            addDecoration(item.dataset.decorId, item.dataset.decorFile, item.dataset.decorName);
-        });
-    });
-}
-
-// Добавление новой декорации
-function addDecoration(decorId, decorFile, decorName) {
-    const card = document.getElementById('previewCard');
-    const cardWidth = card?.offsetWidth || 500;
-    const cardHeight = card?.offsetHeight || 500;
+    const doneBtn = document.getElementById('mobileDecorDone');
+    if (doneBtn) doneBtn.addEventListener('click', closeMobileDecorPanel);
     
-    const newDecor = {
-        id: 'decor_' + Date.now() + '_' + Math.random().toString(36).substr(2, 8),
-        file: decorFile,
-        name: decorName,
-        width: 150,
-        rotation: 0,
-        posX: 50,        // в процентах (единственная координата)
-        posY: 50,        // в процентах (единственная координата)
-        opacity: 1,
-        aboveText: false,
-        zIndex: 5
-    };
-    
-    EditorState.decorations.push(newDecor);
-    EditorState.activeDecorId = newDecor.id;
-    
-    renderDecorList();
-    showDecorControls(newDecor.id);
-    updatePreviewDecorations();
-}
-
-// Отрисовка списка добавленных декораций
-function renderDecorList() {
-    const container = document.getElementById('decorList');
-    if (!container) return;
-    
-    if (EditorState.decorations.length === 0) {
-        container.innerHTML = '<p style="color: #94a3b8; text-align: center; padding: 1rem;">Нет добавленных декораций</p>';
-        document.getElementById('decorControls')?.style.setProperty('display', 'none');
-        return;
-    }
-    
-    container.innerHTML = EditorState.decorations.map(decor => {
-        const isActive = decor.id === EditorState.activeDecorId;
-        const decorInfo = decorLibrary.find(d => d.file === decor.file) || { name: decor.name || 'Декорация' };
-        
-        return `
-            <div class="decor-list-item ${isActive ? 'active' : ''}" data-decor-id="${decor.id}">
-                <div class="decor-list-thumb" style="background-image: url('/images/decor/${decor.file}')"></div>
-                <div class="decor-list-info">${decorInfo.name}</div>
-                <div class="decor-list-actions">
-                    <button class="decor-list-btn rotate-left" title="Повернуть на 90°">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">rotate_left</span>
-                    </button>
-                    <button class="decor-list-btn rotate-right" title="Повернуть на 90°">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">rotate_right</span>
-                    </button>
-                    <button class="decor-list-btn delete" title="Удалить">
-                        <span class="material-symbols-outlined" style="font-size: 1rem;">delete</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    }).join('');
-    
-    container.querySelectorAll('.decor-list-item').forEach(item => {
-        const decorId = item.dataset.decorId;
-        
-        item.addEventListener('click', (e) => {
-            if (!e.target.closest('.decor-list-btn')) {
-                EditorState.activeDecorId = decorId;
-                renderDecorList();
-                showDecorControls(decorId);
+    const rotateLeft = document.getElementById('mobileRotateLeft');
+    if (rotateLeft) {
+        rotateLeft.addEventListener('click', () => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.rotation = ((decor.rotation || 0) - 90 + 360) % 360;
+                updateMobilePanelValues(decor);
+                updatePreviewDecorations();
             }
         });
-        
-        item.querySelector('.rotate-left')?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            rotateDecoration(decorId, -90);
+    }
+    
+    const rotateRight = document.getElementById('mobileRotateRight');
+    if (rotateRight) {
+        rotateRight.addEventListener('click', () => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.rotation = ((decor.rotation || 0) + 90) % 360;
+                updateMobilePanelValues(decor);
+                updatePreviewDecorations();
+            }
         });
-        
-        item.querySelector('.rotate-right')?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            rotateDecoration(decorId, 90);
+    }
+    
+    const mobileSize = document.getElementById('mobileDecorSize');
+    if (mobileSize) {
+        mobileSize.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.width = parseInt(e.target.value);
+                document.getElementById('mobileDecorSizeValue').textContent = decor.width + 'px';
+                updatePreviewDecorations();
+            }
         });
-        
-        item.querySelector('.delete')?.addEventListener('click', (e) => {
-            e.stopPropagation();
-            deleteDecoration(decorId);
+    }
+    
+    const mobilePosX = document.getElementById('mobileDecorPosX');
+    if (mobilePosX) {
+        mobilePosX.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.posX = parseInt(e.target.value);
+                document.getElementById('mobileDecorPosXValue').textContent = decor.posX + '%';
+                updatePreviewDecorations();
+            }
         });
-    });
+    }
+    
+    const mobilePosY = document.getElementById('mobileDecorPosY');
+    if (mobilePosY) {
+        mobilePosY.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.posY = parseInt(e.target.value);
+                document.getElementById('mobileDecorPosYValue').textContent = decor.posY + '%';
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    const mobileOpacity = document.getElementById('mobileDecorOpacity');
+    if (mobileOpacity) {
+        mobileOpacity.addEventListener('input', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.opacity = parseFloat(e.target.value);
+                document.getElementById('mobileDecorOpacityValue').textContent = Math.round(decor.opacity * 100) + '%';
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    const aboveText = document.getElementById('mobileDecorAboveText');
+    if (aboveText) {
+        aboveText.addEventListener('change', (e) => {
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.aboveText = e.target.checked;
+                updatePreviewDecorations();
+            }
+        });
+    }
+    
+    const clipToFrame = document.getElementById('mobileDecorClipToFrame');
+    if (clipToFrame) {
+        clipToFrame.checked = EditorState.clipDecorations;
+        clipToFrame.addEventListener('change', (e) => {
+            EditorState.clipDecorations = e.target.checked;
+            applyClipToFrame();
+            updatePreviewDecorations();
+        });
+    }
+    
+    const deleteBtn = document.getElementById('mobileDeleteDecorBtn');
+    if (deleteBtn) {
+        deleteBtn.addEventListener('click', () => {
+            if (!EditorState.activeDecorId) return;
+            deleteDecor(EditorState.activeDecorId);
+            closeMobileDecorPanel();
+        });
+    }
 }
 
-// Поворот декорации
-function rotateDecoration(decorId, angleChange) {
+function openMobileDecorPanel(decorId) {
+    if (!isMobileView) return;
+    
+    const previewTab = document.querySelector('.mobile-tab[data-tab="preview"]');
+    if (previewTab) previewTab.click();
+    
+    if (mobileDecorPanel) mobileDecorPanel.classList.add('active');
+    
     const decor = EditorState.decorations.find(d => d.id === decorId);
-    if (!decor) return;
-    
-    decor.rotation = (decor.rotation + angleChange + 360) % 360;
-    
-    if (decorId === EditorState.activeDecorId) {
-        updateDecorControlsValues(decor);
-        document.getElementById('decorAngle').textContent = decor.rotation + '°';
-    }
-    
-    renderDecorList();
-    updatePreviewDecorations();
+    if (decor) updateMobilePanelValues(decor);
 }
 
-// Удаление декорации
-function deleteDecoration(decorId) {
-    EditorState.decorations = EditorState.decorations.filter(d => d.id !== decorId);
-    
-    if (EditorState.activeDecorId === decorId) {
-        EditorState.activeDecorId = EditorState.decorations[0]?.id || null;
-        
-        if (EditorState.activeDecorId) {
-            showDecorControls(EditorState.activeDecorId);
-        } else {
-            hideDecorControls();
-        }
-    }
-    
-    renderDecorList();
-    updatePreviewDecorations();
+function closeMobileDecorPanel() {
+    if (mobileDecorPanel) mobileDecorPanel.classList.remove('active');
 }
 
-// Показать панель управления
-function showDecorControls(decorId) {
-    const controls = document.getElementById('decorControls');
-    const decor = EditorState.decorations.find(d => d.id === decorId);
+function updateMobilePanelValues(decor) {
+    const sizeInput = document.getElementById('mobileDecorSize');
+    const sizeValue = document.getElementById('mobileDecorSizeValue');
+    if (sizeInput) sizeInput.value = decor.width || 150;
+    if (sizeValue) sizeValue.textContent = (decor.width || 150) + 'px';
     
-    if (!controls || !decor) return;
+    const angle = decor.rotation || 0;
+    const angleSpan = document.getElementById('mobileDecorAngle');
+    if (angleSpan) angleSpan.textContent = angle + '°';
     
-    controls.style.display = 'block';
+    const angleDisplay = document.querySelector('.mobile-decor-angle-display');
+    if (angleDisplay) angleDisplay.textContent = angle + '°';
     
-    document.getElementById('decorSize').value = decor.width;
-    document.getElementById('decorSizeValue').textContent = decor.width;
+    const posX = document.getElementById('mobileDecorPosX');
+    const posXValue = document.getElementById('mobileDecorPosXValue');
+    if (posX) posX.value = decor.posX || 50;
+    if (posXValue) posXValue.textContent = (decor.posX || 50) + '%';
     
-    document.getElementById('decorPosX').value = decor.posX;
-    document.getElementById('decorPosXValue').textContent = decor.posX + '%';
+    const posY = document.getElementById('mobileDecorPosY');
+    const posYValue = document.getElementById('mobileDecorPosYValue');
+    if (posY) posY.value = decor.posY || 50;
+    if (posYValue) posYValue.textContent = (decor.posY || 50) + '%';
     
-    document.getElementById('decorPosY').value = decor.posY;
-    document.getElementById('decorPosYValue').textContent = decor.posY + '%';
+    const opacity = document.getElementById('mobileDecorOpacity');
+    const opacityValue = document.getElementById('mobileDecorOpacityValue');
+    if (opacity) opacity.value = decor.opacity || 1;
+    if (opacityValue) opacityValue.textContent = Math.round((decor.opacity || 1) * 100) + '%';
     
-    document.getElementById('decorOpacity').value = decor.opacity;
-    document.getElementById('decorOpacityValue').textContent = decor.opacity.toFixed(1);
+    const aboveText = document.getElementById('mobileDecorAboveText');
+    if (aboveText) aboveText.checked = decor.aboveText || false;
     
-    document.getElementById('decorAboveText').checked = decor.aboveText;
-    document.getElementById('decorAngle').textContent = decor.rotation + '°';
-    
-    const clipCheckbox = document.getElementById('decorClipToFrame');
-    if (clipCheckbox) {
-        clipCheckbox.checked = EditorState.clipDecorations;
-    }
-    
-    setupDecorControls(decorId);
-    setupGlobalControls();
+    const clipToFrame = document.getElementById('mobileDecorClipToFrame');
+    if (clipToFrame) clipToFrame.checked = EditorState.clipDecorations;
 }
 
-// Обновить значения в контролах
-function updateDecorControlsValues(decor) {
-    document.getElementById('decorSize').value = decor.width;
-    document.getElementById('decorSizeValue').textContent = decor.width;
-    
-    document.getElementById('decorPosX').value = decor.posX;
-    document.getElementById('decorPosXValue').textContent = decor.posX + '%';
-    
-    document.getElementById('decorPosY').value = decor.posY;
-    document.getElementById('decorPosYValue').textContent = decor.posY + '%';
-    
-    document.getElementById('decorOpacity').value = decor.opacity;
-    document.getElementById('decorOpacityValue').textContent = decor.opacity.toFixed(1);
-    
-    document.getElementById('decorAboveText').checked = decor.aboveText;
-    document.getElementById('decorAngle').textContent = decor.rotation + '°';
-}
-
-// Настройка глобальных контролов
-function setupGlobalControls() {
-    const clipCheckbox = document.getElementById('decorClipToFrame');
-    if (!clipCheckbox) return;
-    
-    clipCheckbox.removeEventListener('change', clipCheckbox._handler);
-    clipCheckbox._handler = (e) => {
-        EditorState.clipDecorations = e.target.checked;
-        applyClipToFrame();
-    };
-    clipCheckbox.addEventListener('change', clipCheckbox._handler);
-}
-
-// Настройка обработчиков для панели управления
-function setupDecorControls(decorId) {
-    const sizeInput = document.getElementById('decorSize');
-    const posXInput = document.getElementById('decorPosX');
-    const posYInput = document.getElementById('decorPosY');
-    const opacityInput = document.getElementById('decorOpacity');
-    const aboveTextCheck = document.getElementById('decorAboveText');
-    const rotateLeftBtn = document.getElementById('rotateLeft');
-    const rotateRightBtn = document.getElementById('rotateRight');
-    const deleteBtn = document.getElementById('deleteDecorBtn');
-    
-    // Удаляем старые обработчики
-    sizeInput?.removeEventListener('input', sizeInput._handler);
-    posXInput?.removeEventListener('input', posXInput._handler);
-    posYInput?.removeEventListener('input', posYInput._handler);
-    opacityInput?.removeEventListener('input', opacityInput._handler);
-    aboveTextCheck?.removeEventListener('change', aboveTextCheck._handler);
-    rotateLeftBtn?.removeEventListener('click', rotateLeftBtn._handler);
-    rotateRightBtn?.removeEventListener('click', rotateRightBtn._handler);
-    deleteBtn?.removeEventListener('click', deleteBtn._handler);
-    
-    // Добавляем новые обработчики
-    sizeInput._handler = (e) => {
-        const decor = EditorState.decorations.find(d => d.id === decorId);
-        if (!decor) return;
-        decor.width = parseInt(e.target.value);
-        document.getElementById('decorSizeValue').textContent = decor.width;
-        updatePreviewDecorations();
-    };
-    sizeInput.addEventListener('input', sizeInput._handler);
-    
-    posXInput._handler = (e) => {
-        const decor = EditorState.decorations.find(d => d.id === decorId);
-        if (!decor) return;
-        decor.posX = parseInt(e.target.value);
-        document.getElementById('decorPosXValue').textContent = decor.posX + '%';
-        updatePreviewDecorations();
-    };
-    posXInput.addEventListener('input', posXInput._handler);
-    
-    posYInput._handler = (e) => {
-        const decor = EditorState.decorations.find(d => d.id === decorId);
-        if (!decor) return;
-        decor.posY = parseInt(e.target.value);
-        document.getElementById('decorPosYValue').textContent = decor.posY + '%';
-        updatePreviewDecorations();
-    };
-    posYInput.addEventListener('input', posYInput._handler);
-    
-    opacityInput._handler = (e) => {
-        const decor = EditorState.decorations.find(d => d.id === decorId);
-        if (!decor) return;
-        decor.opacity = parseFloat(e.target.value);
-        document.getElementById('decorOpacityValue').textContent = decor.opacity.toFixed(1);
-        updatePreviewDecorations();
-    };
-    opacityInput.addEventListener('input', opacityInput._handler);
-    
-    aboveTextCheck._handler = (e) => {
-        const decor = EditorState.decorations.find(d => d.id === decorId);
-        if (!decor) return;
-        decor.aboveText = e.target.checked;
-        decor.zIndex = decor.aboveText ? 20 : 5;
-        updatePreviewDecorations();
-    };
-    aboveTextCheck.addEventListener('change', aboveTextCheck._handler);
-    
-    rotateLeftBtn._handler = () => {
-        rotateDecoration(decorId, -90);
-    };
-    rotateLeftBtn.addEventListener('click', rotateLeftBtn._handler);
-    
-    rotateRightBtn._handler = () => {
-        rotateDecoration(decorId, 90);
-    };
-    rotateRightBtn.addEventListener('click', rotateRightBtn._handler);
-    
-    deleteBtn._handler = () => {
-        deleteDecoration(decorId);
-    };
-    deleteBtn.addEventListener('click', deleteBtn._handler);
-}
-
-// Скрыть панель управления
-function hideDecorControls() {
-    const controls = document.getElementById('decorControls');
-    if (controls) {
-        controls.style.display = 'none';
-    }
-}
-
-// Обновление декораций на холсте
-function updatePreviewDecorations() {
-    const card = document.getElementById('previewCard');
-    if (!card) return;
-    
-    const cardWidth = card.offsetWidth;
-    const cardHeight = card.offsetHeight;
-    
-    card.querySelectorAll('.invitation-decor').forEach(el => el.remove());
-    
-    if (EditorState.decorations && EditorState.decorations.length > 0) {
-        EditorState.decorations.forEach(decor => {
-            const decorEl = document.createElement('div');
-            decorEl.className = `invitation-decor ${decor.aboveText ? 'above-text' : ''}`;
-            
-            // Проценты напрямую дают позицию
-            const posX = (decor.posX / 100) * cardWidth;
-            const posY = (decor.posY / 100) * cardHeight;
-            
-            decorEl.style.cssText = `
-                position: absolute;
-                width: ${decor.width}px;
-                height: ${decor.width}px;
-                left: ${posX}px;
-                top: ${posY}px;
-                transform: translate(-50%, -50%) rotate(${decor.rotation}deg);
-                background-image: url('/images/decor/${decor.file}');
-                background-size: contain;
-                background-repeat: no-repeat;
-                background-position: center;
-                opacity: ${decor.opacity};
-                z-index: ${decor.zIndex};
-                pointer-events: none;
-            `;
-            
-            // Добавляем обработчик ошибки загрузки изображения
-            decorEl.onerror = function() {
-                this.style.backgroundColor = '#f0f0f0';
-                this.style.backgroundImage = 'none';
-                console.warn('Failed to load decor image:', decor.file);
-            };
-            
-            card.appendChild(decorEl);
-        });
-    }
-}
-
-// Экспортируем API
+// ===== ЭКСПОРТ В ГЛОБАЛЬНУЮ ОБЛАСТЬ =====
 window.decorationsAPI = {
     initDecorations,
     renderDecorLibrary,
-    addDecoration,
-    deleteDecoration,
+    renderDecorList,
+    addDecor,
+    selectDecor,
+    deleteDecor,
+    moveDecor,
     updatePreviewDecorations,
     applyClipToFrame,
-    rotateDecoration
+    openMobileDecorPanel,
+    closeMobileDecorPanel,
+    initMobileDecorPanel
 };
