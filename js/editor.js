@@ -60,6 +60,8 @@ const EditorState = {
     clipDecorations: true
 };
 
+const PAYMENT_AMOUNT = 299; // рублей
+
 const patterns = [
     { id: 'wedding-1', file: 'wedding1.webp', category: 'wedding', name: '1' },
     { id: 'wedding-2', file: 'wedding2.webp', category: 'wedding', name: '2' },
@@ -157,6 +159,14 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAllText();
     setInitialFonts();
 
+    // Проверяем соединение с бэкендом
+    setTimeout(() => {
+        if (window.checkBackendHealth) {
+            window.checkBackendHealth();
+        }
+        checkPendingPayment();
+    }, 500);
+
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -180,6 +190,230 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(observeCardResize, 500);
 });
+
+// ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ЮKASSA ====================
+
+// Функция создания платежа
+async function createPayment(slug) {
+    try {
+        const response = await fetch(API_CONFIG.getUrl(API_CONFIG.endpoints.createPayment), {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                slug: slug,
+                amount: PAYMENT_AMOUNT
+            })
+        });
+
+        const data = await response.json();
+        
+        if (data.success && data.confirmation_url) {
+            // Сохраняем данные приглашения в localStorage
+            localStorage.setItem('pendingInvitation', JSON.stringify({
+                slug: slug,
+                data: getInvitationData()
+            }));
+            
+            // Перенаправляем на оплату
+            window.location.href = data.confirmation_url;
+        } else {
+            throw new Error(data.error || 'Не удалось создать платеж');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        showUserNotification(
+            'Не удалось создать платеж. Попробуйте позже или напишите в поддержку',
+            'error'
+        );
+    }
+}
+
+// Функция для сбора всех данных приглашения
+function getInvitationData() {
+    return {
+        pattern: EditorState.pattern,
+        bgOpacity: EditorState.bgOpacity,
+        borderColor: EditorState.borderColor,
+        borderWidth: EditorState.borderWidth,
+        borderRadius: EditorState.borderRadius,
+        borderGlowEnabled: EditorState.borderGlowEnabled,
+        borderGlowColor: EditorState.borderGlowColor,
+        borderGlowSize: EditorState.borderGlowSize,
+        borderGlowIntensity: EditorState.borderGlowIntensity,
+        containerBgColor: EditorState.containerBgColor,
+        containerBgOpacity: EditorState.containerBgOpacity,
+        eventType: EditorState.eventType,
+        eventTypeSize: EditorState.eventTypeSize,
+        eventTypeBold: EditorState.eventTypeBold,
+        eventTypeItalic: EditorState.eventTypeItalic,
+        eventTypeFont: EditorState.eventTypeFont,
+        names: EditorState.names,
+        namesSize: EditorState.namesSize,
+        namesBold: EditorState.namesBold,
+        namesItalic: EditorState.namesItalic,
+        namesFont: EditorState.namesFont,
+        greeting: EditorState.greeting,
+        greetingSize: EditorState.greetingSize,
+        greetingBold: EditorState.greetingBold,
+        greetingItalic: EditorState.greetingItalic,
+        greetingFont: EditorState.greetingFont,
+        dateText: EditorState.dateText,
+        dateSize: EditorState.dateSize,
+        dateBold: EditorState.dateBold,
+        dateItalic: EditorState.dateItalic,
+        dateFont: EditorState.dateFont,
+        timeText: EditorState.timeText,
+        timeSize: EditorState.timeSize,
+        timeBold: EditorState.timeBold,
+        timeItalic: EditorState.timeItalic,
+        timeFont: EditorState.timeFont,
+        placeText: EditorState.placeText,
+        placeSize: EditorState.placeSize,
+        placeBold: EditorState.placeBold,
+        placeItalic: EditorState.placeItalic,
+        placeFont: EditorState.placeFont,
+        messageText: EditorState.messageText,
+        messageSize: EditorState.messageSize,
+        messageBold: EditorState.messageBold,
+        messageItalic: EditorState.messageItalic,
+        messageFont: EditorState.messageFont,
+        textColor: EditorState.textColor,
+        showDecorLines: EditorState.showDecorLines,
+        enablePerLineDecor: EditorState.enablePerLineDecor,
+        enableAnimations: EditorState.enableAnimations,
+        animationType: EditorState.animationType,
+        animationIntensity: EditorState.animationIntensity,
+        animationSpeed: EditorState.animationSpeed,
+        animationColors: EditorState.animationColors,
+        animationSize: EditorState.animationSize,
+        animationPosition: EditorState.animationPosition,
+        decorations: EditorState.decorations.map(d => ({
+            id: d.id,
+            file: d.file,
+            name: d.name,
+            width: d.width,
+            rotation: d.rotation,
+            posX: d.posX,
+            posY: d.posY,
+            opacity: d.opacity,
+            aboveText: d.aboveText,
+        })),
+        clipDecorations: EditorState.clipDecorations
+    };
+}
+
+// Проверка незавершенных платежей при загрузке
+async function checkPendingPayment() {
+    const pending = localStorage.getItem('pendingInvitation');
+    if (pending) {
+        const { slug, data } = JSON.parse(pending);
+        
+        // Спрашиваем пользователя
+        if (confirm('У вас есть незавершенное приглашение. Восстановить?')) {
+            // Восстанавливаем данные в редактор
+            Object.assign(EditorState, data);
+            updatePreview();
+            document.getElementById('customSlug').value = slug;
+            
+            // Обновляем все поля ввода
+            updateAllInputs();
+            
+            // Обновляем декорации
+            if (window.decorationsAPI && data.decorations) {
+                setTimeout(() => {
+                    window.decorationsAPI.renderDecorList();
+                    window.decorationsAPI.updatePreviewDecorations();
+                }, 100);
+            }
+            
+            // Очищаем localStorage
+            localStorage.removeItem('pendingInvitation');
+            
+            showUserNotification('Данные восстановлены. Оплатите приглашение для сохранения', 'info');
+        } else {
+            localStorage.removeItem('pendingInvitation');
+        }
+    }
+}
+
+// Функция для обновления всех полей ввода после восстановления
+function updateAllInputs() {
+    // Обновляем текстовые поля
+    const textInputs = {
+        'eventType': EditorState.eventType,
+        'names': EditorState.names,
+        'greeting': EditorState.greeting,
+        'dateText': EditorState.dateText,
+        'timeText': EditorState.timeText,
+        'placeText': EditorState.placeText,
+        'messageText': EditorState.messageText
+    };
+    
+    Object.entries(textInputs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+    });
+    
+    // Обновляем color inputs
+    const colorInputs = {
+        'borderColor': EditorState.borderColor,
+        'borderGlowColor': EditorState.borderGlowColor,
+        'containerBgColor': EditorState.containerBgColor,
+        'textColor': EditorState.textColor
+    };
+    
+    Object.entries(colorInputs).forEach(([id, value]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = value;
+    });
+    
+    // Обновляем range'ы
+    const ranges = [
+        'bgOpacity', 'borderWidth', 'borderRadius', 'borderGlowSize', 
+        'borderGlowIntensity', 'containerBgOpacity', 'eventTypeSize', 
+        'namesSize', 'greetingSize', 'dateSize', 'timeSize', 'placeSize', 
+        'messageSize', 'animationIntensity', 'animationSpeed', 'animationSize'
+    ];
+    
+    ranges.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.value = EditorState[id];
+            const valueEl = document.getElementById(`${id}Value`);
+            if (valueEl) valueEl.textContent = EditorState[id];
+        }
+    });
+    
+    // Обновляем чекбоксы
+    const checkboxes = [
+        'borderGlowEnabled', 'enableAnimations', 'showDecorLines', 
+        'enablePerLineDecor', 'eventTypeBold', 'eventTypeItalic',
+        'namesBold', 'namesItalic', 'greetingBold', 'greetingItalic',
+        'dateBold', 'dateItalic', 'timeBold', 'timeItalic',
+        'placeBold', 'placeItalic', 'messageBold', 'messageItalic'
+    ];
+    
+    checkboxes.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.checked = EditorState[id];
+    });
+    
+    // Обновляем селекты
+    const selects = [
+        'eventTypeFont', 'namesFont', 'greetingFont', 'dateFont',
+        'timeFont', 'placeFont', 'messageFont', 'animationType',
+        'animationPosition'
+    ];
+    
+    selects.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = EditorState[id];
+    });
+}
+
+// ==================== СУЩЕСТВУЮЩИЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ====================
 
 function observeCardResize() {
     const card = document.getElementById('previewCard');
@@ -1064,6 +1298,7 @@ function initColorPresets() {
     });
 }
 
+// Обновленная функция saveInvitation
 async function saveInvitation() {
     const slug = document.getElementById('customSlug')?.value.trim();
     const btn = document.getElementById('saveInvitationBtn');
@@ -1091,10 +1326,11 @@ async function saveInvitation() {
             animation: spin 0.8s linear infinite;
             margin-right: 8px;
         "></span>
-        Сохранение...
+        Проверка...
     `;
 
     try {
+        // Проверяем, свободен ли slug
         const existing = await db.collection('invitations').where('slug', '==', slug).get();
 
         if (!existing.empty) {
@@ -1104,88 +1340,13 @@ async function saveInvitation() {
             return;
         }
 
-        await new Promise(resolve => setTimeout(resolve, 1500));
-
-        const invitationData = {
-            slug: slug,
-            pattern: EditorState.pattern,
-            bgOpacity: EditorState.bgOpacity,
-            borderColor: EditorState.borderColor,
-            borderWidth: EditorState.borderWidth,
-            borderRadius: EditorState.borderRadius,
-            borderGlowEnabled: EditorState.borderGlowEnabled,
-            borderGlowColor: EditorState.borderGlowColor,
-            borderGlowSize: EditorState.borderGlowSize,
-            borderGlowIntensity: EditorState.borderGlowIntensity,
-            containerBgColor: EditorState.containerBgColor,
-            containerBgOpacity: EditorState.containerBgOpacity,
-            eventType: EditorState.eventType,
-            eventTypeSize: EditorState.eventTypeSize,
-            eventTypeBold: EditorState.eventTypeBold,
-            eventTypeItalic: EditorState.eventTypeItalic,
-            eventTypeFont: EditorState.eventTypeFont,
-            names: EditorState.names,
-            namesSize: EditorState.namesSize,
-            namesBold: EditorState.namesBold,
-            namesItalic: EditorState.namesItalic,
-            namesFont: EditorState.namesFont,
-            greeting: EditorState.greeting,
-            greetingSize: EditorState.greetingSize,
-            greetingBold: EditorState.greetingBold,
-            greetingItalic: EditorState.greetingItalic,
-            greetingFont: EditorState.greetingFont,
-            dateText: EditorState.dateText,
-            dateSize: EditorState.dateSize,
-            dateBold: EditorState.dateBold,
-            dateItalic: EditorState.dateItalic,
-            dateFont: EditorState.dateFont,
-            timeText: EditorState.timeText,
-            timeSize: EditorState.timeSize,
-            timeBold: EditorState.timeBold,
-            timeItalic: EditorState.timeItalic,
-            timeFont: EditorState.timeFont,
-            placeText: EditorState.placeText,
-            placeSize: EditorState.placeSize,
-            placeBold: EditorState.placeBold,
-            placeItalic: EditorState.placeItalic,
-            placeFont: EditorState.placeFont,
-            messageText: EditorState.messageText,
-            messageSize: EditorState.messageSize,
-            messageBold: EditorState.messageBold,
-            messageItalic: EditorState.messageItalic,
-            messageFont: EditorState.messageFont,
-            textColor: EditorState.textColor,
-            showDecorLines: EditorState.showDecorLines,
-            enablePerLineDecor: EditorState.enablePerLineDecor,
-            enableAnimations: EditorState.enableAnimations,
-            animationType: EditorState.animationType,
-            animationIntensity: EditorState.animationIntensity,
-            animationSpeed: EditorState.animationSpeed,
-            animationColors: EditorState.animationColors,
-            animationSize: EditorState.animationSize,
-            animationPosition: EditorState.animationPosition,
-            decorations: EditorState.decorations.map(d => ({
-                id: d.id,
-                file: d.file,
-                name: d.name,
-                width: d.width,
-                rotation: d.rotation,
-                posX: d.posX,
-                posY: d.posY,
-                opacity: d.opacity,
-                aboveText: d.aboveText,
-            })),
-            clipDecorations: EditorState.clipDecorations,
-            createdAt: firebase.firestore.FieldValue.serverTimestamp()
-        };
-
-        await db.collection('invitations').add(invitationData);
-
-        showUserNotification('Приглашение успешно создано! Перенаправляем...', 'success');
-
-        setTimeout(() => {
-            window.location.href = `/invitation/#${slug}`;
-        }, 1500);
+        // Если свободен, создаем платеж
+        btn.innerHTML = `
+            <span class="spinner-small"></span>
+            Переход к оплате...
+        `;
+        
+        await createPayment(slug);
 
     } catch (error) {
         console.error('Save error:', error);
@@ -1194,7 +1355,7 @@ async function saveInvitation() {
         btn.innerHTML = originalHTML;
 
         showUserNotification(
-            'Не удалось сохранить приглашение. Проверьте подключение к интернету и попробуйте снова. ' +
+            'Не удалось проверить ссылку. Проверьте подключение к интернету и попробуйте снова. ' +
             'Если ошибка повторяется, напишите нам: secretplace122.95@gmail.com',
             'error'
         );
@@ -1284,3 +1445,7 @@ function showUserNotification(message, type = 'info') {
         }
     }, 5000);
 }
+
+window.createPayment = createPayment;
+window.checkPendingPayment = checkPendingPayment;
+window.getInvitationData = getInvitationData;
