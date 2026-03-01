@@ -11,21 +11,3 @@ const API_CONFIG = {
         return `${this.baseUrl}?path=${endpoint}`;
     }
 };
-
-async function checkBackendHealth() {
-    try {
-        const response = await fetch(API_CONFIG.getUrl(API_CONFIG.endpoints.health));
-        const data = await response.json();
-        console.log('✅ Бэкенд работает:', data);
-        return true;
-    } catch (error) {
-        console.error('❌ Бэкенд недоступен:', error);
-        return false;
-    }
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.location.pathname.includes('/editor/')) {
-        checkBackendHealth();
-    }
-});

@@ -60,7 +60,8 @@ const EditorState = {
     clipDecorations: true
 };
 
-const PAYMENT_AMOUNT = 299; // рублей
+const PAYMENT_AMOUNT = 299;
+let isProcessingPayment = false;
 
 const patterns = [
     { id: 'wedding-1', file: 'wedding1.webp', category: 'wedding', name: '1' },
@@ -159,11 +160,8 @@ document.addEventListener('DOMContentLoaded', () => {
     updateAllText();
     setInitialFonts();
 
-    // Проверяем соединение с бэкендом
     setTimeout(() => {
-        if (window.checkBackendHealth) {
-            window.checkBackendHealth();
-        }
+        checkPaymentReturn();
         checkPendingPayment();
     }, 500);
 
@@ -191,46 +189,855 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(observeCardResize, 500);
 });
 
-// ==================== ФУНКЦИИ ДЛЯ РАБОТЫ С ЮKASSA ====================
-
-// Функция создания платежа
-async function createPayment(slug) {
-    try {
-        const response = await fetch(API_CONFIG.getUrl(API_CONFIG.endpoints.createPayment), {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                slug: slug,
-                amount: PAYMENT_AMOUNT
-            })
-        });
-
-        const data = await response.json();
-        
-        if (data.success && data.confirmation_url) {
-            // Сохраняем данные приглашения в localStorage
-            localStorage.setItem('pendingInvitation', JSON.stringify({
-                slug: slug,
-                data: getInvitationData()
-            }));
-            
-            // Перенаправляем на оплату
-            window.location.href = data.confirmation_url;
-        } else {
-            throw new Error(data.error || 'Не удалось создать платеж');
+function observeCardResize() {
+    const card = document.getElementById('previewCard');
+    if (!card) return;
+    const resizeObserver = new ResizeObserver(() => {
+        if (window.decorationsAPI) {
+            window.decorationsAPI.updatePreviewDecorations();
         }
-    } catch (error) {
-        console.error('Payment error:', error);
-        showUserNotification(
-            'Не удалось создать платеж. Попробуйте позже или напишите в поддержку',
-            'error'
-        );
+    });
+    resizeObserver.observe(card);
+}
+
+function fixBackgroundScroll() {
+    const previewContainer = document.getElementById('previewContainer');
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (previewContainer && bgLayer && isMobileView) {
+        previewContainer.removeEventListener('scroll', handleBgScroll);
+        previewContainer.addEventListener('scroll', handleBgScroll);
     }
 }
 
-// Функция для сбора всех данных приглашения
+function handleBgScroll(e) {
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (bgLayer) bgLayer.style.transform = `translateY(${e.target.scrollTop}px)`;
+}
+
+function fixMobileTabsPosition() {
+    const navbar = document.querySelector('.navbar');
+    const mobileTabs = document.getElementById('mobileTabs');
+    if (navbar && mobileTabs && isMobileView) {
+        mobileTabs.style.top = navbar.offsetHeight + 'px';
+    }
+}
+
+function applyMobileScale() {
+    const cards = document.querySelectorAll('.invitation-card');
+    if (isMobileView) {
+        cards.forEach(card => {
+            card.style.transform = 'scale(0.7)';
+            card.style.transformOrigin = 'center top';
+            card.style.margin = '20px auto';
+        });
+    } else {
+        cards.forEach(card => card.style.transform = 'none');
+    }
+}
+
+function initFontSelectors() {
+    document.querySelectorAll('.font-select').forEach(select => {
+        select.innerHTML = fonts.map(f =>
+            `<option value="${f.value}" style="font-family: ${f.value}">${f.name}</option>`
+        ).join('');
+    });
+}
+
+function setInitialFonts() {
+    const fontMap = {
+        eventTypeFont: 'eventTypeFont',
+        namesFont: 'namesFont',
+        greetingFont: 'greetingFont',
+        dateFont: 'dateFont',
+        timeFont: 'timeFont',
+        placeFont: 'placeFont',
+        messageFont: 'messageFont'
+    };
+    Object.entries(fontMap).forEach(([id, state]) => {
+        const el = document.getElementById(id);
+        if (el) el.value = EditorState[state];
+    });
+}
+
+function initBoldItalicButtons() {
+    const setupButton = (buttonId, stateProperty, elementId, styleType) => {
+        const btn = document.getElementById(buttonId);
+        if (!btn) return;
+        if (EditorState[stateProperty]) btn.classList.add('active');
+        btn.addEventListener('click', () => {
+            EditorState[stateProperty] = !EditorState[stateProperty];
+            btn.classList.toggle('active');
+            const element = document.getElementById(elementId);
+            if (element) {
+                if (styleType === 'bold') element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
+                else if (styleType === 'italic') element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
+            }
+        });
+    };
+    setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
+    setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
+    setupButton('namesBold', 'namesBold', 'previewNames', 'bold');
+    setupButton('namesItalic', 'namesItalic', 'previewNames', 'italic');
+    setupButton('greetingBold', 'greetingBold', 'previewGreeting', 'bold');
+    setupButton('greetingItalic', 'greetingItalic', 'previewGreeting', 'italic');
+    setupButton('dateBold', 'dateBold', 'previewDate', 'bold');
+    setupButton('dateItalic', 'dateItalic', 'previewDate', 'italic');
+    setupButton('timeBold', 'timeBold', 'previewTime', 'bold');
+    setupButton('timeItalic', 'timeItalic', 'previewTime', 'italic');
+    setupButton('placeBold', 'placeBold', 'previewPlace', 'bold');
+    setupButton('placeItalic', 'placeItalic', 'previewPlace', 'italic');
+    setupButton('messageBold', 'messageBold', 'previewMessage', 'bold');
+    setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
+}
+
+function initPatternFilters() {
+    const filterContainer = document.querySelector('.pattern-filters');
+    if (!filterContainer) return;
+    filterContainer.innerHTML = `
+        <button class="filter-btn active" data-filter="all">Все</button>
+        <button class="filter-btn" data-filter="wedding">Свадьба</button>
+        <button class="filter-btn" data-filter="birthday">День рождения</button>
+        <button class="filter-btn" data-filter="other">Другое</button>
+    `;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            renderPatternGrid();
+        });
+    });
+}
+
+function renderPatternGrid() {
+    const grid = document.getElementById('patternGrid');
+    if (!grid) return;
+    const filtered = currentFilter === 'all' ? patterns : patterns.filter(p => p.category === currentFilter);
+    grid.innerHTML = filtered.map(p => `
+        <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
+             data-pattern="${p.file}"
+             data-category="${p.category}"
+             title="${p.name}"
+             style="background-image: url('/images/patterns/${p.file}')">
+        </div>
+    `).join('');
+    grid.querySelectorAll('.pattern-item').forEach(item => {
+        item.addEventListener('click', () => {
+            grid.querySelectorAll('.pattern-item').forEach(i => i.classList.remove('selected'));
+            item.classList.add('selected');
+            EditorState.pattern = item.dataset.pattern;
+            updatePreview();
+        });
+    });
+}
+
+function initPatternGrid() {
+    renderPatternGrid();
+}
+
+function initAccordion() {
+    document.querySelectorAll('.accordion-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const item = header.closest('.accordion-item');
+            const icon = header.querySelector('.material-symbols-outlined');
+            document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
+                if (activeItem !== item) {
+                    activeItem.classList.remove('active');
+                    const prevIcon = activeItem.querySelector('.material-symbols-outlined');
+                    if (prevIcon) prevIcon.textContent = 'expand_more';
+                }
+            });
+            item.classList.toggle('active');
+            if (icon) icon.textContent = item.classList.contains('active') ? 'expand_less' : 'expand_more';
+        });
+    });
+}
+
+function initAnimationControls() {
+    const enableAnimations = document.getElementById('enableAnimations');
+    if (enableAnimations) {
+        enableAnimations.checked = EditorState.enableAnimations;
+        enableAnimations.addEventListener('change', (e) => {
+            EditorState.enableAnimations = e.target.checked;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            } else if (window.animationManager) {
+                window.animationManager.stop();
+            }
+        });
+    }
+    const animationType = document.getElementById('animationType');
+    if (animationType) {
+        animationType.value = EditorState.animationType;
+        animationType.addEventListener('change', (e) => {
+            EditorState.animationType = e.target.value;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
+    const intensity = document.getElementById('animationIntensity');
+    if (intensity) {
+        intensity.value = EditorState.animationIntensity;
+        document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
+        intensity.addEventListener('input', (e) => {
+            EditorState.animationIntensity = parseInt(e.target.value);
+            document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
+    const speed = document.getElementById('animationSpeed');
+    if (speed) {
+        speed.value = EditorState.animationSpeed;
+        document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
+        speed.addEventListener('input', (e) => {
+            EditorState.animationSpeed = parseInt(e.target.value);
+            document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
+    const size = document.getElementById('animationSize');
+    if (size) {
+        size.value = EditorState.animationSize;
+        document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
+        size.addEventListener('input', (e) => {
+            EditorState.animationSize = parseInt(e.target.value);
+            document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
+    const position = document.getElementById('animationPosition');
+    if (position) {
+        position.value = EditorState.animationPosition;
+        position.addEventListener('change', (e) => {
+            EditorState.animationPosition = e.target.value;
+            if (EditorState.enableAnimations && window.animationManager) {
+                window.animationManager.start(getAnimationConfig());
+            }
+        });
+    }
+    document.querySelectorAll('.color-checkbox').forEach(checkbox => {
+        checkbox.checked = EditorState.animationColors.includes(checkbox.dataset.color);
+        checkbox.addEventListener('change', updateAnimationColors);
+    });
+    document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
+        if (window.animationManager) {
+            const config = getAnimationConfig();
+            config.enabled = true;
+            window.animationManager.start(config);
+            setTimeout(() => window.animationManager.stop(), 5000);
+        } else {
+            alert('Ошибка: менеджер анимаций не загружен');
+        }
+    });
+}
+
+function updateAnimationColors() {
+    const colors = [];
+    document.querySelectorAll('.color-checkbox:checked').forEach(cb => colors.push(cb.dataset.color));
+    EditorState.animationColors = colors.length > 0 ? colors : ['#FF69B4'];
+    if (EditorState.enableAnimations && window.animationManager) {
+        window.animationManager.start(getAnimationConfig());
+    }
+}
+
+function getAnimationConfig() {
+    return {
+        enabled: EditorState.enableAnimations,
+        type: EditorState.animationType,
+        intensity: EditorState.animationIntensity,
+        speed: EditorState.animationSpeed,
+        colors: EditorState.animationColors,
+        size: EditorState.animationSize,
+        position: EditorState.animationPosition
+    };
+}
+
+function initEventListeners() {
+    const bgOpacity = document.getElementById('bgOpacity');
+    if (bgOpacity) {
+        bgOpacity.value = EditorState.bgOpacity;
+        const bgOpacityValue = document.getElementById('bgOpacityValue');
+        if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
+        bgOpacity.addEventListener('input', (e) => {
+            EditorState.bgOpacity = parseFloat(e.target.value);
+            if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
+            updatePreview();
+        });
+    }
+    const borderColor = document.getElementById('borderColor');
+    if (borderColor) {
+        borderColor.value = EditorState.borderColor;
+        borderColor.addEventListener('input', (e) => {
+            EditorState.borderColor = e.target.value;
+            updatePreview();
+        });
+    }
+    const borderWidth = document.getElementById('borderWidth');
+    if (borderWidth) {
+        borderWidth.value = EditorState.borderWidth;
+        const borderWidthValue = document.getElementById('borderWidthValue');
+        if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
+        borderWidth.addEventListener('input', (e) => {
+            EditorState.borderWidth = parseInt(e.target.value);
+            if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
+            updatePreview();
+        });
+    }
+    const borderRadius = document.getElementById('borderRadius');
+    if (borderRadius) {
+        borderRadius.value = EditorState.borderRadius;
+        const borderRadiusValue = document.getElementById('borderRadiusValue');
+        if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
+        borderRadius.addEventListener('input', (e) => {
+            EditorState.borderRadius = parseInt(e.target.value);
+            if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
+            updatePreview();
+        });
+    }
+    const containerBgColor = document.getElementById('containerBgColor');
+    if (containerBgColor) {
+        containerBgColor.value = EditorState.containerBgColor;
+        containerBgColor.addEventListener('input', (e) => {
+            EditorState.containerBgColor = e.target.value;
+            updatePreview();
+        });
+    }
+    const containerBgOpacity = document.getElementById('containerBgOpacity');
+    if (containerBgOpacity) {
+        containerBgOpacity.value = EditorState.containerBgOpacity;
+        const containerBgOpacityValue = document.getElementById('containerBgOpacityValue');
+        if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
+        containerBgOpacity.addEventListener('input', (e) => {
+            EditorState.containerBgOpacity = parseFloat(e.target.value);
+            if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
+            updatePreview();
+        });
+    }
+    const textColor = document.getElementById('textColor');
+    if (textColor) {
+        textColor.value = EditorState.textColor;
+        textColor.addEventListener('input', (e) => {
+            EditorState.textColor = e.target.value;
+            updatePreview();
+        });
+    }
+    const showDecorLines = document.getElementById('showDecorLines');
+    if (showDecorLines) {
+        showDecorLines.checked = EditorState.showDecorLines;
+        showDecorLines.addEventListener('change', (e) => {
+            EditorState.showDecorLines = e.target.checked;
+            updateDecorLines();
+        });
+    }
+    const eventType = document.getElementById('eventType');
+    if (eventType) {
+        eventType.value = EditorState.eventType;
+        eventType.addEventListener('input', (e) => {
+            EditorState.eventType = e.target.value;
+            document.getElementById('previewEventType').textContent = EditorState.eventType;
+        });
+    }
+    const eventTypeSize = document.getElementById('eventTypeSize');
+    if (eventTypeSize) {
+        eventTypeSize.value = EditorState.eventTypeSize;
+        const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
+        if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+        eventTypeSize.addEventListener('input', (e) => {
+            EditorState.eventTypeSize = parseInt(e.target.value);
+            if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+            document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
+        });
+    }
+    const eventTypeFont = document.getElementById('eventTypeFont');
+    if (eventTypeFont) {
+        eventTypeFont.value = EditorState.eventTypeFont;
+        eventTypeFont.addEventListener('change', (e) => {
+            EditorState.eventTypeFont = e.target.value;
+            document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
+        });
+    }
+    const names = document.getElementById('names');
+    if (names) {
+        names.value = EditorState.names;
+        names.addEventListener('input', (e) => {
+            EditorState.names = e.target.value;
+            document.getElementById('previewNames').textContent = EditorState.names;
+        });
+    }
+    const namesSize = document.getElementById('namesSize');
+    if (namesSize) {
+        namesSize.value = EditorState.namesSize;
+        const namesSizeValue = document.getElementById('namesSizeValue');
+        if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+        namesSize.addEventListener('input', (e) => {
+            EditorState.namesSize = parseInt(e.target.value);
+            if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+            document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
+        });
+    }
+    const namesFont = document.getElementById('namesFont');
+    if (namesFont) {
+        namesFont.value = EditorState.namesFont;
+        namesFont.addEventListener('change', (e) => {
+            EditorState.namesFont = e.target.value;
+            document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
+        });
+    }
+    const greeting = document.getElementById('greeting');
+    if (greeting) {
+        greeting.value = EditorState.greeting;
+        greeting.addEventListener('input', (e) => {
+            EditorState.greeting = e.target.value;
+            document.getElementById('previewGreeting').textContent = EditorState.greeting;
+        });
+    }
+    const greetingSize = document.getElementById('greetingSize');
+    if (greetingSize) {
+        greetingSize.value = EditorState.greetingSize;
+        const greetingSizeValue = document.getElementById('greetingSizeValue');
+        if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+        greetingSize.addEventListener('input', (e) => {
+            EditorState.greetingSize = parseInt(e.target.value);
+            if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+            document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
+        });
+    }
+    const greetingFont = document.getElementById('greetingFont');
+    if (greetingFont) {
+        greetingFont.value = EditorState.greetingFont;
+        greetingFont.addEventListener('change', (e) => {
+            EditorState.greetingFont = e.target.value;
+            document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
+        });
+    }
+    const dateText = document.getElementById('dateText');
+    if (dateText) {
+        dateText.value = EditorState.dateText;
+        dateText.addEventListener('input', (e) => {
+            EditorState.dateText = e.target.value;
+            document.getElementById('previewDate').textContent = EditorState.dateText;
+        });
+    }
+    const dateSize = document.getElementById('dateSize');
+    if (dateSize) {
+        dateSize.value = EditorState.dateSize;
+        const dateSizeValue = document.getElementById('dateSizeValue');
+        if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+        dateSize.addEventListener('input', (e) => {
+            EditorState.dateSize = parseInt(e.target.value);
+            if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+            document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
+        });
+    }
+    const dateFont = document.getElementById('dateFont');
+    if (dateFont) {
+        dateFont.value = EditorState.dateFont;
+        dateFont.addEventListener('change', (e) => {
+            EditorState.dateFont = e.target.value;
+            document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
+        });
+    }
+    const timeText = document.getElementById('timeText');
+    if (timeText) {
+        timeText.value = EditorState.timeText;
+        timeText.addEventListener('input', (e) => {
+            EditorState.timeText = e.target.value;
+            document.getElementById('previewTime').textContent = EditorState.timeText;
+        });
+    }
+    const timeSize = document.getElementById('timeSize');
+    if (timeSize) {
+        timeSize.value = EditorState.timeSize;
+        const timeSizeValue = document.getElementById('timeSizeValue');
+        if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+        timeSize.addEventListener('input', (e) => {
+            EditorState.timeSize = parseInt(e.target.value);
+            if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+            document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
+        });
+    }
+    const timeFont = document.getElementById('timeFont');
+    if (timeFont) {
+        timeFont.value = EditorState.timeFont;
+        timeFont.addEventListener('change', (e) => {
+            EditorState.timeFont = e.target.value;
+            document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
+        });
+    }
+    const placeText = document.getElementById('placeText');
+    if (placeText) {
+        placeText.value = EditorState.placeText;
+        placeText.addEventListener('input', (e) => {
+            EditorState.placeText = e.target.value;
+            document.getElementById('previewPlace').textContent = EditorState.placeText;
+        });
+    }
+    const placeSize = document.getElementById('placeSize');
+    if (placeSize) {
+        placeSize.value = EditorState.placeSize;
+        const placeSizeValue = document.getElementById('placeSizeValue');
+        if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+        placeSize.addEventListener('input', (e) => {
+            EditorState.placeSize = parseInt(e.target.value);
+            if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+            document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
+        });
+    }
+    const placeFont = document.getElementById('placeFont');
+    if (placeFont) {
+        placeFont.value = EditorState.placeFont;
+        placeFont.addEventListener('change', (e) => {
+            EditorState.placeFont = e.target.value;
+            document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
+        });
+    }
+    const messageText = document.getElementById('messageText');
+    if (messageText) {
+        messageText.value = EditorState.messageText;
+        messageText.addEventListener('input', (e) => {
+            EditorState.messageText = e.target.value;
+            updateMessagePreview();
+        });
+    }
+    const messageSize = document.getElementById('messageSize');
+    if (messageSize) {
+        messageSize.value = EditorState.messageSize;
+        const messageSizeValue = document.getElementById('messageSizeValue');
+        if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
+        messageSize.addEventListener('input', (e) => {
+            EditorState.messageSize = parseInt(e.target.value);
+            if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
+            document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
+        });
+    }
+    const messageFont = document.getElementById('messageFont');
+    if (messageFont) {
+        messageFont.value = EditorState.messageFont;
+        messageFont.addEventListener('change', (e) => {
+            EditorState.messageFont = e.target.value;
+            document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
+        });
+    }
+    const borderGlowEnabled = document.getElementById('borderGlowEnabled');
+    if (borderGlowEnabled) {
+        borderGlowEnabled.checked = EditorState.borderGlowEnabled;
+        borderGlowEnabled.addEventListener('change', (e) => {
+            EditorState.borderGlowEnabled = e.target.checked;
+            updatePreview();
+        });
+    }
+    const borderGlowColor = document.getElementById('borderGlowColor');
+    if (borderGlowColor) {
+        borderGlowColor.value = EditorState.borderGlowColor;
+        borderGlowColor.addEventListener('input', (e) => {
+            EditorState.borderGlowColor = e.target.value;
+            updatePreview();
+        });
+    }
+    const borderGlowSize = document.getElementById('borderGlowSize');
+    if (borderGlowSize) {
+        borderGlowSize.value = EditorState.borderGlowSize;
+        const borderGlowSizeValue = document.getElementById('borderGlowSizeValue');
+        if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
+        borderGlowSize.addEventListener('input', (e) => {
+            EditorState.borderGlowSize = parseInt(e.target.value);
+            if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
+            updatePreview();
+        });
+    }
+    const borderGlowIntensity = document.getElementById('borderGlowIntensity');
+    if (borderGlowIntensity) {
+        borderGlowIntensity.value = EditorState.borderGlowIntensity;
+        const borderGlowIntensityValue = document.getElementById('borderGlowIntensityValue');
+        if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
+        borderGlowIntensity.addEventListener('input', (e) => {
+            EditorState.borderGlowIntensity = parseFloat(e.target.value);
+            if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
+            updatePreview();
+        });
+    }
+    const enablePerLineDecor = document.getElementById('enablePerLineDecor');
+    if (enablePerLineDecor) {
+        enablePerLineDecor.checked = EditorState.enablePerLineDecor;
+        enablePerLineDecor.addEventListener('change', (e) => {
+            EditorState.enablePerLineDecor = e.target.checked;
+            updateMessagePreview();
+        });
+    }
+    document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
+}
+
+function updateMessagePreview() {
+    const messageEl = document.getElementById('previewMessage');
+    if (!messageEl) return;
+    const lines = EditorState.messageText.split('\n');
+    let html = '';
+    lines.forEach((line, index) => {
+        html += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
+        if (EditorState.enablePerLineDecor && index < lines.length - 1) {
+            html += `<div class="message-line-decor" style="background: ${EditorState.textColor};"></div>`;
+        }
+    });
+    messageEl.innerHTML = html;
+    messageEl.style.display = 'flex';
+    messageEl.style.flexDirection = 'column';
+    messageEl.style.alignItems = 'center';
+    messageEl.style.gap = '0px';
+    messageEl.style.width = '100%';
+    messageEl.style.maxWidth = '100%';
+}
+
+function updateDecorLines() {
+    document.querySelectorAll('.decor-line').forEach(line => {
+        line.style.opacity = EditorState.showDecorLines ? '0.5' : '0';
+    });
+}
+
+function updateAllText() {
+    const previewEventType = document.getElementById('previewEventType');
+    if (previewEventType) {
+        previewEventType.textContent = EditorState.eventType;
+        previewEventType.style.fontSize = EditorState.eventTypeSize + 'px';
+        previewEventType.style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
+        previewEventType.style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
+        previewEventType.style.fontFamily = EditorState.eventTypeFont;
+    }
+    const previewNames = document.getElementById('previewNames');
+    if (previewNames) {
+        previewNames.textContent = EditorState.names;
+        previewNames.style.fontSize = EditorState.namesSize + 'px';
+        previewNames.style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
+        previewNames.style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
+        previewNames.style.fontFamily = EditorState.namesFont;
+    }
+    const previewGreeting = document.getElementById('previewGreeting');
+    if (previewGreeting) {
+        previewGreeting.textContent = EditorState.greeting;
+        previewGreeting.style.fontSize = EditorState.greetingSize + 'px';
+        previewGreeting.style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
+        previewGreeting.style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
+        previewGreeting.style.fontFamily = EditorState.greetingFont;
+    }
+    const previewDate = document.getElementById('previewDate');
+    if (previewDate) {
+        previewDate.textContent = EditorState.dateText;
+        previewDate.style.fontSize = EditorState.dateSize + 'px';
+        previewDate.style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
+        previewDate.style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
+        previewDate.style.fontFamily = EditorState.dateFont;
+    }
+    const previewTime = document.getElementById('previewTime');
+    if (previewTime) {
+        previewTime.textContent = EditorState.timeText;
+        previewTime.style.fontSize = EditorState.timeSize + 'px';
+        previewTime.style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
+        previewTime.style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
+        previewTime.style.fontFamily = EditorState.timeFont;
+    }
+    const previewPlace = document.getElementById('previewPlace');
+    if (previewPlace) {
+        previewPlace.textContent = EditorState.placeText;
+        previewPlace.style.fontSize = EditorState.placeSize + 'px';
+        previewPlace.style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
+        previewPlace.style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
+        previewPlace.style.fontFamily = EditorState.placeFont;
+    }
+    updateMessagePreview();
+    const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
+    if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
+    const namesSizeValue = document.getElementById('namesSizeValue');
+    if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
+    const greetingSizeValue = document.getElementById('greetingSizeValue');
+    if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
+    const dateSizeValue = document.getElementById('dateSizeValue');
+    if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
+    const timeSizeValue = document.getElementById('timeSizeValue');
+    if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
+    const placeSizeValue = document.getElementById('placeSizeValue');
+    if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
+    const messageSizeValue = document.getElementById('messageSizeValue');
+    if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
+    updateDecorLines();
+}
+
+function updatePreview() {
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (bgLayer) {
+        bgLayer.style.backgroundImage = `url('/images/patterns/${EditorState.pattern}')`;
+        bgLayer.style.opacity = EditorState.bgOpacity;
+    }
+    const card = document.getElementById('previewCard');
+    if (card) {
+        card.style.border = `${EditorState.borderWidth}px solid ${EditorState.borderColor}`;
+        card.style.borderRadius = `${EditorState.borderRadius}px`;
+        if (EditorState.borderGlowEnabled) {
+            card.style.boxShadow = `0 0 ${EditorState.borderGlowSize}px ${EditorState.borderGlowColor}, 0 25px 50px -12px rgba(0,0,0,0.25)`;
+        } else {
+            card.style.boxShadow = '0 25px 50px -12px rgba(0,0,0,0.25)';
+        }
+        const rgb = hexToRgb(EditorState.containerBgColor);
+        card.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${EditorState.containerBgOpacity})`;
+        card.style.color = EditorState.textColor;
+    }
+    updateAllText();
+    applyMobileScale();
+    if (window.decorationsAPI) {
+        setTimeout(() => {
+            window.decorationsAPI.updatePreviewDecorations();
+            window.decorationsAPI.applyClipToFrame();
+        }, 10);
+    }
+}
+
+function hexToRgb(hex) {
+    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+    return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+    } : { r: 255, g: 255, b: 255 };
+}
+
+function initMobileTabs() {
+    const mobileTabs = document.getElementById('mobileTabs');
+    const sidebar = document.getElementById('editorSidebar');
+    const preview = document.getElementById('editorPreview');
+    if (!mobileTabs || !sidebar || !preview) return;
+    const switchToTab = (tabName) => {
+        activeTab = tabName;
+        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
+        document.querySelector(`.mobile-tab[data-tab="${tabName}"]`).classList.add('active');
+        if (tabName === 'settings') {
+            sidebar.classList.remove('hidden');
+            preview.classList.add('hidden');
+        } else {
+            sidebar.classList.add('hidden');
+            preview.classList.remove('hidden');
+            setTimeout(() => {
+                applyMobileScale();
+                fixBackgroundScroll();
+            }, 50);
+        }
+    };
+    isMobileView = window.innerWidth <= 768;
+    if (isMobileView) switchToTab('settings');
+    document.querySelectorAll('.mobile-tab').forEach(tab => {
+        tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
+    });
+    let resizeTimeout;
+    window.addEventListener('resize', () => {
+        clearTimeout(resizeTimeout);
+        resizeTimeout = setTimeout(() => {
+            isMobileView = window.innerWidth <= 768;
+            if (isMobileView) {
+                const active = document.querySelector('.mobile-tab.active');
+                if (active) switchToTab(active.dataset.tab);
+                fixMobileTabsPosition();
+            } else {
+                sidebar.classList.remove('hidden');
+                preview.classList.remove('hidden');
+            }
+            applyMobileScale();
+        }, 150);
+    });
+}
+
+function initColorPresets() {
+    document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('borderColor').value = color;
+            EditorState.borderColor = color;
+            updatePreview();
+            document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+    document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('containerBgColor').value = color;
+            EditorState.containerBgColor = color;
+            updatePreview();
+            document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+    document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
+        preset.addEventListener('click', () => {
+            const color = preset.dataset.color;
+            document.getElementById('textColor').value = color;
+            EditorState.textColor = color;
+            updatePreview();
+            document.querySelectorAll('#textColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
+            preset.classList.add('selected');
+        });
+    });
+}
+
+function cancelPendingPayment() {
+    localStorage.removeItem('pendingInvitation');
+    isProcessingPayment = false;
+    const btn = document.getElementById('saveInvitationBtn');
+    if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = 'Сохранить';
+    }
+    showUserNotification('Платёж отменён', 'info');
+}
+
+function checkPaymentReturn() {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.has('payment_id') && urlParams.has('status')) {
+        const status = urlParams.get('status');
+        if (status === 'cancelled' || status === 'canceled') {
+            cancelPendingPayment();
+        }
+        const url = new URL(window.location);
+        url.searchParams.delete('payment_id');
+        url.searchParams.delete('status');
+        window.history.replaceState({}, '', url);
+    }
+}
+
+async function checkPendingPayment() {
+    const pending = localStorage.getItem('pendingInvitation');
+    if (pending) {
+        try {
+            const { slug, data, timestamp } = JSON.parse(pending);
+            if (timestamp && Date.now() - timestamp > 30 * 60 * 1000) {
+                localStorage.removeItem('pendingInvitation');
+                return;
+            }
+            const action = confirm('У вас есть незавершённый платёж. Нажмите ОК для продолжения оплаты или Отмена для отмены');
+            if (action) {
+                Object.assign(EditorState, data);
+                updatePreview();
+                document.getElementById('customSlug').value = slug;
+                updateAllInputs();
+                if (window.decorationsAPI && data.decorations) {
+                    setTimeout(() => {
+                        window.decorationsAPI.renderDecorList();
+                        window.decorationsAPI.updatePreviewDecorations();
+                    }, 100);
+                }
+                showUserNotification('Данные восстановлены. Нажмите "Сохранить" для оплаты', 'info');
+            } else {
+                cancelPendingPayment();
+            }
+        } catch (e) {
+            localStorage.removeItem('pendingInvitation');
+        }
+    }
+}
+
 function getInvitationData() {
     return {
         pattern: EditorState.pattern,
@@ -304,43 +1111,38 @@ function getInvitationData() {
     };
 }
 
-// Проверка незавершенных платежей при загрузке
-async function checkPendingPayment() {
-    const pending = localStorage.getItem('pendingInvitation');
-    if (pending) {
-        const { slug, data } = JSON.parse(pending);
-        
-        // Спрашиваем пользователя
-        if (confirm('У вас есть незавершенное приглашение. Восстановить?')) {
-            // Восстанавливаем данные в редактор
-            Object.assign(EditorState, data);
-            updatePreview();
-            document.getElementById('customSlug').value = slug;
-            
-            // Обновляем все поля ввода
-            updateAllInputs();
-            
-            // Обновляем декорации
-            if (window.decorationsAPI && data.decorations) {
-                setTimeout(() => {
-                    window.decorationsAPI.renderDecorList();
-                    window.decorationsAPI.updatePreviewDecorations();
-                }, 100);
-            }
-            
-            // Очищаем localStorage
-            localStorage.removeItem('pendingInvitation');
-            
-            showUserNotification('Данные восстановлены. Оплатите приглашение для сохранения', 'info');
+async function createPayment(slug) {
+    try {
+        const response = await fetch(API_CONFIG.getUrl(API_CONFIG.endpoints.createPayment), {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ slug: slug, amount: PAYMENT_AMOUNT })
+        });
+        const data = await response.json();
+        if (data.success && data.confirmation_url) {
+            localStorage.setItem('pendingInvitation', JSON.stringify({
+                slug: slug,
+                data: getInvitationData(),
+                timestamp: Date.now(),
+                paymentId: data.payment_id
+            }));
+            window.location.href = data.confirmation_url;
         } else {
-            localStorage.removeItem('pendingInvitation');
+            throw new Error(data.error || 'Не удалось создать платеж');
+        }
+    } catch (error) {
+        console.error('Payment error:', error);
+        showUserNotification('Не удалось создать платеж. Попробуйте позже или напишите в поддержку', 'error');
+        isProcessingPayment = false;
+        const btn = document.getElementById('saveInvitationBtn');
+        if (btn) {
+            btn.disabled = false;
+            btn.innerHTML = 'Сохранить';
         }
     }
 }
 
-// Функция для обновления всех полей ввода после восстановления
 function updateAllInputs() {
-    // Обновляем текстовые поля
     const textInputs = {
         'eventType': EditorState.eventType,
         'names': EditorState.names,
@@ -350,33 +1152,26 @@ function updateAllInputs() {
         'placeText': EditorState.placeText,
         'messageText': EditorState.messageText
     };
-    
     Object.entries(textInputs).forEach(([id, value]) => {
         const el = document.getElementById(id);
         if (el) el.value = value;
     });
-    
-    // Обновляем color inputs
     const colorInputs = {
         'borderColor': EditorState.borderColor,
         'borderGlowColor': EditorState.borderGlowColor,
         'containerBgColor': EditorState.containerBgColor,
         'textColor': EditorState.textColor
     };
-    
     Object.entries(colorInputs).forEach(([id, value]) => {
         const el = document.getElementById(id);
         if (el) el.value = value;
     });
-    
-    // Обновляем range'ы
     const ranges = [
         'bgOpacity', 'borderWidth', 'borderRadius', 'borderGlowSize', 
         'borderGlowIntensity', 'containerBgOpacity', 'eventTypeSize', 
         'namesSize', 'greetingSize', 'dateSize', 'timeSize', 'placeSize', 
         'messageSize', 'animationIntensity', 'animationSpeed', 'animationSize'
     ];
-    
     ranges.forEach(id => {
         const el = document.getElementById(id);
         if (el) {
@@ -385,8 +1180,6 @@ function updateAllInputs() {
             if (valueEl) valueEl.textContent = EditorState[id];
         }
     });
-    
-    // Обновляем чекбоксы
     const checkboxes = [
         'borderGlowEnabled', 'enableAnimations', 'showDecorLines', 
         'enablePerLineDecor', 'eventTypeBold', 'eventTypeItalic',
@@ -394,988 +1187,71 @@ function updateAllInputs() {
         'dateBold', 'dateItalic', 'timeBold', 'timeItalic',
         'placeBold', 'placeItalic', 'messageBold', 'messageItalic'
     ];
-    
     checkboxes.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.checked = EditorState[id];
     });
-    
-    // Обновляем селекты
     const selects = [
         'eventTypeFont', 'namesFont', 'greetingFont', 'dateFont',
         'timeFont', 'placeFont', 'messageFont', 'animationType',
         'animationPosition'
     ];
-    
     selects.forEach(id => {
         const el = document.getElementById(id);
         if (el) el.value = EditorState[id];
     });
 }
 
-// ==================== СУЩЕСТВУЮЩИЕ ФУНКЦИИ (БЕЗ ИЗМЕНЕНИЙ) ====================
-
-function observeCardResize() {
-    const card = document.getElementById('previewCard');
-    if (!card) return;
-
-    const resizeObserver = new ResizeObserver(() => {
-        if (window.decorationsAPI) {
-            window.decorationsAPI.updatePreviewDecorations();
-        }
-    });
-
-    resizeObserver.observe(card);
-}
-
-function fixBackgroundScroll() {
-    const previewContainer = document.getElementById('previewContainer');
-    const bgLayer = document.getElementById('previewBgLayer');
-    if (previewContainer && bgLayer && isMobileView) {
-        previewContainer.removeEventListener('scroll', handleBgScroll);
-        previewContainer.addEventListener('scroll', handleBgScroll);
-    }
-}
-
-function handleBgScroll(e) {
-    const bgLayer = document.getElementById('previewBgLayer');
-    if (bgLayer) bgLayer.style.transform = `translateY(${e.target.scrollTop}px)`;
-}
-
-function fixMobileTabsPosition() {
-    const navbar = document.querySelector('.navbar');
-    const mobileTabs = document.getElementById('mobileTabs');
-    if (navbar && mobileTabs && isMobileView) {
-        mobileTabs.style.top = navbar.offsetHeight + 'px';
-    }
-}
-
-function applyMobileScale() {
-    const cards = document.querySelectorAll('.invitation-card');
-    if (isMobileView) {
-        cards.forEach(card => {
-            card.style.transform = 'scale(0.7)';
-            card.style.transformOrigin = 'center top';
-            card.style.margin = '20px auto';
-        });
-    } else {
-        cards.forEach(card => card.style.transform = 'none');
-    }
-}
-
-function initFontSelectors() {
-    document.querySelectorAll('.font-select').forEach(select => {
-        select.innerHTML = fonts.map(f =>
-            `<option value="${f.value}" style="font-family: ${f.value}">${f.name}</option>`
-        ).join('');
-    });
-}
-
-function setInitialFonts() {
-    const fontMap = {
-        eventTypeFont: 'eventTypeFont',
-        namesFont: 'namesFont',
-        greetingFont: 'greetingFont',
-        dateFont: 'dateFont',
-        timeFont: 'timeFont',
-        placeFont: 'placeFont',
-        messageFont: 'messageFont'
-    };
-    Object.entries(fontMap).forEach(([id, state]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = EditorState[state];
-    });
-}
-
-function initBoldItalicButtons() {
-    const setupButton = (buttonId, stateProperty, elementId, styleType) => {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return;
-
-        if (EditorState[stateProperty]) btn.classList.add('active');
-
-        btn.addEventListener('click', () => {
-            EditorState[stateProperty] = !EditorState[stateProperty];
-            btn.classList.toggle('active');
-
-            const element = document.getElementById(elementId);
-            if (element) {
-                if (styleType === 'bold') element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
-                else if (styleType === 'italic') element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
-            }
-        });
-    };
-
-    setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
-    setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
-    setupButton('namesBold', 'namesBold', 'previewNames', 'bold');
-    setupButton('namesItalic', 'namesItalic', 'previewNames', 'italic');
-    setupButton('greetingBold', 'greetingBold', 'previewGreeting', 'bold');
-    setupButton('greetingItalic', 'greetingItalic', 'previewGreeting', 'italic');
-    setupButton('dateBold', 'dateBold', 'previewDate', 'bold');
-    setupButton('dateItalic', 'dateItalic', 'previewDate', 'italic');
-    setupButton('timeBold', 'timeBold', 'previewTime', 'bold');
-    setupButton('timeItalic', 'timeItalic', 'previewTime', 'italic');
-    setupButton('placeBold', 'placeBold', 'previewPlace', 'bold');
-    setupButton('placeItalic', 'placeItalic', 'previewPlace', 'italic');
-    setupButton('messageBold', 'messageBold', 'previewMessage', 'bold');
-    setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
-}
-
-function initPatternFilters() {
-    const filterContainer = document.querySelector('.pattern-filters');
-    if (!filterContainer) return;
-
-    filterContainer.innerHTML = `
-        <button class="filter-btn active" data-filter="all">Все</button>
-        <button class="filter-btn" data-filter="wedding">Свадьба</button>
-        <button class="filter-btn" data-filter="birthday">День рождения</button>
-        <button class="filter-btn" data-filter="other">Другое</button>
-    `;
-
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            currentFilter = btn.dataset.filter;
-            renderPatternGrid();
-        });
-    });
-}
-
-function renderPatternGrid() {
-    const grid = document.getElementById('patternGrid');
-    if (!grid) return;
-
-    const filtered = currentFilter === 'all' ? patterns : patterns.filter(p => p.category === currentFilter);
-
-    grid.innerHTML = filtered.map(p => `
-        <div class="pattern-item ${p.file === EditorState.pattern ? 'selected' : ''}" 
-             data-pattern="${p.file}"
-             data-category="${p.category}"
-             title="${p.name}"
-             style="background-image: url('/images/patterns/${p.file}')">
-        </div>
-    `).join('');
-
-    grid.querySelectorAll('.pattern-item').forEach(item => {
-        item.addEventListener('click', () => {
-            grid.querySelectorAll('.pattern-item').forEach(i => i.classList.remove('selected'));
-            item.classList.add('selected');
-            EditorState.pattern = item.dataset.pattern;
-            updatePreview();
-        });
-    });
-}
-
-function initPatternGrid() {
-    renderPatternGrid();
-}
-
-function initAccordion() {
-    document.querySelectorAll('.accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-            const item = header.closest('.accordion-item');
-            const wasActive = item.classList.contains('active');
-            const icon = header.querySelector('.material-symbols-outlined');
-
-            document.querySelectorAll('.accordion-item.active').forEach(activeItem => {
-                if (activeItem !== item) {
-                    activeItem.classList.remove('active');
-                    const prevIcon = activeItem.querySelector('.material-symbols-outlined');
-                    if (prevIcon) prevIcon.textContent = 'expand_more';
-                }
-            });
-
-            item.classList.toggle('active');
-            if (icon) icon.textContent = item.classList.contains('active') ? 'expand_less' : 'expand_more';
-        });
-    });
-}
-
-function initAnimationControls() {
-    const enableAnimations = document.getElementById('enableAnimations');
-    if (enableAnimations) {
-        enableAnimations.checked = EditorState.enableAnimations;
-
-        enableAnimations.addEventListener('change', (e) => {
-            EditorState.enableAnimations = e.target.checked;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            } else if (window.animationManager) {
-                window.animationManager.stop();
-            }
-        });
-    }
-
-    const animationType = document.getElementById('animationType');
-    if (animationType) {
-        animationType.value = EditorState.animationType;
-        animationType.addEventListener('change', (e) => {
-            EditorState.animationType = e.target.value;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-
-    const intensity = document.getElementById('animationIntensity');
-    if (intensity) {
-        intensity.value = EditorState.animationIntensity;
-        document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
-        intensity.addEventListener('input', (e) => {
-            EditorState.animationIntensity = parseInt(e.target.value);
-            document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-
-    const speed = document.getElementById('animationSpeed');
-    if (speed) {
-        speed.value = EditorState.animationSpeed;
-        document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
-        speed.addEventListener('input', (e) => {
-            EditorState.animationSpeed = parseInt(e.target.value);
-            document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-
-    const size = document.getElementById('animationSize');
-    if (size) {
-        size.value = EditorState.animationSize;
-        document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
-        size.addEventListener('input', (e) => {
-            EditorState.animationSize = parseInt(e.target.value);
-            document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-
-    const position = document.getElementById('animationPosition');
-    if (position) {
-        position.value = EditorState.animationPosition;
-        position.addEventListener('change', (e) => {
-            EditorState.animationPosition = e.target.value;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-
-    document.querySelectorAll('.color-checkbox').forEach(checkbox => {
-        checkbox.checked = EditorState.animationColors.includes(checkbox.dataset.color);
-        checkbox.addEventListener('change', updateAnimationColors);
-    });
-
-    document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
-        if (window.animationManager) {
-            const config = getAnimationConfig();
-            config.enabled = true;
-            window.animationManager.start(config);
-            setTimeout(() => window.animationManager.stop(), 5000);
-        } else {
-            alert('Ошибка: менеджер анимаций не загружен');
-        }
-    });
-}
-
-function updateAnimationColors() {
-    const colors = [];
-    document.querySelectorAll('.color-checkbox:checked').forEach(cb => colors.push(cb.dataset.color));
-    EditorState.animationColors = colors.length > 0 ? colors : ['#FF69B4'];
-    if (EditorState.enableAnimations && window.animationManager) {
-        window.animationManager.start(getAnimationConfig());
-    }
-}
-
-function getAnimationConfig() {
-    return {
-        enabled: EditorState.enableAnimations,
-        type: EditorState.animationType,
-        intensity: EditorState.animationIntensity,
-        speed: EditorState.animationSpeed,
-        colors: EditorState.animationColors,
-        size: EditorState.animationSize,
-        position: EditorState.animationPosition
-    };
-}
-
-function initEventListeners() {
-    const bgOpacity = document.getElementById('bgOpacity');
-    if (bgOpacity) {
-        bgOpacity.value = EditorState.bgOpacity;
-        const bgOpacityValue = document.getElementById('bgOpacityValue');
-        if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
-        bgOpacity.addEventListener('input', (e) => {
-            EditorState.bgOpacity = parseFloat(e.target.value);
-            if (bgOpacityValue) bgOpacityValue.textContent = EditorState.bgOpacity.toFixed(2);
-            updatePreview();
-        });
-    }
-
-    const borderColor = document.getElementById('borderColor');
-    if (borderColor) {
-        borderColor.value = EditorState.borderColor;
-        borderColor.addEventListener('input', (e) => {
-            EditorState.borderColor = e.target.value;
-            updatePreview();
-        });
-    }
-
-    const borderWidth = document.getElementById('borderWidth');
-    if (borderWidth) {
-        borderWidth.value = EditorState.borderWidth;
-        const borderWidthValue = document.getElementById('borderWidthValue');
-        if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
-        borderWidth.addEventListener('input', (e) => {
-            EditorState.borderWidth = parseInt(e.target.value);
-            if (borderWidthValue) borderWidthValue.textContent = EditorState.borderWidth;
-            updatePreview();
-        });
-    }
-
-    const borderRadius = document.getElementById('borderRadius');
-    if (borderRadius) {
-        borderRadius.value = EditorState.borderRadius;
-        const borderRadiusValue = document.getElementById('borderRadiusValue');
-        if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
-        borderRadius.addEventListener('input', (e) => {
-            EditorState.borderRadius = parseInt(e.target.value);
-            if (borderRadiusValue) borderRadiusValue.textContent = EditorState.borderRadius;
-            updatePreview();
-        });
-    }
-
-    const containerBgColor = document.getElementById('containerBgColor');
-    if (containerBgColor) {
-        containerBgColor.value = EditorState.containerBgColor;
-        containerBgColor.addEventListener('input', (e) => {
-            EditorState.containerBgColor = e.target.value;
-            updatePreview();
-        });
-    }
-
-    const containerBgOpacity = document.getElementById('containerBgOpacity');
-    if (containerBgOpacity) {
-        containerBgOpacity.value = EditorState.containerBgOpacity;
-        const containerBgOpacityValue = document.getElementById('containerBgOpacityValue');
-        if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
-        containerBgOpacity.addEventListener('input', (e) => {
-            EditorState.containerBgOpacity = parseFloat(e.target.value);
-            if (containerBgOpacityValue) containerBgOpacityValue.textContent = EditorState.containerBgOpacity.toFixed(2);
-            updatePreview();
-        });
-    }
-
-    const textColor = document.getElementById('textColor');
-    if (textColor) {
-        textColor.value = EditorState.textColor;
-        textColor.addEventListener('input', (e) => {
-            EditorState.textColor = e.target.value;
-            updatePreview();
-        });
-    }
-
-    const showDecorLines = document.getElementById('showDecorLines');
-    if (showDecorLines) {
-        showDecorLines.checked = EditorState.showDecorLines;
-        showDecorLines.addEventListener('change', (e) => {
-            EditorState.showDecorLines = e.target.checked;
-            updateDecorLines();
-        });
-    }
-
-    const eventType = document.getElementById('eventType');
-    if (eventType) {
-        eventType.value = EditorState.eventType;
-        eventType.addEventListener('input', (e) => {
-            EditorState.eventType = e.target.value;
-            document.getElementById('previewEventType').textContent = EditorState.eventType;
-        });
-    }
-
-    const eventTypeSize = document.getElementById('eventTypeSize');
-    if (eventTypeSize) {
-        eventTypeSize.value = EditorState.eventTypeSize;
-        const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
-        if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-        eventTypeSize.addEventListener('input', (e) => {
-            EditorState.eventTypeSize = parseInt(e.target.value);
-            if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-            document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
-        });
-    }
-
-    const eventTypeFont = document.getElementById('eventTypeFont');
-    if (eventTypeFont) {
-        eventTypeFont.value = EditorState.eventTypeFont;
-        eventTypeFont.addEventListener('change', (e) => {
-            EditorState.eventTypeFont = e.target.value;
-            document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
-        });
-    }
-
-    const names = document.getElementById('names');
-    if (names) {
-        names.value = EditorState.names;
-        names.addEventListener('input', (e) => {
-            EditorState.names = e.target.value;
-            document.getElementById('previewNames').textContent = EditorState.names;
-        });
-    }
-
-    const namesSize = document.getElementById('namesSize');
-    if (namesSize) {
-        namesSize.value = EditorState.namesSize;
-        const namesSizeValue = document.getElementById('namesSizeValue');
-        if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-        namesSize.addEventListener('input', (e) => {
-            EditorState.namesSize = parseInt(e.target.value);
-            if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-            document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
-        });
-    }
-
-    const namesFont = document.getElementById('namesFont');
-    if (namesFont) {
-        namesFont.value = EditorState.namesFont;
-        namesFont.addEventListener('change', (e) => {
-            EditorState.namesFont = e.target.value;
-            document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
-        });
-    }
-
-    const greeting = document.getElementById('greeting');
-    if (greeting) {
-        greeting.value = EditorState.greeting;
-        greeting.addEventListener('input', (e) => {
-            EditorState.greeting = e.target.value;
-            document.getElementById('previewGreeting').textContent = EditorState.greeting;
-        });
-    }
-
-    const greetingSize = document.getElementById('greetingSize');
-    if (greetingSize) {
-        greetingSize.value = EditorState.greetingSize;
-        const greetingSizeValue = document.getElementById('greetingSizeValue');
-        if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-        greetingSize.addEventListener('input', (e) => {
-            EditorState.greetingSize = parseInt(e.target.value);
-            if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-            document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
-        });
-    }
-
-    const greetingFont = document.getElementById('greetingFont');
-    if (greetingFont) {
-        greetingFont.value = EditorState.greetingFont;
-        greetingFont.addEventListener('change', (e) => {
-            EditorState.greetingFont = e.target.value;
-            document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
-        });
-    }
-
-    const dateText = document.getElementById('dateText');
-    if (dateText) {
-        dateText.value = EditorState.dateText;
-        dateText.addEventListener('input', (e) => {
-            EditorState.dateText = e.target.value;
-            document.getElementById('previewDate').textContent = EditorState.dateText;
-        });
-    }
-
-    const dateSize = document.getElementById('dateSize');
-    if (dateSize) {
-        dateSize.value = EditorState.dateSize;
-        const dateSizeValue = document.getElementById('dateSizeValue');
-        if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-        dateSize.addEventListener('input', (e) => {
-            EditorState.dateSize = parseInt(e.target.value);
-            if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-            document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
-        });
-    }
-
-    const dateFont = document.getElementById('dateFont');
-    if (dateFont) {
-        dateFont.value = EditorState.dateFont;
-        dateFont.addEventListener('change', (e) => {
-            EditorState.dateFont = e.target.value;
-            document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
-        });
-    }
-
-    const timeText = document.getElementById('timeText');
-    if (timeText) {
-        timeText.value = EditorState.timeText;
-        timeText.addEventListener('input', (e) => {
-            EditorState.timeText = e.target.value;
-            document.getElementById('previewTime').textContent = EditorState.timeText;
-        });
-    }
-
-    const timeSize = document.getElementById('timeSize');
-    if (timeSize) {
-        timeSize.value = EditorState.timeSize;
-        const timeSizeValue = document.getElementById('timeSizeValue');
-        if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-        timeSize.addEventListener('input', (e) => {
-            EditorState.timeSize = parseInt(e.target.value);
-            if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-            document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
-        });
-    }
-
-    const timeFont = document.getElementById('timeFont');
-    if (timeFont) {
-        timeFont.value = EditorState.timeFont;
-        timeFont.addEventListener('change', (e) => {
-            EditorState.timeFont = e.target.value;
-            document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
-        });
-    }
-
-    const placeText = document.getElementById('placeText');
-    if (placeText) {
-        placeText.value = EditorState.placeText;
-        placeText.addEventListener('input', (e) => {
-            EditorState.placeText = e.target.value;
-            document.getElementById('previewPlace').textContent = EditorState.placeText;
-        });
-    }
-
-    const placeSize = document.getElementById('placeSize');
-    if (placeSize) {
-        placeSize.value = EditorState.placeSize;
-        const placeSizeValue = document.getElementById('placeSizeValue');
-        if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-        placeSize.addEventListener('input', (e) => {
-            EditorState.placeSize = parseInt(e.target.value);
-            if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-            document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
-        });
-    }
-
-    const placeFont = document.getElementById('placeFont');
-    if (placeFont) {
-        placeFont.value = EditorState.placeFont;
-        placeFont.addEventListener('change', (e) => {
-            EditorState.placeFont = e.target.value;
-            document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
-        });
-    }
-
-    const messageText = document.getElementById('messageText');
-    if (messageText) {
-        messageText.value = EditorState.messageText;
-        messageText.addEventListener('input', (e) => {
-            EditorState.messageText = e.target.value;
-            updateMessagePreview();
-        });
-    }
-
-    const messageSize = document.getElementById('messageSize');
-    if (messageSize) {
-        messageSize.value = EditorState.messageSize;
-        const messageSizeValue = document.getElementById('messageSizeValue');
-        if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-        messageSize.addEventListener('input', (e) => {
-            EditorState.messageSize = parseInt(e.target.value);
-            if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-            document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
-        });
-    }
-
-    const messageFont = document.getElementById('messageFont');
-    if (messageFont) {
-        messageFont.value = EditorState.messageFont;
-        messageFont.addEventListener('change', (e) => {
-            EditorState.messageFont = e.target.value;
-            document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
-        });
-    }
-
-    const borderGlowEnabled = document.getElementById('borderGlowEnabled');
-    if (borderGlowEnabled) {
-        borderGlowEnabled.checked = EditorState.borderGlowEnabled;
-        borderGlowEnabled.addEventListener('change', (e) => {
-            EditorState.borderGlowEnabled = e.target.checked;
-            updatePreview();
-        });
-    }
-
-    const borderGlowColor = document.getElementById('borderGlowColor');
-    if (borderGlowColor) {
-        borderGlowColor.value = EditorState.borderGlowColor;
-        borderGlowColor.addEventListener('input', (e) => {
-            EditorState.borderGlowColor = e.target.value;
-            updatePreview();
-        });
-    }
-
-    const borderGlowSize = document.getElementById('borderGlowSize');
-    if (borderGlowSize) {
-        borderGlowSize.value = EditorState.borderGlowSize;
-        const borderGlowSizeValue = document.getElementById('borderGlowSizeValue');
-        if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
-        borderGlowSize.addEventListener('input', (e) => {
-            EditorState.borderGlowSize = parseInt(e.target.value);
-            if (borderGlowSizeValue) borderGlowSizeValue.textContent = EditorState.borderGlowSize;
-            updatePreview();
-        });
-    }
-
-    const borderGlowIntensity = document.getElementById('borderGlowIntensity');
-    if (borderGlowIntensity) {
-        borderGlowIntensity.value = EditorState.borderGlowIntensity;
-        const borderGlowIntensityValue = document.getElementById('borderGlowIntensityValue');
-        if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
-        borderGlowIntensity.addEventListener('input', (e) => {
-            EditorState.borderGlowIntensity = parseFloat(e.target.value);
-            if (borderGlowIntensityValue) borderGlowIntensityValue.textContent = EditorState.borderGlowIntensity.toFixed(2);
-            updatePreview();
-        });
-    }
-
-    const enablePerLineDecor = document.getElementById('enablePerLineDecor');
-    if (enablePerLineDecor) {
-        enablePerLineDecor.checked = EditorState.enablePerLineDecor;
-        enablePerLineDecor.addEventListener('change', (e) => {
-            EditorState.enablePerLineDecor = e.target.checked;
-            updateMessagePreview();
-        });
-    }
-
-    document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
-}
-
-function updateMessagePreview() {
-    const messageEl = document.getElementById('previewMessage');
-    if (!messageEl) return;
-
-    const lines = EditorState.messageText.split('\n');
-    let html = '';
-
-    lines.forEach((line, index) => {
-        html += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
-
-        if (EditorState.enablePerLineDecor && index < lines.length - 1) {
-            html += `<div class="message-line-decor" style="background: ${EditorState.textColor};"></div>`;
-        }
-    });
-
-    messageEl.innerHTML = html;
-    messageEl.style.display = 'flex';
-    messageEl.style.flexDirection = 'column';
-    messageEl.style.alignItems = 'center';
-    messageEl.style.gap = '0px';
-    messageEl.style.width = '100%';
-    messageEl.style.maxWidth = '100%';
-}
-
-function updateDecorLines() {
-    document.querySelectorAll('.decor-line').forEach(line => {
-        line.style.opacity = EditorState.showDecorLines ? '0.5' : '0';
-    });
-}
-
-function updateAllText() {
-    const previewEventType = document.getElementById('previewEventType');
-    if (previewEventType) {
-        previewEventType.textContent = EditorState.eventType;
-        previewEventType.style.fontSize = EditorState.eventTypeSize + 'px';
-        previewEventType.style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
-        previewEventType.style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
-        previewEventType.style.fontFamily = EditorState.eventTypeFont;
-    }
-
-    const previewNames = document.getElementById('previewNames');
-    if (previewNames) {
-        previewNames.textContent = EditorState.names;
-        previewNames.style.fontSize = EditorState.namesSize + 'px';
-        previewNames.style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
-        previewNames.style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
-        previewNames.style.fontFamily = EditorState.namesFont;
-    }
-
-    const previewGreeting = document.getElementById('previewGreeting');
-    if (previewGreeting) {
-        previewGreeting.textContent = EditorState.greeting;
-        previewGreeting.style.fontSize = EditorState.greetingSize + 'px';
-        previewGreeting.style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
-        previewGreeting.style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
-        previewGreeting.style.fontFamily = EditorState.greetingFont;
-    }
-
-    const previewDate = document.getElementById('previewDate');
-    if (previewDate) {
-        previewDate.textContent = EditorState.dateText;
-        previewDate.style.fontSize = EditorState.dateSize + 'px';
-        previewDate.style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
-        previewDate.style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
-        previewDate.style.fontFamily = EditorState.dateFont;
-    }
-
-    const previewTime = document.getElementById('previewTime');
-    if (previewTime) {
-        previewTime.textContent = EditorState.timeText;
-        previewTime.style.fontSize = EditorState.timeSize + 'px';
-        previewTime.style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
-        previewTime.style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
-        previewTime.style.fontFamily = EditorState.timeFont;
-    }
-
-    const previewPlace = document.getElementById('previewPlace');
-    if (previewPlace) {
-        previewPlace.textContent = EditorState.placeText;
-        previewPlace.style.fontSize = EditorState.placeSize + 'px';
-        previewPlace.style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
-        previewPlace.style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
-        previewPlace.style.fontFamily = EditorState.placeFont;
-    }
-
-    updateMessagePreview();
-
-    const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
-    if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-
-    const namesSizeValue = document.getElementById('namesSizeValue');
-    if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-
-    const greetingSizeValue = document.getElementById('greetingSizeValue');
-    if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-
-    const dateSizeValue = document.getElementById('dateSizeValue');
-    if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-
-    const timeSizeValue = document.getElementById('timeSizeValue');
-    if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-
-    const placeSizeValue = document.getElementById('placeSizeValue');
-    if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-
-    const messageSizeValue = document.getElementById('messageSizeValue');
-    if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-
-    updateDecorLines();
-}
-
-function updatePreview() {
-    const bgLayer = document.getElementById('previewBgLayer');
-    if (bgLayer) {
-        bgLayer.style.backgroundImage = `url('/images/patterns/${EditorState.pattern}')`;
-        bgLayer.style.opacity = EditorState.bgOpacity;
-    }
-
-    const card = document.getElementById('previewCard');
-    if (card) {
-        card.style.border = `${EditorState.borderWidth}px solid ${EditorState.borderColor}`;
-        card.style.borderRadius = `${EditorState.borderRadius}px`;
-
-        if (EditorState.borderGlowEnabled) {
-            card.style.boxShadow = `0 0 ${EditorState.borderGlowSize}px ${EditorState.borderGlowColor}, 0 25px 50px -12px rgba(0,0,0,0.25)`;
-        } else {
-            card.style.boxShadow = '0 25px 50px -12px rgba(0,0,0,0.25)';
-        }
-
-        const rgb = hexToRgb(EditorState.containerBgColor);
-        card.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${EditorState.containerBgOpacity})`;
-        card.style.color = EditorState.textColor;
-    }
-
-    updateAllText();
-    applyMobileScale();
-
-    if (window.decorationsAPI) {
-        setTimeout(() => {
-            window.decorationsAPI.updatePreviewDecorations();
-            window.decorationsAPI.applyClipToFrame();
-        }, 10);
-    }
-}
-
-function hexToRgb(hex) {
-    const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? {
-        r: parseInt(result[1], 16),
-        g: parseInt(result[2], 16),
-        b: parseInt(result[3], 16)
-    } : { r: 255, g: 255, b: 255 };
-}
-
-function initMobileTabs() {
-    const mobileTabs = document.getElementById('mobileTabs');
-    const sidebar = document.getElementById('editorSidebar');
-    const preview = document.getElementById('editorPreview');
-
-    if (!mobileTabs || !sidebar || !preview) return;
-
-    const switchToTab = (tabName) => {
-        activeTab = tabName;
-        document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
-        document.querySelector(`.mobile-tab[data-tab="${tabName}"]`).classList.add('active');
-
-        if (tabName === 'settings') {
-            sidebar.classList.remove('hidden');
-            preview.classList.add('hidden');
-        } else {
-            sidebar.classList.add('hidden');
-            preview.classList.remove('hidden');
-            setTimeout(() => {
-                applyMobileScale();
-                fixBackgroundScroll();
-            }, 50);
-        }
-    };
-
-    isMobileView = window.innerWidth <= 768;
-    if (isMobileView) switchToTab('settings');
-
-    document.querySelectorAll('.mobile-tab').forEach(tab => {
-        tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
-    });
-
-    let resizeTimeout;
-    window.addEventListener('resize', () => {
-        clearTimeout(resizeTimeout);
-        resizeTimeout = setTimeout(() => {
-            isMobileView = window.innerWidth <= 768;
-            if (isMobileView) {
-                const active = document.querySelector('.mobile-tab.active');
-                if (active) switchToTab(active.dataset.tab);
-                fixMobileTabsPosition();
-            } else {
-                sidebar.classList.remove('hidden');
-                preview.classList.remove('hidden');
-            }
-            applyMobileScale();
-        }, 150);
-    });
-}
-
-function initColorPresets() {
-    document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(preset => {
-        preset.addEventListener('click', () => {
-            const color = preset.dataset.color;
-            document.getElementById('borderColor').value = color;
-            EditorState.borderColor = color;
-            updatePreview();
-
-            document.querySelectorAll('#borderColorPresets .color-preset, #borderColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
-            preset.classList.add('selected');
-        });
-    });
-
-    document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(preset => {
-        preset.addEventListener('click', () => {
-            const color = preset.dataset.color;
-            document.getElementById('containerBgColor').value = color;
-            EditorState.containerBgColor = color;
-            updatePreview();
-
-            document.querySelectorAll('#containerBgColorPresets .color-preset, #containerBgColorPresets2 .color-preset').forEach(p => p.classList.remove('selected'));
-            preset.classList.add('selected');
-        });
-    });
-
-    document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
-        preset.addEventListener('click', () => {
-            const color = preset.dataset.color;
-            document.getElementById('textColor').value = color;
-            EditorState.textColor = color;
-            updatePreview();
-
-            document.querySelectorAll('#textColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
-            preset.classList.add('selected');
-        });
-    });
-}
-
-// Обновленная функция saveInvitation
 async function saveInvitation() {
+    if (isProcessingPayment) {
+        showUserNotification('Платёж уже обрабатывается', 'warning');
+        return;
+    }
     const slug = document.getElementById('customSlug')?.value.trim();
     const btn = document.getElementById('saveInvitationBtn');
     const originalHTML = btn.innerHTML;
-
     if (!slug) {
         showUserNotification('Введите ссылку для приглашения', 'warning');
         return;
     }
-
     if (!/^[a-z0-9-]+$/.test(slug)) {
         showUserNotification('Используйте только латинские буквы, цифры и дефисы', 'warning');
         return;
     }
-
+    isProcessingPayment = true;
     btn.disabled = true;
-    btn.innerHTML = `
-        <span class="spinner-small" style="
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255,255,255,0.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 0.8s linear infinite;
-            margin-right: 8px;
-        "></span>
-        Проверка...
-    `;
-
+    btn.innerHTML = `<span class="spinner-small"></span> Проверка...`;
     try {
-        // Проверяем, свободен ли slug
         const existing = await db.collection('invitations').where('slug', '==', slug).get();
-
         if (!existing.empty) {
             btn.disabled = false;
             btn.innerHTML = originalHTML;
+            isProcessingPayment = false;
             showUserNotification('Эта ссылка уже занята. Придумайте другую', 'error');
             return;
         }
-
-        // Если свободен, создаем платеж
-        btn.innerHTML = `
-            <span class="spinner-small"></span>
-            Переход к оплате...
-        `;
-        
+        localStorage.setItem('pendingInvitation', JSON.stringify({
+            slug: slug,
+            data: getInvitationData(),
+            timestamp: Date.now()
+        }));
+        btn.innerHTML = `<span class="spinner-small"></span> Переход к оплате...`;
         await createPayment(slug);
-
     } catch (error) {
         console.error('Save error:', error);
-
         btn.disabled = false;
         btn.innerHTML = originalHTML;
-
-        showUserNotification(
-            'Не удалось проверить ссылку. Проверьте подключение к интернету и попробуйте снова. ' +
-            'Если ошибка повторяется, напишите нам: secretplace122.95@gmail.com',
-            'error'
-        );
+        isProcessingPayment = false;
+        showUserNotification('Не удалось проверить ссылку. Проверьте подключение к интернету и попробуйте снова.', 'error');
     }
 }
 
 function showUserNotification(message, type = 'info') {
     const oldNotification = document.querySelector('.user-notification');
     if (oldNotification) oldNotification.remove();
-
     const notification = document.createElement('div');
     notification.className = `user-notification user-notification-${type}`;
-
-    const icons = {
-        success: 'check_circle',
-        error: 'error',
-        warning: 'warning',
-        info: 'info'
-    };
-
+    const icons = { success: 'check_circle', error: 'error', warning: 'warning', info: 'info' };
     notification.innerHTML = `
         <div style="
             position: fixed;
@@ -1406,36 +1282,21 @@ function showUserNotification(message, type = 'info') {
                 display: flex;
                 align-items: center;
                 opacity: 0.7;
-                hover: opacity: 1;
             ">
                 <span class="material-symbols-outlined" style="font-size: 18px;">close</span>
             </button>
         </div>
     `;
-
     document.body.appendChild(notification);
-
     if (!document.getElementById('notification-styles')) {
         const style = document.createElement('style');
         style.id = 'notification-styles';
         style.textContent = `
-            @keyframes slideIn {
-                from {
-                    transform: translateX(100%);
-                    opacity: 0;
-                }
-                to {
-                    transform: translateX(0);
-                    opacity: 1;
-                }
-            }
-            @keyframes spin {
-                to { transform: rotate(360deg); }
-            }
+            @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+            @keyframes spin { to { transform: rotate(360deg); } }
         `;
         document.head.appendChild(style);
     }
-
     setTimeout(() => {
         const notif = document.querySelector('.user-notification');
         if (notif) {
@@ -1449,3 +1310,4 @@ function showUserNotification(message, type = 'info') {
 window.createPayment = createPayment;
 window.checkPendingPayment = checkPendingPayment;
 window.getInvitationData = getInvitationData;
+window.cancelPendingPayment = cancelPendingPayment;

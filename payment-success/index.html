@@ -6,6 +6,9 @@
     <title>Оплата прошла успешно — invitation-online</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="/js/firebase-config.js"></script>
 </head>
 <body>
     <div class="pattern-bg" style="opacity: 0.2; background-image: url('/images/main-bg.webp');"></div>
@@ -24,7 +27,7 @@
             <div class="success-card" style="background: white; border-radius: 30px; padding: 3rem; max-width: 500px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
                 <span class="material-symbols-outlined" style="font-size: 80px; color: #4CAF50; margin-bottom: 1rem;">check_circle</span>
                 <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #475569;">Оплата прошла успешно!</h1>
-                <p style="color: #64748b; margin-bottom: 2rem; font-size: 1.1rem;">Ваше приглашение готово. Сейчас вы будете перенаправлены...</p>
+                <p style="color: #64748b; margin-bottom: 2rem; font-size: 1.1rem;">Сохраняем ваше приглашение и перенаправляем...</p>
                 <div class="spinner" style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #A8D8EA; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
             </div>
         </div>
@@ -38,17 +41,50 @@
     </style>
 
     <script>
-        // Получаем slug из URL и перенаправляем на приглашение
         const urlParams = new URLSearchParams(window.location.search);
         const slug = urlParams.get('slug');
         
-        setTimeout(() => {
-            if (slug) {
-                window.location.href = `/invitation/#${slug}`;
-            } else {
-                window.location.href = '/';
+        async function saveInvitation() {
+            if (!slug) {
+                setTimeout(() => window.location.href = '/', 3000);
+                return;
             }
-        }, 3000);
+
+            try {
+                const pending = localStorage.getItem('pendingInvitation');
+                
+                if (!pending) {
+                    setTimeout(() => window.location.href = `/invitation/#${slug}`, 2000);
+                    return;
+                }
+
+                const { data } = JSON.parse(pending);
+                
+                const existing = await db.collection('invitations').where('slug', '==', slug).get();
+                
+                if (existing.empty) {
+                    await db.collection('invitations').add({
+                        ...data,
+                        slug: slug,
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                        paid: true
+                    });
+                }
+                
+                localStorage.removeItem('pendingInvitation');
+                
+                setTimeout(() => {
+                    window.location.href = `/invitation/#${slug}`;
+                }, 2000);
+                
+            } catch (error) {
+                setTimeout(() => {
+                    window.location.href = `/invitation/#${slug}`;
+                }, 3000);
+            }
+        }
+
+        saveInvitation();
     </script>
 </body>
 </html>
