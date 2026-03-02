@@ -212,7 +212,7 @@ function initMobileFontPicker() {
             </div>
         `;
         document.body.appendChild(modal);
-        
+
         const style = document.createElement('style');
         style.textContent = `
             .mobile-font-picker {
@@ -252,8 +252,8 @@ function initMobileFontPicker() {
             .mobile-font-picker-header button {
                 background: none;
                 border: none;
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -286,39 +286,67 @@ function initMobileFontPicker() {
             }
         `;
         document.head.appendChild(style);
-        
+
         document.querySelector('.mobile-font-picker-close').addEventListener('click', () => {
             modal.classList.remove('active');
         });
-        
+
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
                 modal.classList.remove('active');
             }
         });
     }
-    
+
     fontPickerModal = document.getElementById('mobileFontPicker');
-    
-    document.querySelectorAll('.font-select').forEach(select => {
-        select.style.appearance = 'none';
-        select.style.webkitAppearance = 'none';
-        select.style.mozAppearance = 'none';
-        
-        select.addEventListener('click', (e) => {
+
+    document.querySelectorAll('.text-format-row').forEach(row => {
+        const select = row.querySelector('.font-select');
+        if (!select) return;
+
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.width = '100%';
+
+        select.parentNode.insertBefore(wrapper, select);
+        wrapper.appendChild(select);
+
+        const clickArea = document.createElement('div');
+        clickArea.style.position = 'absolute';
+        clickArea.style.top = '-10px';
+        clickArea.style.left = '-10px';
+        clickArea.style.right = '-10px';
+        clickArea.style.bottom = '-10px';
+        clickArea.style.cursor = 'pointer';
+        clickArea.style.zIndex = '10';
+
+        wrapper.appendChild(clickArea);
+
+        clickArea.addEventListener('click', (e) => {
+            e.preventDefault();
             if (window.innerWidth <= 768) {
-                e.preventDefault();
                 const targetId = select.id;
                 showMobileFontPicker(targetId);
             }
         });
-        
+
+        select.style.pointerEvents = window.innerWidth <= 768 ? 'none' : 'auto';
+        select.style.appearance = 'none';
+        select.style.webkitAppearance = 'none';
+        select.style.mozAppearance = 'none';
+
+        select.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+            }
+        });
+
         select.addEventListener('mousedown', (e) => {
             if (window.innerWidth <= 768) {
                 e.preventDefault();
             }
         });
-        
+
         select.addEventListener('touchstart', (e) => {
             if (window.innerWidth <= 768) {
                 e.preventDefault();
@@ -373,8 +401,12 @@ function initMobileColorPicker() {
                     </button>
                 </div>
                 <div class="mobile-color-picker-body">
-                    <input type="color" id="mobileColorInput" value="#D4AF37" style="width: 100%; height: 200px;">
-                    <button class="btn btn-primary" id="mobileColorApply">Применить</button>
+                    <div class="mobile-color-preview" id="mobileColorPreview"></div>
+                    <input type="color" id="mobileColorInput" value="#D4AF37">
+                    <div class="mobile-color-controls">
+                        <button class="btn btn-secondary" id="mobileColorCancel">Отмена</button>
+                        <button class="btn btn-primary" id="mobileColorApply">Применить</button>
+                    </div>
                 </div>
             </div>
         `;
@@ -413,12 +445,13 @@ function initMobileColorPicker() {
                 margin-bottom: 20px;
                 color: #475569;
                 font-weight: 600;
+                font-size: 18px;
             }
             .mobile-color-picker-header button {
                 background: none;
                 border: none;
-                width: 40px;
-                height: 40px;
+                width: 44px;
+                height: 44px;
                 border-radius: 50%;
                 display: flex;
                 align-items: center;
@@ -431,18 +464,31 @@ function initMobileColorPicker() {
                 flex-direction: column;
                 gap: 20px;
             }
+            .mobile-color-preview {
+                width: 100%;
+                height: 60px;
+                border-radius: 12px;
+                border: 2px solid #e2e8f0;
+                margin-bottom: 10px;
+            }
             .mobile-color-picker-body input[type="color"] {
                 width: 100%;
-                height: 200px;
+                height: 250px;
                 border: 2px solid #e2e8f0;
-                border-radius: 10px;
+                border-radius: 12px;
                 cursor: pointer;
                 padding: 5px;
             }
-            #mobileColorApply {
-                width: 100%;
+            .mobile-color-controls {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .mobile-color-controls button {
+                flex: 1;
                 padding: 15px;
                 font-size: 16px;
+                border-radius: 12px;
             }
             @keyframes slideUp {
                 from { transform: translateY(100%); }
@@ -451,8 +497,17 @@ function initMobileColorPicker() {
         `;
         document.head.appendChild(style);
 
-        document.querySelector('.mobile-color-picker-close').addEventListener('click', () => {
-            modal.classList.remove('active');
+        const closeBtn = document.querySelector('.mobile-color-picker-close');
+        const cancelBtn = document.getElementById('mobileColorCancel');
+        const applyBtn = document.getElementById('mobileColorApply');
+        const colorInput = document.getElementById('mobileColorInput');
+        const preview = document.getElementById('mobileColorPreview');
+
+        closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+        cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+
+        colorInput.addEventListener('input', (e) => {
+            preview.style.backgroundColor = e.target.value;
         });
 
         modal.addEventListener('click', (e) => {
@@ -463,21 +518,46 @@ function initMobileColorPicker() {
     }
 
     colorPickerModal = document.getElementById('mobileColorPicker');
+    const colorInput = document.getElementById('mobileColorInput');
+    const preview = document.getElementById('mobileColorPreview');
+    const applyBtn = document.getElementById('mobileColorApply');
 
-    document.querySelectorAll('input[type="color"]').forEach(input => {
-        input.addEventListener('click', (e) => {
+    document.querySelectorAll('.setting-group input[type="color"]').forEach(input => {
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.width = '100%';
+
+        const parent = input.parentNode;
+        parent.insertBefore(wrapper, input);
+        wrapper.appendChild(input);
+
+        const clickArea = document.createElement('div');
+        clickArea.style.position = 'absolute';
+        clickArea.style.top = '-10px';
+        clickArea.style.left = '-10px';
+        clickArea.style.right = '-10px';
+        clickArea.style.bottom = '-10px';
+        clickArea.style.cursor = 'pointer';
+        clickArea.style.zIndex = '10';
+
+        wrapper.appendChild(clickArea);
+
+        clickArea.addEventListener('click', (e) => {
+            e.preventDefault();
             if (window.innerWidth <= 768) {
-                e.preventDefault();
                 const targetId = input.id;
                 showMobileColorPicker(targetId);
             }
         });
 
-        input.addEventListener('touchstart', (e) => {
+        input.addEventListener('click', (e) => {
             if (window.innerWidth <= 768) {
                 e.preventDefault();
             }
         });
+
+        input.style.pointerEvents = window.innerWidth <= 768 ? 'none' : 'auto';
     });
 }
 
@@ -486,10 +566,16 @@ function showMobileColorPicker(targetInputId) {
 
     const colorInput = document.getElementById(targetInputId);
     const mobileColorInput = document.getElementById('mobileColorInput');
+    const preview = document.getElementById('mobileColorPreview');
+    const applyBtn = document.getElementById('mobileColorApply');
 
     mobileColorInput.value = colorInput.value;
+    preview.style.backgroundColor = colorInput.value;
 
-    document.getElementById('mobileColorApply').onclick = () => {
+    const newApplyBtn = applyBtn.cloneNode(true);
+    applyBtn.parentNode.replaceChild(newApplyBtn, applyBtn);
+
+    newApplyBtn.onclick = () => {
         const newColor = mobileColorInput.value;
         colorInput.value = newColor;
 
