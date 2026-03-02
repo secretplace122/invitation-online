@@ -146,6 +146,9 @@ let isMobileView = window.innerWidth <= 768;
 let activeTab = 'settings';
 let currentFilter = 'all';
 
+let fontPickerModal = null;
+let colorPickerModal = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     initPatternFilters();
     initPatternGrid();
@@ -154,6 +157,13 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPresets();
     initAccordion();
     initFontSelectors();
+    
+    // Инициализируем мобильные пикеры только для мобильных устройств
+    if (window.innerWidth <= 768) {
+        initMobileFontPicker();
+        initMobileColorPicker();
+    }
+    
     initBoldItalicButtons();
     initAnimationControls();
     updatePreview();
@@ -189,6 +199,639 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(observeCardResize, 500);
 });
 
+// ========== МОБИЛЬНЫЙ ВЫБОР ШРИФТОВ ==========
+function initMobileFontPicker() {
+    if (!document.getElementById('mobileFontPicker')) {
+        const modal = document.createElement('div');
+        modal.id = 'mobileFontPicker';
+        modal.className = 'mobile-font-picker';
+        modal.innerHTML = `
+            <div class="mobile-font-picker-content">
+                <div class="mobile-font-picker-header">
+                    <span>Выберите шрифт</span>
+                    <button class="mobile-font-picker-close">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="mobile-font-picker-list" id="mobileFontList"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-font-picker {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                display: none;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .mobile-font-picker.active {
+                display: flex;
+            }
+            .mobile-font-picker-content {
+                background: white;
+                width: 100%;
+                max-height: 70vh;
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                flex-direction: column;
+                animation: slideUp 0.3s ease;
+            }
+            .mobile-font-picker-header {
+                padding: 16px;
+                background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: #475569;
+                font-weight: 600;
+            }
+            .mobile-font-picker-header button {
+                background: none;
+                border: none;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: #475569;
+            }
+            .mobile-font-picker-list {
+                overflow-y: auto;
+                padding: 10px;
+                max-height: calc(70vh - 70px);
+            }
+            .mobile-font-item {
+                padding: 15px;
+                border-bottom: 1px solid #e2e8f0;
+                font-size: 18px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .mobile-font-item:active {
+                background: #f0f9ff;
+            }
+            .mobile-font-item.selected {
+                background: #e6f3ff;
+                border-left: 4px solid #A8D8EA;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.querySelector('.mobile-font-picker-close').addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+
+    fontPickerModal = document.getElementById('mobileFontPicker');
+
+    // Только для мобильных, десктоп не трогаем
+    if (window.innerWidth <= 768) {
+        document.querySelectorAll('.text-format-row .font-select').forEach(select => {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.width = '100%';
+
+            select.parentNode.insertBefore(wrapper, select);
+            wrapper.appendChild(select);
+
+            const clickArea = document.createElement('div');
+            clickArea.style.position = 'absolute';
+            clickArea.style.top = '-10px';
+            clickArea.style.left = '-10px';
+            clickArea.style.right = '-10px';
+            clickArea.style.bottom = '-10px';
+            clickArea.style.cursor = 'pointer';
+            clickArea.style.zIndex = '10';
+
+            wrapper.appendChild(clickArea);
+
+            clickArea.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const targetId = select.id;
+                showMobileFontPicker(targetId);
+            });
+
+            select.style.pointerEvents = 'none';
+            select.style.appearance = 'none';
+            select.style.webkitAppearance = 'none';
+            select.style.mozAppearance = 'none';
+        });
+    }
+}
+
+function showMobileFontPicker(targetSelectId) {
+    if (!fontPickerModal) return;
+
+    const list = document.getElementById('mobileFontList');
+    const currentValue = document.getElementById(targetSelectId).value;
+
+    list.innerHTML = fonts.map(font => {
+        const isSelected = font.value === currentValue ? 'selected' : '';
+        return `<div class="mobile-font-item ${isSelected}" data-value="${font.value}" style="font-family: ${font.value}">${font.name}</div>`;
+    }).join('');
+
+    list.querySelectorAll('.mobile-font-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const value = item.dataset.value;
+            const select = document.getElementById(targetSelectId);
+            select.value = value;
+
+            const stateProperty = targetSelectId;
+            EditorState[stateProperty] = value;
+
+            const previewElement = document.getElementById('preview' + targetSelectId.replace('Font', ''));
+            if (previewElement) {
+                previewElement.style.fontFamily = value;
+            }
+
+            fontPickerModal.classList.remove('active');
+        });
+    });
+
+    fontPickerModal.classList.add('active');
+}
+
+// ========== МОБИЛЬНЫЙ ВЫБОР ЦВЕТА ==========
+function initMobileColorPicker() {
+    if (!document.getElementById('mobileColorPicker')) {
+        const modal = document.createElement('div');
+        modal.id = 'mobileColorPicker';
+        modal.className = 'mobile-color-picker';
+        modal.innerHTML = `
+            <div class="mobile-color-picker-content">
+                <div class="mobile-color-picker-header">
+                    <span>Выберите цвет</span>
+                    <button class="mobile-color-picker-close">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="mobile-color-picker-body">
+                    <div class="color-palette-container">
+                        <canvas id="colorPalette" width="300" height="200"></canvas>
+                        <div class="color-palette-preview" id="colorPreview"></div>
+                    </div>
+                    
+                    <div class="color-sliders">
+                        <div class="color-slider-group">
+                            <label>R <span id="redValue">255</span></label>
+                            <input type="range" id="redSlider" min="0" max="255" value="255" class="color-slider red-slider">
+                        </div>
+                        <div class="color-slider-group">
+                            <label>G <span id="greenValue">255</span></label>
+                            <input type="range" id="greenSlider" min="0" max="255" value="255" class="color-slider green-slider">
+                        </div>
+                        <div class="color-slider-group">
+                            <label>B <span id="blueValue">255</span></label>
+                            <input type="range" id="blueSlider" min="0" max="255" value="255" class="color-slider blue-slider">
+                        </div>
+                    </div>
+                    
+                    <div class="quick-colors">
+                        <div class="quick-color" style="background: #FF0000;" data-color="#FF0000"></div>
+                        <div class="quick-color" style="background: #FF69B4;" data-color="#FF69B4"></div>
+                        <div class="quick-color" style="background: #FFA500;" data-color="#FFA500"></div>
+                        <div class="quick-color" style="background: #FFFF00;" data-color="#FFFF00"></div>
+                        <div class="quick-color" style="background: #00FF00;" data-color="#00FF00"></div>
+                        <div class="quick-color" style="background: #00FFFF;" data-color="#00FFFF"></div>
+                        <div class="quick-color" style="background: #0000FF;" data-color="#0000FF"></div>
+                        <div class="quick-color" style="background: #800080;" data-color="#800080"></div>
+                        <div class="quick-color" style="background: #FF00FF;" data-color="#FF00FF"></div>
+                        <div class="quick-color" style="background: #A52A2A;" data-color="#A52A2A"></div>
+                        <div class="quick-color" style="background: #808080;" data-color="#808080"></div>
+                        <div class="quick-color" style="background: #000000;" data-color="#000000"></div>
+                        <div class="quick-color" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
+                        <div class="quick-color" style="background: #D4AF37;" data-color="#D4AF37"></div>
+                        <div class="quick-color" style="background: #C0C0C0;" data-color="#C0C0C0"></div>
+                        <div class="quick-color" style="background: #CD7F32;" data-color="#CD7F32"></div>
+                    </div>
+                    
+                    <div class="hex-input-group">
+                        <span>#</span>
+                        <input type="text" id="hexInput" maxlength="6" placeholder="FF0000">
+                    </div>
+                    
+                    <div class="mobile-color-controls">
+                        <button class="btn btn-secondary" id="mobileColorCancel">Отмена</button>
+                        <button class="btn btn-primary" id="mobileColorApply">Применить</button>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-color-picker {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                display: none;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .mobile-color-picker.active {
+                display: flex;
+            }
+            .mobile-color-picker-content {
+                background: white;
+                width: 100%;
+                max-width: 500px;
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                flex-direction: column;
+                animation: slideUp 0.3s ease;
+                padding: 20px;
+                max-height: 90vh;
+                overflow-y: auto;
+            }
+            .mobile-color-picker-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                color: #475569;
+                font-weight: 600;
+                font-size: 18px;
+            }
+            .mobile-color-picker-header button {
+                background: none;
+                border: none;
+                width: 44px;
+                height: 44px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: #475569;
+            }
+            .color-palette-container {
+                position: relative;
+                margin-bottom: 20px;
+                border-radius: 12px;
+                overflow: hidden;
+                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            }
+            #colorPalette {
+                width: 100%;
+                height: auto;
+                display: block;
+                cursor: crosshair;
+            }
+            .color-palette-preview {
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                width: 50px;
+                height: 50px;
+                border-radius: 8px;
+                border: 2px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            .color-sliders {
+                margin-bottom: 20px;
+            }
+            .color-slider-group {
+                margin-bottom: 15px;
+            }
+            .color-slider-group label {
+                display: flex;
+                justify-content: space-between;
+                margin-bottom: 5px;
+                color: #475569;
+                font-size: 14px;
+            }
+            .color-slider {
+                width: 100%;
+                height: 8px;
+                border-radius: 4px;
+                -webkit-appearance: none;
+                appearance: none;
+            }
+            .color-slider::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background: white;
+                border: 2px solid #A8D8EA;
+                cursor: pointer;
+                margin-top: -6px;
+                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+            }
+            .red-slider { background: linear-gradient(to right, #000000, #FF0000); }
+            .green-slider { background: linear-gradient(to right, #000000, #00FF00); }
+            .blue-slider { background: linear-gradient(to right, #000000, #0000FF); }
+            .quick-colors {
+                display: grid;
+                grid-template-columns: repeat(8, 1fr);
+                gap: 8px;
+                margin-bottom: 20px;
+            }
+            .quick-color {
+                aspect-ratio: 1;
+                border-radius: 8px;
+                cursor: pointer;
+                border: 2px solid transparent;
+                transition: all 0.2s;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .quick-color:hover {
+                transform: scale(1.1);
+                border-color: #A8D8EA;
+            }
+            .quick-color.selected {
+                border-color: #A8D8EA;
+                box-shadow: 0 0 0 2px #A8D8EA;
+            }
+            .hex-input-group {
+                display: flex;
+                align-items: center;
+                gap: 8px;
+                margin-bottom: 20px;
+                background: #f8fafc;
+                padding: 10px;
+                border-radius: 8px;
+            }
+            .hex-input-group span {
+                font-size: 18px;
+                font-weight: 600;
+                color: #475569;
+            }
+            .hex-input-group input {
+                flex: 1;
+                padding: 10px;
+                border: 1px solid #e2e8f0;
+                border-radius: 6px;
+                font-size: 16px;
+                text-transform: uppercase;
+            }
+            .mobile-color-controls {
+                display: flex;
+                gap: 10px;
+                margin-top: 10px;
+            }
+            .mobile-color-controls button {
+                flex: 1;
+                padding: 15px;
+                font-size: 16px;
+                border-radius: 12px;
+                border: none;
+                font-weight: 600;
+                cursor: pointer;
+            }
+            .btn-secondary {
+                background: #e2e8f0;
+                color: #475569;
+            }
+            .btn-primary {
+                background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+                color: #475569;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        initColorPalette();
+        setupColorPickerEvents(modal);
+    }
+
+    colorPickerModal = document.getElementById('mobileColorPicker');
+
+    // Только для мобильных
+    if (window.innerWidth <= 768) {
+        document.querySelectorAll('.setting-group input[type="color"]').forEach(input => {
+            const wrapper = document.createElement('div');
+            wrapper.style.position = 'relative';
+            wrapper.style.display = 'inline-block';
+            wrapper.style.width = '100%';
+
+            const parent = input.parentNode;
+            parent.insertBefore(wrapper, input);
+            wrapper.appendChild(input);
+
+            const clickArea = document.createElement('div');
+            clickArea.style.position = 'absolute';
+            clickArea.style.top = '-10px';
+            clickArea.style.left = '-10px';
+            clickArea.style.right = '-10px';
+            clickArea.style.bottom = '-10px';
+            clickArea.style.cursor = 'pointer';
+            clickArea.style.zIndex = '10';
+
+            wrapper.appendChild(clickArea);
+
+            clickArea.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                const targetId = input.id;
+                showMobileColorPicker(targetId);
+            });
+
+            input.style.pointerEvents = 'none';
+        });
+    }
+}
+
+function initColorPalette() {
+    const canvas = document.getElementById('colorPalette');
+    if (!canvas) return;
+    
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    
+    for (let x = 0; x < width; x++) {
+        const hue = (x / width) * 360;
+        for (let y = 0; y < height; y++) {
+            const saturation = 1;
+            const lightness = 0.5 - (y / height) * 0.5;
+            
+            ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${lightness * 100}%)`;
+            ctx.fillRect(x, y, 1, 1);
+        }
+    }
+}
+
+function setupColorPickerEvents(modal) {
+    const canvas = document.getElementById('colorPalette');
+    const redSlider = document.getElementById('redSlider');
+    const greenSlider = document.getElementById('greenSlider');
+    const blueSlider = document.getElementById('blueSlider');
+    const redValue = document.getElementById('redValue');
+    const greenValue = document.getElementById('greenValue');
+    const blueValue = document.getElementById('blueValue');
+    const hexInput = document.getElementById('hexInput');
+    const colorPreview = document.getElementById('colorPreview');
+    const closeBtn = modal.querySelector('.mobile-color-picker-close');
+    const cancelBtn = modal.querySelector('#mobileColorCancel');
+    const applyBtn = modal.querySelector('#mobileColorApply');
+    
+    let currentTargetInput = null;
+    let currentColor = { r: 255, g: 255, b: 255 };
+    
+    function updateColorFromRGB() {
+        const r = parseInt(redSlider.value);
+        const g = parseInt(greenSlider.value);
+        const b = parseInt(blueSlider.value);
+        
+        currentColor = { r, g, b };
+        
+        redValue.textContent = r;
+        greenValue.textContent = g;
+        blueValue.textContent = b;
+        
+        const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
+        hexInput.value = hex;
+        colorPreview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
+    }
+    
+    function updateColorFromHex() {
+        let hex = hexInput.value.replace('#', '').toUpperCase();
+        
+        while (hex.length < 6) hex += '0';
+        
+        if (/^[0-9A-F]{6}$/.test(hex)) {
+            const r = parseInt(hex.substring(0, 2), 16);
+            const g = parseInt(hex.substring(2, 4), 16);
+            const b = parseInt(hex.substring(4, 6), 16);
+            
+            redSlider.value = r;
+            greenSlider.value = g;
+            blueSlider.value = b;
+            updateColorFromRGB();
+        }
+    }
+    
+    canvas.addEventListener('click', (e) => {
+        const rect = canvas.getBoundingClientRect();
+        const scaleX = canvas.width / rect.width;
+        const scaleY = canvas.height / rect.height;
+        
+        const x = Math.floor((e.clientX - rect.left) * scaleX);
+        const y = Math.floor((e.clientY - rect.top) * scaleY);
+        
+        const ctx = canvas.getContext('2d');
+        const pixel = ctx.getImageData(x, y, 1, 1).data;
+        
+        redSlider.value = pixel[0];
+        greenSlider.value = pixel[1];
+        blueSlider.value = pixel[2];
+        
+        updateColorFromRGB();
+    });
+    
+    redSlider.addEventListener('input', updateColorFromRGB);
+    greenSlider.addEventListener('input', updateColorFromRGB);
+    blueSlider.addEventListener('input', updateColorFromRGB);
+    
+    hexInput.addEventListener('input', updateColorFromHex);
+    
+    modal.querySelectorAll('.quick-color').forEach(quickColor => {
+        quickColor.addEventListener('click', () => {
+            const color = quickColor.dataset.color;
+            const r = parseInt(color.substring(1, 3), 16);
+            const g = parseInt(color.substring(3, 5), 16);
+            const b = parseInt(color.substring(5, 7), 16);
+            
+            redSlider.value = r;
+            greenSlider.value = g;
+            blueSlider.value = b;
+            updateColorFromRGB();
+            
+            modal.querySelectorAll('.quick-color').forEach(q => q.classList.remove('selected'));
+            quickColor.classList.add('selected');
+        });
+    });
+    
+    window.showMobileColorPicker = (targetInputId) => {
+        currentTargetInput = document.getElementById(targetInputId);
+        if (!currentTargetInput) return;
+        
+        const currentHex = currentTargetInput.value;
+        const r = parseInt(currentHex.substring(1, 3), 16);
+        const g = parseInt(currentHex.substring(3, 5), 16);
+        const b = parseInt(currentHex.substring(5, 7), 16);
+        
+        if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
+            redSlider.value = r;
+            greenSlider.value = g;
+            blueSlider.value = b;
+            updateColorFromRGB();
+        }
+        
+        modal.classList.add('active');
+    };
+    
+    applyBtn.addEventListener('click', () => {
+        if (currentTargetInput) {
+            const hex = ((1 << 24) + (currentColor.r << 16) + (currentColor.g << 8) + currentColor.b).toString(16).slice(1).toUpperCase();
+            const fullHex = '#' + hex;
+            currentTargetInput.value = fullHex;
+            
+            if (EditorState && currentTargetInput.id) {
+                EditorState[currentTargetInput.id] = fullHex;
+                updatePreview();
+                
+                const presetContainers = [
+                    document.getElementById(currentTargetInput.id.replace('Color', 'Presets')),
+                    document.getElementById(currentTargetInput.id.replace('Color', 'Presets2'))
+                ];
+                
+                presetContainers.forEach(container => {
+                    if (container) {
+                        container.querySelectorAll('.color-preset').forEach(p => {
+                            if (p.dataset.color.toUpperCase() === fullHex.toUpperCase()) {
+                                p.classList.add('selected');
+                            } else {
+                                p.classList.remove('selected');
+                            }
+                        });
+                    }
+                });
+            }
+        }
+        modal.classList.remove('active');
+    });
+    
+    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
+    cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
+    
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('active');
+    });
+}
+
+// ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
 function observeCardResize() {
     const card = document.getElementById('previewCard');
     if (!card) return;

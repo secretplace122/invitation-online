@@ -164,27 +164,44 @@ function initDecorControls() {
         });
     }
     
-    // ИСПРАВЛЕНО: Поворот на 90 градусов влево
-    document.getElementById('rotateLeft')?.addEventListener('click', () => {
-        if (!EditorState.activeDecorId) return;
-        const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
-        if (decor) {
-            decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) - 90 + 360) % 360;
-            document.getElementById('decorAngle').textContent = decor.rotation + '°';
-            updatePreviewDecorations();
-        }
-    });
+    // ИСПРАВЛЕНО: Удаляем старые обработчики и вешаем новые с флагом { once: false }
+    const rotateLeft = document.getElementById('rotateLeft');
+    if (rotateLeft) {
+        // Удаляем все старые обработчики
+        const newRotateLeft = rotateLeft.cloneNode(true);
+        rotateLeft.parentNode.replaceChild(newRotateLeft, rotateLeft);
+        
+        newRotateLeft.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) - 90 + 360) % 360;
+                document.getElementById('decorAngle').textContent = decor.rotation + '°';
+                updatePreviewDecorations();
+            }
+        });
+    }
     
-    // ИСПРАВЛЕНО: Поворот на 90 градусов вправо
-    document.getElementById('rotateRight')?.addEventListener('click', () => {
-        if (!EditorState.activeDecorId) return;
-        const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
-        if (decor) {
-            decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) + 90) % 360;
-            document.getElementById('decorAngle').textContent = decor.rotation + '°';
-            updatePreviewDecorations();
-        }
-    });
+    const rotateRight = document.getElementById('rotateRight');
+    if (rotateRight) {
+        // Удаляем все старые обработчики
+        const newRotateRight = rotateRight.cloneNode(true);
+        rotateRight.parentNode.replaceChild(newRotateRight, rotateRight);
+        
+        newRotateRight.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!EditorState.activeDecorId) return;
+            const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
+            if (decor) {
+                decor.rotation = ((decor.rotation !== undefined ? decor.rotation : 0) + 90) % 360;
+                document.getElementById('decorAngle').textContent = decor.rotation + '°';
+                updatePreviewDecorations();
+            }
+        });
+    }
     
     const posX = document.getElementById('decorPosX');
     const posXValue = document.getElementById('decorPosXValue');
@@ -276,6 +293,10 @@ function selectDecor(id) {
     if (EditorState.activeDecorId === id) {
         EditorState.activeDecorId = null;
         hideDecorControls();
+        
+        if (window.innerWidth <= 768) {
+            closeMobileDecorPanel();
+        }
     } else {
         EditorState.activeDecorId = id;
         showDecorControls(id);
@@ -414,11 +435,24 @@ function initMobileDecorPanel() {
     if (closeBtn) closeBtn.addEventListener('click', closeMobileDecorPanel);
     
     const doneBtn = document.getElementById('mobileDecorDone');
-    if (doneBtn) doneBtn.addEventListener('click', closeMobileDecorPanel);
+    if (doneBtn) {
+        doneBtn.addEventListener('click', () => {
+            // ИСПРАВЛЕНО: При нажатии "Готово" снимаем выделение с декорации
+            if (EditorState.activeDecorId) {
+                EditorState.activeDecorId = null;
+                hideDecorControls();
+                renderDecorList();
+                updatePreviewDecorations();
+            }
+            closeMobileDecorPanel();
+        });
+    }
     
     const rotateLeft = document.getElementById('mobileRotateLeft');
     if (rotateLeft) {
-        rotateLeft.addEventListener('click', () => {
+        rotateLeft.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
@@ -431,7 +465,9 @@ function initMobileDecorPanel() {
     
     const rotateRight = document.getElementById('mobileRotateRight');
     if (rotateRight) {
-        rotateRight.addEventListener('click', () => {
+        rotateRight.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
             if (!EditorState.activeDecorId) return;
             const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
             if (decor) {
@@ -526,6 +562,7 @@ function initMobileDecorPanel() {
         });
     }
 
+    // ИСПРАВЛЕНО: Снимаем выделение при переключении на вкладку настроек
     const mobileTabs = document.getElementById('mobileTabs');
     if (mobileTabs) {
         const observer = new MutationObserver((mutations) => {
@@ -533,6 +570,13 @@ function initMobileDecorPanel() {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                     const settingsTab = document.querySelector('.mobile-tab[data-tab="settings"]');
                     if (settingsTab && settingsTab.classList.contains('active')) {
+                        // Если перешли на настройки - снимаем выделение с декорации
+                        if (EditorState.activeDecorId) {
+                            EditorState.activeDecorId = null;
+                            hideDecorControls();
+                            renderDecorList();
+                            updatePreviewDecorations();
+                        }
                         closeMobileDecorPanel();
                     }
                 }
