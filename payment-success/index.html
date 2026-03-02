@@ -3,12 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Оплата прошла успешно — invitation-online</title>
+    <title>Статус оплаты — invitation-online</title>
     <link rel="stylesheet" href="/css/style.css">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-config.js"></script>
+    <style>
+        .status-card {
+            background: white;
+            border-radius: 30px;
+            padding: 3rem;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+        }
+        .status-icon {
+            font-size: 80px;
+            margin-bottom: 1rem;
+        }
+        .status-icon.success { color: #4CAF50; }
+        .status-icon.pending { color: #FF9800; }
+        .status-icon.error { color: #F44336; }
+        .status-title {
+            font-size: 2rem;
+            margin-bottom: 1rem;
+            color: #475569;
+        }
+        .status-message {
+            color: #64748b;
+            margin-bottom: 2rem;
+            font-size: 1.1rem;
+        }
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #A8D8EA;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+        .btn-group {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 2rem;
+        }
+        .btn-retry {
+            background: linear-gradient(135deg, #FF9800, #F44336);
+            color: white;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
     <div class="pattern-bg" style="opacity: 0.2; background-image: url('/images/main-bg.webp');"></div>
@@ -24,40 +74,100 @@
 
     <main>
         <div class="container" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
-            <div class="success-card" style="background: white; border-radius: 30px; padding: 3rem; max-width: 500px; text-align: center; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);">
-                <span class="material-symbols-outlined" style="font-size: 80px; color: #4CAF50; margin-bottom: 1rem;">check_circle</span>
-                <h1 style="font-size: 2rem; margin-bottom: 1rem; color: #475569;">Оплата прошла успешно!</h1>
-                <p style="color: #64748b; margin-bottom: 2rem; font-size: 1.1rem;">Сохраняем ваше приглашение и перенаправляем...</p>
-                <div class="spinner" style="width: 40px; height: 40px; border: 3px solid #f3f3f3; border-top: 3px solid #A8D8EA; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+            <div class="status-card" id="statusCard">
+                <div id="successContent" style="display: none;">
+                    <span class="material-symbols-outlined status-icon success">check_circle</span>
+                    <h1 class="status-title">Оплата прошла успешно!</h1>
+                    <p class="status-message">Сохраняем ваше приглашение и перенаправляем...</p>
+                    <div class="spinner"></div>
+                </div>
+                
+                <div id="pendingContent" style="display: none;">
+                    <span class="material-symbols-outlined status-icon pending">hourglass_empty</span>
+                    <h1 class="status-title">Ожидание оплаты</h1>
+                    <p class="status-message">Платёж не был завершён. Вы можете вернуться в редактор и попробовать снова.</p>
+                    <div class="btn-group">
+                        <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
+                        <a href="/" class="btn btn-secondary">На главную</a>
+                    </div>
+                </div>
+                
+                <div id="cancelledContent" style="display: none;">
+                    <span class="material-symbols-outlined status-icon error">cancel</span>
+                    <h1 class="status-title">Платёж отменён</h1>
+                    <p class="status-message">Вы отменили оплату. Вы можете вернуться в редактор и попробовать снова.</p>
+                    <div class="btn-group">
+                        <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
+                        <a href="/" class="btn btn-secondary">На главную</a>
+                    </div>
+                </div>
+                
+                <div id="errorContent" style="display: none;">
+                    <span class="material-symbols-outlined status-icon error">error</span>
+                    <h1 class="status-title">Ошибка оплаты</h1>
+                    <p class="status-message">Произошла ошибка при обработке платежа. Пожалуйста, попробуйте позже.</p>
+                    <div class="btn-group">
+                        <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
+                        <a href="/" class="btn btn-secondary">На главную</a>
+                    </div>
+                </div>
             </div>
         </div>
     </main>
 
-    <style>
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-    </style>
-
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const slug = urlParams.get('slug');
+        const status = urlParams.get('status');
         
-        async function saveInvitation() {
+        function showContent(statusType) {
+            document.getElementById('successContent').style.display = 'none';
+            document.getElementById('pendingContent').style.display = 'none';
+            document.getElementById('cancelledContent').style.display = 'none';
+            document.getElementById('errorContent').style.display = 'none';
+            
+            if (statusType === 'success') {
+                document.getElementById('successContent').style.display = 'block';
+            } else if (statusType === 'pending') {
+                document.getElementById('pendingContent').style.display = 'block';
+            } else if (statusType === 'cancelled' || statusType === 'canceled') {
+                document.getElementById('cancelledContent').style.display = 'block';
+            } else {
+                document.getElementById('errorContent').style.display = 'block';
+            }
+        }
+        
+        async function handlePaymentStatus() {
             if (!slug) {
-                setTimeout(() => window.location.href = '/', 3000);
+                showContent('error');
                 return;
             }
-
+            
+            // Проверяем статус из URL
+            if (status === 'cancelled' || status === 'canceled') {
+                showContent('cancelled');
+                localStorage.removeItem('pendingInvitation');
+                return;
+            }
+            
             try {
                 const pending = localStorage.getItem('pendingInvitation');
                 
                 if (!pending) {
-                    setTimeout(() => window.location.href = `/invitation/#${slug}`, 2000);
+                    // Если нет ожидающего платежа, проверяем существование приглашения
+                    const existing = await db.collection('invitations').where('slug', '==', slug).get();
+                    if (!existing.empty) {
+                        // Приглашение уже существует - оплата успешна
+                        showContent('success');
+                        setTimeout(() => {
+                            window.location.href = `/invitation/#${slug}`;
+                        }, 2000);
+                    } else {
+                        showContent('pending');
+                    }
                     return;
                 }
-
+                
                 const { data } = JSON.parse(pending);
                 
                 const existing = await db.collection('invitations').where('slug', '==', slug).get();
@@ -72,19 +182,22 @@
                 }
                 
                 localStorage.removeItem('pendingInvitation');
+                showContent('success');
                 
                 setTimeout(() => {
                     window.location.href = `/invitation/#${slug}`;
                 }, 2000);
                 
             } catch (error) {
+                console.error('Error:', error);
+                showContent('error');
                 setTimeout(() => {
                     window.location.href = `/invitation/#${slug}`;
                 }, 3000);
             }
         }
-
-        saveInvitation();
+        
+        handlePaymentStatus();
     </script>
 </body>
 </html>

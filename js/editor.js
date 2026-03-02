@@ -146,6 +146,9 @@ let isMobileView = window.innerWidth <= 768;
 let activeTab = 'settings';
 let currentFilter = 'all';
 
+let fontPickerModal = null;
+let colorPickerModal = null;
+
 document.addEventListener('DOMContentLoaded', () => {
     initPatternFilters();
     initPatternGrid();
@@ -154,6 +157,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPresets();
     initAccordion();
     initFontSelectors();
+
+    initMobileFontPicker();
+    initMobileColorPicker();
     initBoldItalicButtons();
     initAnimationControls();
     updatePreview();
@@ -188,6 +194,322 @@ document.addEventListener('DOMContentLoaded', () => {
 
     setTimeout(observeCardResize, 500);
 });
+
+function initMobileFontPicker() {
+    if (!document.getElementById('mobileFontPicker')) {
+        const modal = document.createElement('div');
+        modal.id = 'mobileFontPicker';
+        modal.className = 'mobile-font-picker';
+        modal.innerHTML = `
+            <div class="mobile-font-picker-content">
+                <div class="mobile-font-picker-header">
+                    <span>Выберите шрифт</span>
+                    <button class="mobile-font-picker-close">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="mobile-font-picker-list" id="mobileFontList"></div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+        
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-font-picker {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                display: none;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .mobile-font-picker.active {
+                display: flex;
+            }
+            .mobile-font-picker-content {
+                background: white;
+                width: 100%;
+                max-height: 70vh;
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                flex-direction: column;
+                animation: slideUp 0.3s ease;
+            }
+            .mobile-font-picker-header {
+                padding: 16px;
+                background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                color: #475569;
+                font-weight: 600;
+            }
+            .mobile-font-picker-header button {
+                background: none;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: #475569;
+            }
+            .mobile-font-picker-list {
+                overflow-y: auto;
+                padding: 10px;
+                max-height: calc(70vh - 70px);
+            }
+            .mobile-font-item {
+                padding: 15px;
+                border-bottom: 1px solid #e2e8f0;
+                font-size: 18px;
+                cursor: pointer;
+                transition: background 0.2s;
+            }
+            .mobile-font-item:active {
+                background: #f0f9ff;
+            }
+            .mobile-font-item.selected {
+                background: #e6f3ff;
+                border-left: 4px solid #A8D8EA;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+        
+        document.querySelector('.mobile-font-picker-close').addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+    
+    fontPickerModal = document.getElementById('mobileFontPicker');
+    
+    document.querySelectorAll('.font-select').forEach(select => {
+        select.style.appearance = 'none';
+        select.style.webkitAppearance = 'none';
+        select.style.mozAppearance = 'none';
+        
+        select.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                const targetId = select.id;
+                showMobileFontPicker(targetId);
+            }
+        });
+        
+        select.addEventListener('mousedown', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+            }
+        });
+        
+        select.addEventListener('touchstart', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+            }
+        });
+    });
+}
+
+function showMobileFontPicker(targetSelectId) {
+    if (!fontPickerModal) return;
+
+    const list = document.getElementById('mobileFontList');
+    const currentValue = document.getElementById(targetSelectId).value;
+
+    list.innerHTML = fonts.map(font => {
+        const isSelected = font.value === currentValue ? 'selected' : '';
+        return `<div class="mobile-font-item ${isSelected}" data-value="${font.value}" style="font-family: ${font.value}">${font.name}</div>`;
+    }).join('');
+
+    list.querySelectorAll('.mobile-font-item').forEach(item => {
+        item.addEventListener('click', () => {
+            const value = item.dataset.value;
+            const select = document.getElementById(targetSelectId);
+            select.value = value;
+
+            const stateProperty = targetSelectId;
+            EditorState[stateProperty] = value;
+
+            const previewElement = document.getElementById('preview' + targetSelectId.replace('Font', ''));
+            if (previewElement) {
+                previewElement.style.fontFamily = value;
+            }
+
+            fontPickerModal.classList.remove('active');
+        });
+    });
+
+    fontPickerModal.classList.add('active');
+}
+
+function initMobileColorPicker() {
+    if (!document.getElementById('mobileColorPicker')) {
+        const modal = document.createElement('div');
+        modal.id = 'mobileColorPicker';
+        modal.className = 'mobile-color-picker';
+        modal.innerHTML = `
+            <div class="mobile-color-picker-content">
+                <div class="mobile-color-picker-header">
+                    <span>Выберите цвет</span>
+                    <button class="mobile-color-picker-close">
+                        <span class="material-symbols-outlined">close</span>
+                    </button>
+                </div>
+                <div class="mobile-color-picker-body">
+                    <input type="color" id="mobileColorInput" value="#D4AF37" style="width: 100%; height: 200px;">
+                    <button class="btn btn-primary" id="mobileColorApply">Применить</button>
+                </div>
+            </div>
+        `;
+        document.body.appendChild(modal);
+
+        const style = document.createElement('style');
+        style.textContent = `
+            .mobile-color-picker {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0,0,0,0.5);
+                z-index: 10000;
+                display: none;
+                align-items: flex-end;
+                justify-content: center;
+            }
+            .mobile-color-picker.active {
+                display: flex;
+            }
+            .mobile-color-picker-content {
+                background: white;
+                width: 100%;
+                border-radius: 20px 20px 0 0;
+                display: flex;
+                flex-direction: column;
+                animation: slideUp 0.3s ease;
+                padding: 20px;
+            }
+            .mobile-color-picker-header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 20px;
+                color: #475569;
+                font-weight: 600;
+            }
+            .mobile-color-picker-header button {
+                background: none;
+                border: none;
+                width: 40px;
+                height: 40px;
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                cursor: pointer;
+                color: #475569;
+            }
+            .mobile-color-picker-body {
+                display: flex;
+                flex-direction: column;
+                gap: 20px;
+            }
+            .mobile-color-picker-body input[type="color"] {
+                width: 100%;
+                height: 200px;
+                border: 2px solid #e2e8f0;
+                border-radius: 10px;
+                cursor: pointer;
+                padding: 5px;
+            }
+            #mobileColorApply {
+                width: 100%;
+                padding: 15px;
+                font-size: 16px;
+            }
+            @keyframes slideUp {
+                from { transform: translateY(100%); }
+                to { transform: translateY(0); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        document.querySelector('.mobile-color-picker-close').addEventListener('click', () => {
+            modal.classList.remove('active');
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+            }
+        });
+    }
+
+    colorPickerModal = document.getElementById('mobileColorPicker');
+
+    document.querySelectorAll('input[type="color"]').forEach(input => {
+        input.addEventListener('click', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+                const targetId = input.id;
+                showMobileColorPicker(targetId);
+            }
+        });
+
+        input.addEventListener('touchstart', (e) => {
+            if (window.innerWidth <= 768) {
+                e.preventDefault();
+            }
+        });
+    });
+}
+
+function showMobileColorPicker(targetInputId) {
+    if (!colorPickerModal) return;
+
+    const colorInput = document.getElementById(targetInputId);
+    const mobileColorInput = document.getElementById('mobileColorInput');
+
+    mobileColorInput.value = colorInput.value;
+
+    document.getElementById('mobileColorApply').onclick = () => {
+        const newColor = mobileColorInput.value;
+        colorInput.value = newColor;
+
+        EditorState[targetInputId] = newColor;
+
+        updatePreview();
+
+        document.querySelectorAll(`#${targetInputId.replace('Color', 'Presets')} .color-preset, #${targetInputId.replace('Color', 'Presets2')} .color-preset`).forEach(p => {
+            if (p.dataset.color.toUpperCase() === newColor.toUpperCase()) {
+                p.classList.add('selected');
+            } else {
+                p.classList.remove('selected');
+            }
+        });
+
+        colorPickerModal.classList.remove('active');
+    };
+
+    colorPickerModal.classList.add('active');
+}
 
 function observeCardResize() {
     const card = document.getElementById('previewCard');
@@ -1167,9 +1489,9 @@ function updateAllInputs() {
         if (el) el.value = value;
     });
     const ranges = [
-        'bgOpacity', 'borderWidth', 'borderRadius', 'borderGlowSize', 
-        'borderGlowIntensity', 'containerBgOpacity', 'eventTypeSize', 
-        'namesSize', 'greetingSize', 'dateSize', 'timeSize', 'placeSize', 
+        'bgOpacity', 'borderWidth', 'borderRadius', 'borderGlowSize',
+        'borderGlowIntensity', 'containerBgOpacity', 'eventTypeSize',
+        'namesSize', 'greetingSize', 'dateSize', 'timeSize', 'placeSize',
         'messageSize', 'animationIntensity', 'animationSpeed', 'animationSize'
     ];
     ranges.forEach(id => {
@@ -1181,7 +1503,7 @@ function updateAllInputs() {
         }
     });
     const checkboxes = [
-        'borderGlowEnabled', 'enableAnimations', 'showDecorLines', 
+        'borderGlowEnabled', 'enableAnimations', 'showDecorLines',
         'enablePerLineDecor', 'eventTypeBold', 'eventTypeItalic',
         'namesBold', 'namesItalic', 'greetingBold', 'greetingItalic',
         'dateBold', 'dateItalic', 'timeBold', 'timeItalic',

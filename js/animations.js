@@ -39,26 +39,7 @@ class AnimationManager {
         this.container.className = 'animation-container';
 
         const styles = {
-            top: `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 30%;
-                pointer-events: none;
-                z-index: 9999;
-                overflow: hidden;
-            `,
-            bottom: `
-                position: fixed;
-                bottom: 0;
-                left: 0;
-                width: 100%;
-                height: 30%;
-                pointer-events: none;
-                z-index: 9999;
-                overflow: hidden;
-            `,
+            // ИСПРАВЛЕНО: Оставляем только нужные позиции
             'around-card': `
                 position: absolute;
                 top: 0;
@@ -171,7 +152,6 @@ class AnimationManager {
         this.container.appendChild(element);
         this.elements.push(element);
 
-        // Удаляем элемент после завершения анимации
         setTimeout(() => {
             if (element?.parentNode) {
                 element.remove();

@@ -164,6 +164,7 @@ function initDecorControls() {
         });
     }
     
+    // ИСПРАВЛЕНО: Поворот на 90 градусов влево
     document.getElementById('rotateLeft')?.addEventListener('click', () => {
         if (!EditorState.activeDecorId) return;
         const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
@@ -174,6 +175,7 @@ function initDecorControls() {
         }
     });
     
+    // ИСПРАВЛЕНО: Поворот на 90 градусов вправо
     document.getElementById('rotateRight')?.addEventListener('click', () => {
         if (!EditorState.activeDecorId) return;
         const decor = EditorState.decorations.find(d => d.id === EditorState.activeDecorId);
