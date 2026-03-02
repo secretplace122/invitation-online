@@ -899,6 +899,7 @@
     .sidebar-footer {
         padding: 0.4rem;
         flex-shrink: 0;
+        display: block;
     }
 
     .editor-preview {

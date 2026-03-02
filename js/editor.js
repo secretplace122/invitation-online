@@ -157,13 +157,12 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPresets();
     initAccordion();
     initFontSelectors();
-    
-    // Инициализируем мобильные пикеры только для мобильных устройств
+
     if (window.innerWidth <= 768) {
         initMobileFontPicker();
         initMobileColorPicker();
     }
-    
+
     initBoldItalicButtons();
     initAnimationControls();
     updatePreview();
@@ -292,9 +291,17 @@ function initMobileFontPicker() {
         `;
         document.head.appendChild(style);
 
-        document.querySelector('.mobile-font-picker-close').addEventListener('click', () => {
-            modal.classList.remove('active');
-        });
+        const closeBtn = document.querySelector('.mobile-font-picker-close');
+        if (closeBtn) {
+            const newCloseBtn = closeBtn.cloneNode(true);
+            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
+
+            newCloseBtn.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                modal.classList.remove('active');
+            });
+        }
 
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -305,10 +312,14 @@ function initMobileFontPicker() {
 
     fontPickerModal = document.getElementById('mobileFontPicker');
 
-    // Только для мобильных, десктоп не трогаем
     if (window.innerWidth <= 768) {
         document.querySelectorAll('.text-format-row .font-select').forEach(select => {
+            if (select.parentElement && select.parentElement.classList.contains('font-select-wrapper')) {
+                return;
+            }
+
             const wrapper = document.createElement('div');
+            wrapper.className = 'font-select-wrapper';
             wrapper.style.position = 'relative';
             wrapper.style.width = '100%';
 
@@ -326,7 +337,10 @@ function initMobileFontPicker() {
 
             wrapper.appendChild(clickArea);
 
-            clickArea.addEventListener('click', (e) => {
+            const newClickArea = clickArea.cloneNode(true);
+            clickArea.parentNode.replaceChild(newClickArea, clickArea);
+
+            newClickArea.addEventListener('click', (e) => {
                 e.preventDefault();
                 e.stopPropagation();
                 const targetId = select.id;
@@ -358,13 +372,14 @@ function showMobileFontPicker(targetSelectId) {
             const select = document.getElementById(targetSelectId);
             select.value = value;
 
-            const stateProperty = targetSelectId;
-            EditorState[stateProperty] = value;
+            EditorState[targetSelectId] = value;
 
-            const previewElement = document.getElementById('preview' + targetSelectId.replace('Font', ''));
+            const previewElementId = 'preview' + targetSelectId.replace('Font', '');
+            const previewElement = document.getElementById(previewElementId);
             if (previewElement) {
                 previewElement.style.fontFamily = value;
             }
+            updatePreview();
 
             fontPickerModal.classList.remove('active');
         });
@@ -474,10 +489,10 @@ function initMobileColorPicker() {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-bottom: 20px;
+                margin-bottom: 2px;
                 color: #475569;
                 font-weight: 600;
-                font-size: 18px;
+                font-size: 15px;
             }
             .mobile-color-picker-header button {
                 background: none;
@@ -493,7 +508,7 @@ function initMobileColorPicker() {
             }
             .color-palette-container {
                 position: relative;
-                margin-bottom: 20px;
+                margin-bottom: 2px;
                 border-radius: 12px;
                 overflow: hidden;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -515,10 +530,10 @@ function initMobileColorPicker() {
                 box-shadow: 0 2px 8px rgba(0,0,0,0.2);
             }
             .color-sliders {
-                margin-bottom: 20px;
+                margin-bottom: 15px;
             }
             .color-slider-group {
-                margin-bottom: 15px;
+                margin-bottom: 2px;
             }
             .color-slider-group label {
                 display: flex;
@@ -551,8 +566,8 @@ function initMobileColorPicker() {
             .quick-colors {
                 display: grid;
                 grid-template-columns: repeat(8, 1fr);
-                gap: 8px;
-                margin-bottom: 20px;
+                gap: 20px;
+                margin-bottom: 2px;
             }
             .quick-color {
                 aspect-ratio: 1;
@@ -574,7 +589,7 @@ function initMobileColorPicker() {
                 display: flex;
                 align-items: center;
                 gap: 8px;
-                margin-bottom: 20px;
+                margin-bottom: 2px;
                 background: #f8fafc;
                 padding: 10px;
                 border-radius: 8px;
@@ -586,10 +601,10 @@ function initMobileColorPicker() {
             }
             .hex-input-group input {
                 flex: 1;
-                padding: 10px;
+                padding: 3px;
                 border: 1px solid #e2e8f0;
                 border-radius: 6px;
-                font-size: 16px;
+                font-size: 12px;
                 text-transform: uppercase;
             }
             .mobile-color-controls {
@@ -665,17 +680,17 @@ function initMobileColorPicker() {
 function initColorPalette() {
     const canvas = document.getElementById('colorPalette');
     if (!canvas) return;
-    
+
     const ctx = canvas.getContext('2d');
     const width = canvas.width;
     const height = canvas.height;
-    
+
     for (let x = 0; x < width; x++) {
         const hue = (x / width) * 360;
         for (let y = 0; y < height; y++) {
             const saturation = 1;
             const lightness = 0.5 - (y / height) * 0.5;
-            
+
             ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${lightness * 100}%)`;
             ctx.fillRect(x, y, 1, 1);
         }
@@ -695,118 +710,118 @@ function setupColorPickerEvents(modal) {
     const closeBtn = modal.querySelector('.mobile-color-picker-close');
     const cancelBtn = modal.querySelector('#mobileColorCancel');
     const applyBtn = modal.querySelector('#mobileColorApply');
-    
+
     let currentTargetInput = null;
     let currentColor = { r: 255, g: 255, b: 255 };
-    
+
     function updateColorFromRGB() {
         const r = parseInt(redSlider.value);
         const g = parseInt(greenSlider.value);
         const b = parseInt(blueSlider.value);
-        
+
         currentColor = { r, g, b };
-        
+
         redValue.textContent = r;
         greenValue.textContent = g;
         blueValue.textContent = b;
-        
+
         const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
         hexInput.value = hex;
         colorPreview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
     }
-    
+
     function updateColorFromHex() {
         let hex = hexInput.value.replace('#', '').toUpperCase();
-        
+
         while (hex.length < 6) hex += '0';
-        
+
         if (/^[0-9A-F]{6}$/.test(hex)) {
             const r = parseInt(hex.substring(0, 2), 16);
             const g = parseInt(hex.substring(2, 4), 16);
             const b = parseInt(hex.substring(4, 6), 16);
-            
+
             redSlider.value = r;
             greenSlider.value = g;
             blueSlider.value = b;
             updateColorFromRGB();
         }
     }
-    
+
     canvas.addEventListener('click', (e) => {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
         const scaleY = canvas.height / rect.height;
-        
+
         const x = Math.floor((e.clientX - rect.left) * scaleX);
         const y = Math.floor((e.clientY - rect.top) * scaleY);
-        
+
         const ctx = canvas.getContext('2d');
         const pixel = ctx.getImageData(x, y, 1, 1).data;
-        
+
         redSlider.value = pixel[0];
         greenSlider.value = pixel[1];
         blueSlider.value = pixel[2];
-        
+
         updateColorFromRGB();
     });
-    
+
     redSlider.addEventListener('input', updateColorFromRGB);
     greenSlider.addEventListener('input', updateColorFromRGB);
     blueSlider.addEventListener('input', updateColorFromRGB);
-    
+
     hexInput.addEventListener('input', updateColorFromHex);
-    
+
     modal.querySelectorAll('.quick-color').forEach(quickColor => {
         quickColor.addEventListener('click', () => {
             const color = quickColor.dataset.color;
             const r = parseInt(color.substring(1, 3), 16);
             const g = parseInt(color.substring(3, 5), 16);
             const b = parseInt(color.substring(5, 7), 16);
-            
+
             redSlider.value = r;
             greenSlider.value = g;
             blueSlider.value = b;
             updateColorFromRGB();
-            
+
             modal.querySelectorAll('.quick-color').forEach(q => q.classList.remove('selected'));
             quickColor.classList.add('selected');
         });
     });
-    
+
     window.showMobileColorPicker = (targetInputId) => {
         currentTargetInput = document.getElementById(targetInputId);
         if (!currentTargetInput) return;
-        
+
         const currentHex = currentTargetInput.value;
         const r = parseInt(currentHex.substring(1, 3), 16);
         const g = parseInt(currentHex.substring(3, 5), 16);
         const b = parseInt(currentHex.substring(5, 7), 16);
-        
+
         if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
             redSlider.value = r;
             greenSlider.value = g;
             blueSlider.value = b;
             updateColorFromRGB();
         }
-        
+
         modal.classList.add('active');
     };
-    
+
     applyBtn.addEventListener('click', () => {
         if (currentTargetInput) {
             const hex = ((1 << 24) + (currentColor.r << 16) + (currentColor.g << 8) + currentColor.b).toString(16).slice(1).toUpperCase();
             const fullHex = '#' + hex;
             currentTargetInput.value = fullHex;
-            
+
             if (EditorState && currentTargetInput.id) {
                 EditorState[currentTargetInput.id] = fullHex;
                 updatePreview();
-                
+
                 const presetContainers = [
                     document.getElementById(currentTargetInput.id.replace('Color', 'Presets')),
                     document.getElementById(currentTargetInput.id.replace('Color', 'Presets2'))
                 ];
-                
+
                 presetContainers.forEach(container => {
                     if (container) {
                         container.querySelectorAll('.color-preset').forEach(p => {
@@ -822,10 +837,10 @@ function setupColorPickerEvents(modal) {
         }
         modal.classList.remove('active');
     });
-    
+
     closeBtn.addEventListener('click', () => modal.classList.remove('active'));
     cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
-    
+
     modal.addEventListener('click', (e) => {
         if (e.target === modal) modal.classList.remove('active');
     });
