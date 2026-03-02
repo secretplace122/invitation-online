@@ -1450,6 +1450,11 @@ function updateMessagePreview() {
     messageEl.style.gap = '0px';
     messageEl.style.width = '100%';
     messageEl.style.maxWidth = '100%';
+
+    messageEl.style.fontFamily = EditorState.messageFont;
+    messageEl.style.fontSize = EditorState.messageSize + 'px';
+    messageEl.style.fontWeight = EditorState.messageBold ? 'bold' : 'normal';
+    messageEl.style.fontStyle = EditorState.messageItalic ? 'italic' : 'normal';
 }
 
 function updateDecorLines() {
