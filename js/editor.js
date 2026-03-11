@@ -229,34 +229,36 @@ function applyMobileScale() {
     
     if (!container || !card) return;
     
+    const oldSpacer = document.getElementById('scroll-spacer');
+    if (oldSpacer) oldSpacer.remove();
+    
     if (window.innerWidth <= 768) {
-        const containerWidth = container.clientWidth;
+        const paddingLeft = 30;
+        const paddingRight = 30;
+        
+        container.style.paddingLeft = paddingLeft + 'px';
+        container.style.paddingRight = paddingRight + 'px';
+        container.style.paddingTop = '20px';
+        container.style.paddingBottom = '40px';
+        
+        const containerWidth = container.clientWidth - paddingLeft - paddingRight;
         const cardWidth = 500;
         let scale = containerWidth / cardWidth;
         scale = Math.min(scale, 0.9);
-        
-        const scaledWidth = cardWidth * scale;
-        const scaledHeight = card.offsetHeight * scale;
         
         card.style.position = 'absolute';
         card.style.left = '50%';
         card.style.top = '20px';
         card.style.transform = `translateX(-50%) scale(${scale})`;
-        card.style.transformOrigin = 'center top';
         card.style.margin = '0';
         
-        container.style.minHeight = '100%';
+        const spacer = document.createElement('div');
+        spacer.id = 'scroll-spacer';
+        spacer.style.width = '1px';
+        spacer.style.height = (card.offsetHeight * scale + 40) + 'px';
+        spacer.style.pointerEvents = 'none';
         
-        let spacer = document.getElementById('scroll-spacer');
-        if (!spacer) {
-            spacer = document.createElement('div');
-            spacer.id = 'scroll-spacer';
-            spacer.style.width = '1px';
-            spacer.style.height = '1px';
-            container.appendChild(spacer);
-        }
-        
-        spacer.style.height = `${scaledHeight + 50}px`;
+        container.appendChild(spacer);
         
     } else {
         card.style.position = 'relative';
@@ -265,8 +267,10 @@ function applyMobileScale() {
         card.style.transform = 'none';
         card.style.margin = '0 auto';
         
-        const spacer = document.getElementById('scroll-spacer');
-        if (spacer) spacer.remove();
+        container.style.paddingLeft = '';
+        container.style.paddingRight = '';
+        container.style.paddingTop = '';
+        container.style.paddingBottom = '';
     }
 }
 
