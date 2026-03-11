@@ -59,14 +59,17 @@
 }
 
 .preview-container {
-    flex: 1;
-    overflow: auto;
-    background: #e5e7eb;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 50px;
     position: relative;
+    height: 100%;
+    width: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 0;
+    display: block;
+    scroll-behavior: smooth;
+    scroll-padding-bottom: 35vh;
+    box-sizing: border-box;
 }
 
 .preview-container .preview-bg-layer {
@@ -813,6 +816,7 @@
     body {
         padding-top: 0;
         margin: 0;
+        overflow: hidden;
     }
 
     .navbar {
@@ -905,10 +909,9 @@
     .editor-preview {
         width: 100%;
         height: 100%;
-        display: flex;
-        flex-direction: column;
+        display: block;
         overflow: hidden;
-        min-height: 0;
+        position: relative;
     }
 
     .editor-preview.hidden {
@@ -916,20 +919,41 @@
     }
 
     .preview-container {
-        flex: 1;
-        overflow-y: auto;
-        -webkit-overflow-scrolling: touch;
-        padding: 20px 10px 40px;
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        min-height: 0;
-    }
+    height: 100%;
+    width: 100%;
+    overflow-y: auto !important;
+    overflow-x: hidden !important;
+    -webkit-overflow-scrolling: touch;
+    padding: 20px 10px 40px;
+    display: block;
+    position: relative;
+    scroll-behavior: smooth;
+    scroll-padding-bottom: 35vh;
+    box-sizing: border-box;
+}
 
     .invitation-card {
-        transform: scale(0.7);
-        transform-origin: center top;
-        margin: 20px auto 40px;
+    width: 500px;
+    min-width: 500px;
+    max-width: 500px;
+    position: absolute;
+    left: 50%;
+    top: 20px;
+    transform-origin: center top;
+    margin: 0;
+}
+
+    .preview-content-layer {
+        display: block !important;
+        height: auto !important;
+        min-height: 100%;
+        width: 100%;
+        position: relative;
+        z-index: 2;
+    }
+
+    .mobile-decor-panel.active ~ .editor-preview .preview-container {
+        padding-bottom: 35vh;
     }
 
     .color-presets {
@@ -1016,31 +1040,22 @@
     }
 }
 
-@media (max-width: 520px) {
-    .invitation-card {
-        transform: scale(0.65);
-    }
-}
-
-@media (max-width: 480px) {
-    .invitation-card {
-        transform: scale(0.6);
-    }
-}
-
-@media (max-width: 400px) {
-    .invitation-card {
-        transform: scale(0.55);
-    }
-}
-
 @media (max-width: 360px) {
     .color-presets {
         grid-template-columns: repeat(4, 1fr);
     }
 
-    .invitation-card {
-        transform: scale(0.5);
+    .mobile-decor-panel-content {
+        padding: 5px;
+    }
+
+    .mobile-decor-grid {
+        gap: 8px;
+    }
+
+    .mobile-decor-rotate-btn {
+        width: 35px;
+        height: 35px;
     }
 }
 
@@ -1066,6 +1081,7 @@
         flex-direction: column;
         border-top: 1px solid rgba(168, 216, 234, 0.3);
         max-height: 35vh;
+        overflow-y: visible;
     }
 
     .mobile-decor-panel.active {
@@ -1118,6 +1134,7 @@
         display: flex;
         flex-direction: column;
         gap: 8px;
+        max-height: calc(35vh - 50px);
     }
 
     .mobile-decor-grid {

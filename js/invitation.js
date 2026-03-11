@@ -11,7 +11,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('copyLinkBtn')?.addEventListener('click', copyInvitationLink);
     applyMobileScale();
     window.addEventListener('resize', () => applyMobileScale());
+    window.addEventListener('orientationchange', () => setTimeout(applyMobileScale, 100));
 });
+
+function applyMobileScale() {
+    const container = document.querySelector('.invitation-wrapper');
+    const card = document.getElementById('invitationCard');
+    
+    if (!container || !card) return;
+    
+    if (window.innerWidth <= 768) {
+        const containerWidth = container.clientWidth - 40;
+        const cardWidth = 500;
+        let scale = containerWidth / cardWidth;
+        scale = Math.min(scale, 0.9);
+        
+        card.style.transform = `scale(${scale})`;
+        card.style.transformOrigin = 'center top';
+        card.style.margin = '20px auto';
+        card.style.marginBottom = `${50 + (1 - scale) * 200}px`;
+    } else {
+        card.style.transform = 'none';
+        card.style.margin = '0 auto';
+    }
+}
 
 async function checkPendingAfterPayment() {
     const pending = localStorage.getItem('pendingInvitation');
@@ -39,19 +62,6 @@ async function checkPendingAfterPayment() {
         console.error('Error checking pending:', error);
         return false;
     }
-}
-
-function applyMobileScale() {
-    const isMobile = window.innerWidth <= 768;
-    document.querySelectorAll('.invitation-card').forEach(card => {
-        if (isMobile) {
-            card.style.transform = 'scale(0.7)';
-            card.style.transformOrigin = 'center top';
-            card.style.margin = '20px auto';
-        } else {
-            card.style.transform = 'none';
-        }
-    });
 }
 
 async function loadInvitation() {

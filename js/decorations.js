@@ -8,7 +8,6 @@ window.decorLibrary = [
     { id: 'decor-5', file: 'bd5.webp', name: 'Шары 3', category: 'bd' },
     { id: 'decor-6', file: 'bd6.webp', name: 'Шары 4', category: 'bd' },
     { id: 'decor-7', file: 'bd7.webp', name: 'Шары 5', category: 'bd' },
-
     { id: 'decor-8', file: 'flower1.webp', name: 'Цветы 1', category: 'flower' },
     { id: 'decor-9', file: 'flower2.webp', name: 'Цветы 2', category: 'flower' },
     { id: 'decor-10', file: 'flower3.webp', name: 'Цветы 3', category: 'flower' },
@@ -16,7 +15,6 @@ window.decorLibrary = [
     { id: 'decor-12', file: 'flower5.webp', name: 'Цветы 5', category: 'flower' },
     { id: 'decor-13', file: 'flower6.webp', name: 'Цветы 6', category: 'flower' },
     { id: 'decor-14', file: 'flower7.webp', name: 'Цветы 7', category: 'flower' },
-
     { id: 'decor-15', file: 'gold1.webp', name: 'Уголок золотой 1', category: 'gold' },
     { id: 'decor-16', file: 'gold2.webp', name: 'Уголок золотой 2', category: 'gold' },
     { id: 'decor-17', file: 'gold3.webp', name: 'Уголок золотой 3', category: 'gold' },
@@ -28,12 +26,10 @@ window.decorLibrary = [
     { id: 'decor-23', file: 'gold9.webp', name: 'Кольца 1', category: 'gold' },
     { id: 'decor-24', file: 'gold10.webp', name: 'Сердце 1', category: 'gold' },
     { id: 'decor-25', file: 'gold11.webp', name: 'Сердце 2', category: 'gold' },
-
     { id: 'decor-26', file: 'food1.webp', name: 'Пирог 1', category: 'food' },
     { id: 'decor-27', file: 'food2.webp', name: 'Пирог 2', category: 'food' },
     { id: 'decor-28', file: 'food3.webp', name: 'Мороженное 1', category: 'food' },
     { id: 'decor-29', file: 'food4.webp', name: 'Мороженное 2', category: 'food' },
-
     { id: 'decor-30', file: 'anime1.webp', name: 'Котик в коробке 1', category: 'anime' },
     { id: 'decor-31', file: 'anime2.webp', name: 'Котик в коробке 2', category: 'anime' },
     { id: 'decor-32', file: 'anime3.webp', name: 'Котик 1', category: 'anime' },
@@ -48,7 +44,6 @@ window.decorLibrary = [
     { id: 'decor-41', file: 'anime12.webp', name: 'Стакан 2', category: 'anime' },
     { id: 'decor-42', file: 'anime13.webp', name: 'Чашка 1', category: 'anime' },
     { id: 'decor-43', file: 'anime14.webp', name: 'Котик 7', category: 'anime' },
-
     { id: 'decor-44', file: 'black1.webp', name: 'Роза 1', category: 'black' },
     { id: 'decor-45', file: 'black2.webp', name: 'Роза 2', category: 'black' },
     { id: 'decor-46', file: 'black3.webp', name: 'Роза 3', category: 'black' },
@@ -64,22 +59,18 @@ window.decorLibrary = [
     { id: 'decor-56', file: 'black13.webp', name: 'Вместе 3', category: 'black' },
     { id: 'decor-57', file: 'black14.webp', name: 'Вместе 4', category: 'black' },
     { id: 'decor-58', file: 'black15.webp', name: 'Вместе 5', category: 'black' },
-
     { id: 'decor-59', file: 'halloween1.webp', name: 'Скелет', category: 'halloween' },
     { id: 'decor-60', file: 'halloween2.webp', name: 'Тыква', category: 'halloween' },
     { id: 'decor-61', file: 'halloween3.webp', name: 'Привидения', category: 'halloween' },
     { id: 'decor-62', file: 'halloween4.webp', name: 'Цветы', category: 'halloween' },
     { id: 'decor-63', file: 'halloween5.webp', name: 'Кружка', category: 'halloween' },
-
     { id: 'decor-64', file: 'newyear1.webp', name: 'Ёлка', category: 'newyear' },
     { id: 'decor-65', file: 'newyear2.webp', name: 'Снеговик', category: 'newyear' },
     { id: 'decor-66', file: 'newyear3.webp', name: 'Белка', category: 'newyear' },
     { id: 'decor-67', file: 'newyear4.webp', name: 'Кот у ёлки', category: 'newyear' },
-
     { id: 'decor-68', file: 'paskha1.webp', name: 'Кролик и цыпленок', category: 'paskha' },
     { id: 'decor-69', file: 'paskha2.webp', name: 'Кулич 1', category: 'paskha' },
     { id: 'decor-70', file: 'paskha3.webp', name: 'Кулич 2', category: 'paskha' },
-
     { id: 'decor-71', file: 'pets1.webp', name: 'Котик с букетом', category: 'pets' },
     { id: 'decor-72', file: 'pets2.webp', name: 'Пара котиков', category: 'pets' },
     { id: 'decor-73', file: 'pets3.webp', name: 'Мышка в очках', category: 'pets' },
@@ -263,10 +254,8 @@ function initDecorControls() {
         });
     }
 
-    // ИСПРАВЛЕНО: Удаляем старые обработчики и вешаем новые с флагом { once: false }
     const rotateLeft = document.getElementById('rotateLeft');
     if (rotateLeft) {
-        // Удаляем все старые обработчики
         const newRotateLeft = rotateLeft.cloneNode(true);
         rotateLeft.parentNode.replaceChild(newRotateLeft, rotateLeft);
 
@@ -285,7 +274,6 @@ function initDecorControls() {
 
     const rotateRight = document.getElementById('rotateRight');
     if (rotateRight) {
-        // Удаляем все старые обработчики
         const newRotateRight = rotateRight.cloneNode(true);
         rotateRight.parentNode.replaceChild(newRotateRight, rotateRight);
 
@@ -536,7 +524,6 @@ function initMobileDecorPanel() {
     const doneBtn = document.getElementById('mobileDecorDone');
     if (doneBtn) {
         doneBtn.addEventListener('click', () => {
-            // ИСПРАВЛЕНО: При нажатии "Готово" снимаем выделение с декорации
             if (EditorState.activeDecorId) {
                 EditorState.activeDecorId = null;
                 hideDecorControls();
@@ -661,7 +648,6 @@ function initMobileDecorPanel() {
         });
     }
 
-    // ИСПРАВЛЕНО: Снимаем выделение при переключении на вкладку настроек
     const mobileTabs = document.getElementById('mobileTabs');
     if (mobileTabs) {
         const observer = new MutationObserver((mutations) => {
@@ -669,7 +655,6 @@ function initMobileDecorPanel() {
                 if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
                     const settingsTab = document.querySelector('.mobile-tab[data-tab="settings"]');
                     if (settingsTab && settingsTab.classList.contains('active')) {
-                        // Если перешли на настройки - снимаем выделение с декорации
                         if (EditorState.activeDecorId) {
                             EditorState.activeDecorId = null;
                             hideDecorControls();
@@ -696,14 +681,45 @@ function openMobileDecorPanel(decorId) {
     const previewTab = document.querySelector('.mobile-tab[data-tab="preview"]');
     if (previewTab) previewTab.click();
 
-    if (mobileDecorPanel) mobileDecorPanel.classList.add('active');
+    if (mobileDecorPanel) {
+        mobileDecorPanel.classList.add('active');
+        
+        setTimeout(() => {
+            const card = document.getElementById('previewCard');
+            const container = document.querySelector('.preview-container');
+            if (card && container) {
+                const cardRect = card.getBoundingClientRect();
+                const containerRect = container.getBoundingClientRect();
+                const scrollTop = container.scrollTop;
+                
+                if (cardRect.bottom > window.innerHeight - 200) {
+                    container.scrollTo({
+                        top: scrollTop + (cardRect.bottom - window.innerHeight + 200),
+                        behavior: 'smooth'
+                    });
+                }
+            }
+        }, 100);
+    }
 
     const decor = EditorState.decorations.find(d => d.id === decorId);
     if (decor) updateMobilePanelValues(decor);
 }
 
 function closeMobileDecorPanel() {
-    if (mobileDecorPanel) mobileDecorPanel.classList.remove('active');
+    if (mobileDecorPanel) {
+        mobileDecorPanel.classList.remove('active');
+        
+        setTimeout(() => {
+            const container = document.querySelector('.preview-container');
+            if (container) {
+                container.scrollTo({
+                    top: 0,
+                    behavior: 'smooth'
+                });
+            }
+        }, 100);
+    }
 }
 
 function updateMobilePanelValues(decor) {

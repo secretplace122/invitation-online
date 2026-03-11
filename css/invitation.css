@@ -177,36 +177,15 @@
 }
 
 @media (max-width: 768px) {
+    .invitation-wrapper {
+        padding: 1rem 0.5rem;
+    }
+    
     .invitation-card {
-        transform: scale(0.7);
-        transform-origin: center top;
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
         margin: 20px auto;
-    }
-
-    .invitation-card .message {
-        font-size: 16px;
-        text-align: center;
-    }
-
-    .message-line-decor {
-        width: 40px;
-    }
-}
-
-@media (max-width: 520px) {
-    .invitation-card {
-        transform: scale(0.65);
-    }
-}
-
-@media (max-width: 450px) {
-    .invitation-card {
-        transform: scale(0.6);
-    }
-}
-
-@media (max-width: 360px) {
-    .invitation-card {
-        transform: scale(0.55);
+        transform-origin: center top;
     }
 }

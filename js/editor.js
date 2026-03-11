@@ -71,10 +71,8 @@ const patterns = [
     { id: 'wedding-5', file: 'wedding5.webp', category: 'wedding', name: '5' },
     { id: 'wedding-6', file: 'wedding6.webp', category: 'wedding', name: '6' },
     { id: 'wedding-7', file: 'wedding7.webp', category: 'wedding', name: '7' },
-    
     { id: 'wedding-9', file: 'wedding9.webp', category: 'wedding', name: '9' },
     { id: 'wedding-10', file: 'wedding10.webp', category: 'wedding', name: '10' },
-
     { id: 'birthday-1', file: 'birthday1.webp', category: 'birthday', name: '1' },
     { id: 'birthday-2', file: 'birthday2.webp', category: 'birthday', name: '2' },
     { id: 'birthday-3', file: 'birthday3.webp', category: 'birthday', name: '3' },
@@ -94,7 +92,6 @@ const patterns = [
     { id: 'birthday-17', file: 'birthday17.webp', category: 'birthday', name: '17' },
     { id: 'birthday-18', file: 'birthday18.webp', category: 'birthday', name: '18' },
     { id: 'birthday-19', file: 'birthday19.webp', category: 'birthday', name: '19' },
-
     { id: 'other-1', file: 'other1.webp', category: 'other', name: '1' },
     { id: 'other-2', file: 'other2.webp', category: 'other', name: '2' },
     { id: 'other-3', file: 'other3.webp', category: 'other', name: '3' },
@@ -109,7 +106,6 @@ const patterns = [
     { id: 'other-13', file: 'other13.webp', category: 'other', name: '13' },
     { id: 'other-14', file: 'other14.webp', category: 'other', name: '14' },
     { id: 'other-15', file: 'other15.webp', category: 'other', name: '15' },
-
     { id: 'other-17', file: 'other17.webp', category: 'other', name: '17' },
     { id: 'other-18', file: 'other18.webp', category: 'other', name: '18' },
     { id: 'other-19', file: 'other19.webp', category: 'other', name: '19' },
@@ -203,6 +199,17 @@ document.addEventListener('DOMContentLoaded', () => {
         }, 100);
     });
 
+    window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+            applyMobileScale();
+            if (window.innerWidth <= 768) {
+                if (window.decorationsAPI) {
+                    window.decorationsAPI.closeMobileDecorPanel();
+                }
+            }
+        }, 100);
+    });
+
     applyMobileScale();
     fixMobileTabsPosition();
     fixBackgroundScroll();
@@ -216,7 +223,59 @@ document.addEventListener('DOMContentLoaded', () => {
     setTimeout(observeCardResize, 500);
 });
 
-// ========== МОБИЛЬНЫЙ ВЫБОР ШРИФТОВ ==========
+function applyMobileScale() {
+    const container = document.querySelector('.preview-container');
+    const card = document.getElementById('previewCard');
+    
+    if (!container || !card) return;
+    
+    if (window.innerWidth <= 768) {
+        const containerWidth = container.clientWidth;
+        const cardWidth = 500;
+        let scale = containerWidth / cardWidth;
+        scale = Math.min(scale, 0.9);
+        
+        // Рассчитываем размер после масштабирования
+        const scaledWidth = cardWidth * scale;
+        const scaledHeight = card.offsetHeight * scale;
+        
+        // Центрируем через absolute positioning
+        card.style.position = 'absolute';
+        card.style.left = '50%';
+        card.style.top = '20px';
+        card.style.transform = `translateX(-50%) scale(${scale})`;
+        card.style.transformOrigin = 'center top';
+        card.style.margin = '0';
+        
+        // ВАЖНО: добавляем высоту контейнеру, чтобы появился скролл
+        container.style.minHeight = '100%';
+        
+        // Создаем невидимый элемент для скролла
+        let spacer = document.getElementById('scroll-spacer');
+        if (!spacer) {
+            spacer = document.createElement('div');
+            spacer.id = 'scroll-spacer';
+            spacer.style.width = '1px';
+            spacer.style.height = '1px';
+            container.appendChild(spacer);
+        }
+        
+        // Устанавливаем высоту распорки
+        spacer.style.height = `${scaledHeight + 100}px`;
+        
+    } else {
+        card.style.position = 'relative';
+        card.style.left = 'auto';
+        card.style.top = 'auto';
+        card.style.transform = 'none';
+        card.style.margin = '0 auto';
+        
+        // Удаляем распорку
+        const spacer = document.getElementById('scroll-spacer');
+        if (spacer) spacer.remove();
+    }
+}
+
 function initMobileFontPicker() {
     if (!document.getElementById('mobileFontPicker')) {
         const modal = document.createElement('div');
@@ -406,7 +465,6 @@ function showMobileFontPicker(targetSelectId) {
     fontPickerModal.classList.add('active');
 }
 
-// ========== МОБИЛЬНЫЙ ВЫБОР ЦВЕТА ==========
 function initMobileColorPicker() {
     if (!document.getElementById('mobileColorPicker')) {
         const modal = document.createElement('div');
@@ -660,7 +718,6 @@ function initMobileColorPicker() {
 
     colorPickerModal = document.getElementById('mobileColorPicker');
 
-    // Только для мобильных
     if (window.innerWidth <= 768) {
         document.querySelectorAll('.setting-group input[type="color"]').forEach(input => {
             const wrapper = document.createElement('div');
@@ -864,7 +921,6 @@ function setupColorPickerEvents(modal) {
     });
 }
 
-// ========== ОСТАЛЬНЫЕ ФУНКЦИИ ==========
 function observeCardResize() {
     const card = document.getElementById('previewCard');
     if (!card) return;
@@ -895,19 +951,6 @@ function fixMobileTabsPosition() {
     const mobileTabs = document.getElementById('mobileTabs');
     if (navbar && mobileTabs && isMobileView) {
         mobileTabs.style.top = navbar.offsetHeight + 'px';
-    }
-}
-
-function applyMobileScale() {
-    const cards = document.querySelectorAll('.invitation-card');
-    if (isMobileView) {
-        cards.forEach(card => {
-            card.style.transform = 'scale(0.7)';
-            card.style.transformOrigin = 'center top';
-            card.style.margin = '20px auto';
-        });
-    } else {
-        cards.forEach(card => card.style.transform = 'none');
     }
 }
 
@@ -1573,6 +1616,7 @@ function updatePreview() {
         setTimeout(() => {
             window.decorationsAPI.updatePreviewDecorations();
             window.decorationsAPI.applyClipToFrame();
+            applyMobileScale();
         }, 10);
     }
 }
@@ -1992,3 +2036,4 @@ window.createPayment = createPayment;
 window.checkPendingPayment = checkPendingPayment;
 window.getInvitationData = getInvitationData;
 window.cancelPendingPayment = cancelPendingPayment;
+window.applyMobileScale = applyMobileScale;
