@@ -235,11 +235,9 @@ function applyMobileScale() {
         let scale = containerWidth / cardWidth;
         scale = Math.min(scale, 0.9);
         
-        // Рассчитываем размер после масштабирования
         const scaledWidth = cardWidth * scale;
         const scaledHeight = card.offsetHeight * scale;
         
-        // Центрируем через absolute positioning
         card.style.position = 'absolute';
         card.style.left = '50%';
         card.style.top = '20px';
@@ -247,10 +245,8 @@ function applyMobileScale() {
         card.style.transformOrigin = 'center top';
         card.style.margin = '0';
         
-        // ВАЖНО: добавляем высоту контейнеру, чтобы появился скролл
         container.style.minHeight = '100%';
         
-        // Создаем невидимый элемент для скролла
         let spacer = document.getElementById('scroll-spacer');
         if (!spacer) {
             spacer = document.createElement('div');
@@ -260,8 +256,7 @@ function applyMobileScale() {
             container.appendChild(spacer);
         }
         
-        // Устанавливаем высоту распорки
-        spacer.style.height = `${scaledHeight + 100}px`;
+        spacer.style.height = `${scaledHeight + 50}px`;
         
     } else {
         card.style.position = 'relative';
@@ -270,7 +265,6 @@ function applyMobileScale() {
         card.style.transform = 'none';
         card.style.margin = '0 auto';
         
-        // Удаляем распорку
         const spacer = document.getElementById('scroll-spacer');
         if (spacer) spacer.remove();
     }
