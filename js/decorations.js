@@ -1,76 +1,77 @@
 let mobileDecorPanel = null;
+let currentDecorFilter = 'all';
 
 window.decorLibrary = [
-    { id: 'decor-1', file: 'bd1.webp', name: 'Подарки с шарами 1', category: 'bd' },
-    { id: 'decor-2', file: 'bd2.webp', name: 'Подарки с шарами 2', category: 'bd' },
-    { id: 'decor-3', file: 'bd3.webp', name: 'Шары 1', category: 'bd' },
-    { id: 'decor-4', file: 'bd4.webp', name: 'Шары 2', category: 'bd' },
-    { id: 'decor-5', file: 'bd5.webp', name: 'Шары 3', category: 'bd' },
-    { id: 'decor-6', file: 'bd6.webp', name: 'Шары 4', category: 'bd' },
-    { id: 'decor-7', file: 'bd7.webp', name: 'Шары 5', category: 'bd' },
-    { id: 'decor-8', file: 'flower1.webp', name: 'Цветы 1', category: 'flower' },
-    { id: 'decor-9', file: 'flower2.webp', name: 'Цветы 2', category: 'flower' },
-    { id: 'decor-10', file: 'flower3.webp', name: 'Цветы 3', category: 'flower' },
-    { id: 'decor-11', file: 'flower4.webp', name: 'Цветы 4', category: 'flower' },
-    { id: 'decor-12', file: 'flower5.webp', name: 'Цветы 5', category: 'flower' },
-    { id: 'decor-13', file: 'flower6.webp', name: 'Цветы 6', category: 'flower' },
-    { id: 'decor-14', file: 'flower7.webp', name: 'Цветы 7', category: 'flower' },
-    { id: 'decor-15', file: 'gold1.webp', name: 'Уголок золотой 1', category: 'gold' },
-    { id: 'decor-16', file: 'gold2.webp', name: 'Уголок золотой 2', category: 'gold' },
-    { id: 'decor-17', file: 'gold3.webp', name: 'Уголок золотой 3', category: 'gold' },
-    { id: 'decor-18', file: 'gold4.webp', name: 'Уголок золотой 4', category: 'gold' },
-    { id: 'decor-19', file: 'gold5.webp', name: 'Уголок золотой 5', category: 'gold' },
-    { id: 'decor-20', file: 'gold6.webp', name: 'Уголок золотой 6', category: 'gold' },
-    { id: 'decor-21', file: 'gold7.webp', name: 'Уголок золотой 7', category: 'gold' },
-    { id: 'decor-22', file: 'gold8.webp', name: 'Уголок золотой 8', category: 'gold' },
-    { id: 'decor-23', file: 'gold9.webp', name: 'Кольца 1', category: 'gold' },
-    { id: 'decor-24', file: 'gold10.webp', name: 'Сердце 1', category: 'gold' },
-    { id: 'decor-25', file: 'gold11.webp', name: 'Сердце 2', category: 'gold' },
-    { id: 'decor-26', file: 'food1.webp', name: 'Пирог 1', category: 'food' },
-    { id: 'decor-27', file: 'food2.webp', name: 'Пирог 2', category: 'food' },
-    { id: 'decor-28', file: 'food3.webp', name: 'Мороженное 1', category: 'food' },
-    { id: 'decor-29', file: 'food4.webp', name: 'Мороженное 2', category: 'food' },
-    { id: 'decor-30', file: 'anime1.webp', name: 'Котик в коробке 1', category: 'anime' },
-    { id: 'decor-31', file: 'anime2.webp', name: 'Котик в коробке 2', category: 'anime' },
-    { id: 'decor-32', file: 'anime3.webp', name: 'Котик 1', category: 'anime' },
-    { id: 'decor-33', file: 'anime4.webp', name: 'Котик 2', category: 'anime' },
-    { id: 'decor-34', file: 'anime5.webp', name: 'Бургер 1', category: 'anime' },
-    { id: 'decor-35', file: 'anime6.webp', name: 'Пёсель 1', category: 'anime' },
-    { id: 'decor-36', file: 'anime7.webp', name: 'Котик 3', category: 'anime' },
-    { id: 'decor-37', file: 'anime8.webp', name: 'Котик 4', category: 'anime' },
-    { id: 'decor-38', file: 'anime9.webp', name: 'Котик 5', category: 'anime' },
-    { id: 'decor-39', file: 'anime10.webp', name: 'Котик 6', category: 'anime' },
-    { id: 'decor-40', file: 'anime11.webp', name: 'Стакан 1', category: 'anime' },
-    { id: 'decor-41', file: 'anime12.webp', name: 'Стакан 2', category: 'anime' },
-    { id: 'decor-42', file: 'anime13.webp', name: 'Чашка 1', category: 'anime' },
-    { id: 'decor-43', file: 'anime14.webp', name: 'Котик 7', category: 'anime' },
-    { id: 'decor-44', file: 'black1.webp', name: 'Роза 1', category: 'black' },
-    { id: 'decor-45', file: 'black2.webp', name: 'Роза 2', category: 'black' },
-    { id: 'decor-46', file: 'black3.webp', name: 'Роза 3', category: 'black' },
-    { id: 'decor-47', file: 'black4.webp', name: 'Роза 4', category: 'black' },
-    { id: 'decor-48', file: 'black5.webp', name: 'Роза 5', category: 'black' },
-    { id: 'decor-49', file: 'black6.webp', name: 'Роза 6', category: 'black' },
-    { id: 'decor-50', file: 'black7.webp', name: 'Роза 7', category: 'black' },
-    { id: 'decor-51', file: 'black8.webp', name: 'Букет 1', category: 'black' },
-    { id: 'decor-52', file: 'black9.webp', name: 'Бантик 1', category: 'black' },
-    { id: 'decor-53', file: 'black10.webp', name: 'Бантик 2', category: 'black' },
-    { id: 'decor-54', file: 'black11.webp', name: 'Вместе 1', category: 'black' },
-    { id: 'decor-55', file: 'black12.webp', name: 'Вместе 2', category: 'black' },
-    { id: 'decor-56', file: 'black13.webp', name: 'Вместе 3', category: 'black' },
-    { id: 'decor-57', file: 'black14.webp', name: 'Вместе 4', category: 'black' },
-    { id: 'decor-58', file: 'black15.webp', name: 'Вместе 5', category: 'black' },
-    { id: 'decor-59', file: 'halloween1.webp', name: 'Скелет', category: 'halloween' },
-    { id: 'decor-60', file: 'halloween2.webp', name: 'Тыква', category: 'halloween' },
-    { id: 'decor-61', file: 'halloween3.webp', name: 'Привидения', category: 'halloween' },
-    { id: 'decor-62', file: 'halloween4.webp', name: 'Цветы', category: 'halloween' },
-    { id: 'decor-63', file: 'halloween5.webp', name: 'Кружка', category: 'halloween' },
-    { id: 'decor-64', file: 'newyear1.webp', name: 'Ёлка', category: 'newyear' },
-    { id: 'decor-65', file: 'newyear2.webp', name: 'Снеговик', category: 'newyear' },
-    { id: 'decor-66', file: 'newyear3.webp', name: 'Белка', category: 'newyear' },
-    { id: 'decor-67', file: 'newyear4.webp', name: 'Кот у ёлки', category: 'newyear' },
-    { id: 'decor-68', file: 'paskha1.webp', name: 'Кролик и цыпленок', category: 'paskha' },
-    { id: 'decor-69', file: 'paskha2.webp', name: 'Кулич 1', category: 'paskha' },
-    { id: 'decor-70', file: 'paskha3.webp', name: 'Кулич 2', category: 'paskha' },
+    { id: 'decor-1', file: 'bd1.webp', name: 'Подарки с шарами 1', category: 'party' },
+    { id: 'decor-2', file: 'bd2.webp', name: 'Подарки с шарами 2', category: 'party' },
+    { id: 'decor-3', file: 'bd3.webp', name: 'Шары 1', category: 'party' },
+    { id: 'decor-4', file: 'bd4.webp', name: 'Шары 2', category: 'party' },
+    { id: 'decor-5', file: 'bd5.webp', name: 'Шары 3', category: 'party' },
+    { id: 'decor-6', file: 'bd6.webp', name: 'Шары 4', category: 'party' },
+    { id: 'decor-7', file: 'bd7.webp', name: 'Шары 5', category: 'party' },
+    { id: 'decor-8', file: 'flower1.webp', name: 'Цветы 1', category: 'wedding' },
+    { id: 'decor-9', file: 'flower2.webp', name: 'Цветы 2', category: 'wedding' },
+    { id: 'decor-10', file: 'flower3.webp', name: 'Цветы 3', category: 'wedding' },
+    { id: 'decor-11', file: 'flower4.webp', name: 'Цветы 4', category: 'wedding' },
+    { id: 'decor-12', file: 'flower5.webp', name: 'Цветы 5', category: 'wedding' },
+    { id: 'decor-13', file: 'flower6.webp', name: 'Цветы 6', category: 'wedding' },
+    { id: 'decor-14', file: 'flower7.webp', name: 'Цветы 7', category: 'wedding' },
+    { id: 'decor-15', file: 'gold1.webp', name: 'Уголок золотой 1', category: 'wedding' },
+    { id: 'decor-16', file: 'gold2.webp', name: 'Уголок золотой 2', category: 'wedding' },
+    { id: 'decor-17', file: 'gold3.webp', name: 'Уголок золотой 3', category: 'wedding' },
+    { id: 'decor-18', file: 'gold4.webp', name: 'Уголок золотой 4', category: 'wedding' },
+    { id: 'decor-19', file: 'gold5.webp', name: 'Уголок золотой 5', category: 'wedding' },
+    { id: 'decor-20', file: 'gold6.webp', name: 'Уголок золотой 6', category: 'wedding' },
+    { id: 'decor-21', file: 'gold7.webp', name: 'Уголок золотой 7', category: 'wedding' },
+    { id: 'decor-22', file: 'gold8.webp', name: 'Уголок золотой 8', category: 'wedding' },
+    { id: 'decor-23', file: 'gold9.webp', name: 'Кольца 1', category: 'wedding' },
+    { id: 'decor-24', file: 'gold10.webp', name: 'Сердце 1', category: 'wedding' },
+    { id: 'decor-25', file: 'gold11.webp', name: 'Сердце 2', category: 'wedding' },
+    { id: 'decor-26', file: 'food1.webp', name: 'Пирог 1', category: 'party' },
+    { id: 'decor-27', file: 'food2.webp', name: 'Пирог 2', category: 'party' },
+    { id: 'decor-28', file: 'food3.webp', name: 'Мороженное 1', category: 'party' },
+    { id: 'decor-29', file: 'food4.webp', name: 'Мороженное 2', category: 'party' },
+    { id: 'decor-30', file: 'anime1.webp', name: 'Котик в коробке 1', category: 'pets' },
+    { id: 'decor-31', file: 'anime2.webp', name: 'Котик в коробке 2', category: 'pets' },
+    { id: 'decor-32', file: 'anime3.webp', name: 'Котик 1', category: 'pets' },
+    { id: 'decor-33', file: 'anime4.webp', name: 'Котик 2', category: 'pets' },
+    { id: 'decor-34', file: 'anime5.webp', name: 'Бургер 1', category: 'party' },
+    { id: 'decor-35', file: 'anime6.webp', name: 'Пёсель 1', category: 'pets' },
+    { id: 'decor-36', file: 'anime7.webp', name: 'Котик 3', category: 'pets' },
+    { id: 'decor-37', file: 'anime8.webp', name: 'Котик 4', category: 'pets' },
+    { id: 'decor-38', file: 'anime9.webp', name: 'Котик 5', category: 'pets' },
+    { id: 'decor-39', file: 'anime10.webp', name: 'Котик 6', category: 'pets' },
+    { id: 'decor-40', file: 'anime11.webp', name: 'Стакан 1', category: 'party' },
+    { id: 'decor-41', file: 'anime12.webp', name: 'Стакан 2', category: 'party' },
+    { id: 'decor-42', file: 'anime13.webp', name: 'Чашка 1', category: 'party' },
+    { id: 'decor-43', file: 'anime14.webp', name: 'Котик 7', category: 'pets' },
+    { id: 'decor-44', file: 'black1.webp', name: 'Роза 1', category: 'wedding' },
+    { id: 'decor-45', file: 'black2.webp', name: 'Роза 2', category: 'wedding' },
+    { id: 'decor-46', file: 'black3.webp', name: 'Роза 3', category: 'wedding' },
+    { id: 'decor-47', file: 'black4.webp', name: 'Роза 4', category: 'wedding' },
+    { id: 'decor-48', file: 'black5.webp', name: 'Роза 5', category: 'wedding' },
+    { id: 'decor-49', file: 'black6.webp', name: 'Роза 6', category: 'wedding' },
+    { id: 'decor-50', file: 'black7.webp', name: 'Роза 7', category: 'wedding' },
+    { id: 'decor-51', file: 'black8.webp', name: 'Букет 1', category: 'wedding' },
+    { id: 'decor-52', file: 'black9.webp', name: 'Бантик 1', category: 'wedding' },
+    { id: 'decor-53', file: 'black10.webp', name: 'Бантик 2', category: 'wedding' },
+    { id: 'decor-54', file: 'black11.webp', name: 'Вместе 1', category: 'wedding' },
+    { id: 'decor-55', file: 'black12.webp', name: 'Вместе 2', category: 'wedding' },
+    { id: 'decor-56', file: 'black13.webp', name: 'Вместе 3', category: 'wedding' },
+    { id: 'decor-57', file: 'black14.webp', name: 'Вместе 4', category: 'wedding' },
+    { id: 'decor-58', file: 'black15.webp', name: 'Вместе 5', category: 'wedding' },
+    { id: 'decor-59', file: 'halloween1.webp', name: 'Скелет', category: 'party' },
+    { id: 'decor-60', file: 'halloween2.webp', name: 'Тыква', category: 'party' },
+    { id: 'decor-61', file: 'halloween3.webp', name: 'Привидения', category: 'party' },
+    { id: 'decor-62', file: 'halloween4.webp', name: 'Цветы', category: 'party' },
+    { id: 'decor-63', file: 'halloween5.webp', name: 'Кружка', category: 'party' },
+    { id: 'decor-64', file: 'newyear1.webp', name: 'Ёлка', category: 'party' },
+    { id: 'decor-65', file: 'newyear2.webp', name: 'Снеговик', category: 'party' },
+    { id: 'decor-66', file: 'newyear3.webp', name: 'Белка', category: 'party' },
+    { id: 'decor-67', file: 'newyear4.webp', name: 'Кот у ёлки', category: 'party' },
+    { id: 'decor-68', file: 'paskha1.webp', name: 'Кролик и цыпленок', category: 'party' },
+    { id: 'decor-69', file: 'paskha2.webp', name: 'Кулич 1', category: 'party' },
+    { id: 'decor-70', file: 'paskha3.webp', name: 'Кулич 2', category: 'party' },
     { id: 'decor-71', file: 'pets1.webp', name: 'Котик с букетом', category: 'pets' },
     { id: 'decor-72', file: 'pets2.webp', name: 'Пара котиков', category: 'pets' },
     { id: 'decor-73', file: 'pets3.webp', name: 'Мышка в очках', category: 'pets' },
@@ -130,10 +131,32 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+function initDecorFilters() {
+    const filterContainer = document.querySelector('.decor-filters');
+    if (!filterContainer) return;
+
+    filterContainer.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.removeEventListener('click', handleDecorFilterClick);
+        btn.addEventListener('click', handleDecorFilterClick);
+    });
+}
+
+function handleDecorFilterClick(e) {
+    const btn = e.currentTarget;
+    const filterContainer = btn.closest('.decor-filters');
+    if (!filterContainer) return;
+
+    filterContainer.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentDecorFilter = btn.dataset.decorFilter;
+    renderDecorLibrary();
+}
+
 function initDecorations() {
     renderDecorLibrary();
     renderDecorList();
     initDecorControls();
+    initDecorFilters();
 
     const clipCheckbox = document.getElementById('decorClipToFrame');
     if (clipCheckbox) {
@@ -149,7 +172,12 @@ function renderDecorLibrary() {
     const library = document.getElementById('decorLibrary');
     if (!library) return;
 
-    library.innerHTML = window.decorLibrary.map(decor => `
+    let filteredDecor = window.decorLibrary;
+    if (currentDecorFilter !== 'all') {
+        filteredDecor = window.decorLibrary.filter(decor => decor.category === currentDecorFilter);
+    }
+
+    library.innerHTML = filteredDecor.map(decor => `
         <div class="decor-library-item" 
              data-decor-id="${decor.id}"
              data-decor-file="${decor.file}"

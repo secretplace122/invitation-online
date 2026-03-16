@@ -125,19 +125,24 @@ const patterns = [
 const fonts = [
     { value: "'Playfair Display', serif", name: "Playfair Display" },
     { value: "'Great Vibes', cursive", name: "Great Vibes" },
-    { value: "'Dancing Script', cursive", name: "Dancing Script" },
     { value: "'Cormorant Garamond', serif", name: "Cormorant Garamond" },
     { value: "'Montserrat', sans-serif", name: "Montserrat" },
     { value: "'Lora', serif", name: "Lora" },
     { value: "'Inter', sans-serif", name: "Inter" },
     { value: "'Pacifico', cursive", name: "Pacifico" },
     { value: "'Amatic SC', cursive", name: "Amatic SC" },
-    { value: "'Parisienne', cursive", name: "Parisienne" },
-    { value: "'Press Start 2P', cursive", name: "Press Start 2P" },
-    { value: "'VT323', monospace", name: "VT323" },
-    { value: "'Courier Prime', monospace", name: "Courier Prime" },
-    { value: "'Caveat', cursive", name: "Caveat" },
-    { value: "'Comfortaa', sans-serif", name: "Comfortaa" }
+    { value: "'Caveat', cursive", name: "Caveat (рукописный)" },
+    { value: "'Comfortaa', sans-serif", name: "Comfortaa (современный)" },
+    { value: "'Rubik', sans-serif", name: "Rubik (гротеск)" },
+    { value: "'Raleway', sans-serif", name: "Raleway (элегантный)" },
+    { value: "'Marck Script', cursive", name: "Marck Script (рукописный)" },
+    { value: "'Poiret One', cursive", name: "Poiret One (геометричный)" },
+    { value: "'Neucha', cursive", name: "Neucha (детский)" },
+    { value: "'Roboto', sans-serif", name: "Roboto (нейтральный)" },
+    { value: "'Open Sans', sans-serif", name: "Open Sans (универсальный)" },
+    { value: "'Merriweather', serif", name: "Merriweather (антиква)" },
+    { value: "'Exo 2', sans-serif", name: "Exo 2 (футуристичный)" },
+    { value: "'Jura', sans-serif", name: "Jura (кириллический гротеск)" }
 ];
 
 let isMobileView = window.innerWidth <= 768;
@@ -205,6 +210,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
 
     setTimeout(observeCardResize, 500);
+    
+    const testBtn = document.getElementById('testSaveInvitationBtn');
+    if (testBtn) {
+        testBtn.addEventListener('click', testSaveInvitation);
+    }
 });
 
 function applyMobileScale() {
@@ -1953,6 +1963,61 @@ async function saveInvitation() {
     }
 }
 
+async function testSaveInvitation() {
+    if (isProcessingPayment) {
+        showUserNotification('Операция уже выполняется', 'warning');
+        return;
+    }
+    const slug = document.getElementById('customSlug')?.value.trim();
+    const btn = document.getElementById('testSaveInvitationBtn');
+    const originalHTML = btn.innerHTML;
+
+    if (!slug) {
+        showUserNotification('Введите ссылку для приглашения', 'warning');
+        return;
+    }
+    if (!/^[a-z0-9-]+$/.test(slug)) {
+        showUserNotification('Используйте только латинские буквы, цифры и дефисы', 'warning');
+        return;
+    }
+
+    isProcessingPayment = true;
+    btn.disabled = true;
+    btn.innerHTML = `<span class="spinner-small"></span> Сохранение...`;
+
+    try {
+        const existing = await db.collection('invitations').where('slug', '==', slug).get();
+        if (!existing.empty) {
+            btn.disabled = false;
+            btn.innerHTML = originalHTML;
+            isProcessingPayment = false;
+            showUserNotification('Эта ссылка уже занята. Придумайте другую', 'error');
+            return;
+        }
+
+        const invitationData = getInvitationData();
+        await db.collection('invitations').add({
+            ...invitationData,
+            slug: slug,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            paid: true,
+            testMode: true
+        });
+
+        showUserNotification('Приглашение успешно создано!', 'success');
+        setTimeout(() => {
+            window.location.href = `/invitation/#${slug}`;
+        }, 1500);
+
+    } catch (error) {
+        console.error('Test save error:', error);
+        btn.disabled = false;
+        btn.innerHTML = originalHTML;
+        isProcessingPayment = false;
+        showUserNotification('Ошибка при сохранении. Попробуйте снова.', 'error');
+    }
+}
+
 function showUserNotification(message, type = 'info') {
     const oldNotification = document.querySelector('.user-notification');
     if (oldNotification) oldNotification.remove();
@@ -2019,3 +2084,4 @@ window.checkPendingPayment = checkPendingPayment;
 window.getInvitationData = getInvitationData;
 window.cancelPendingPayment = cancelPendingPayment;
 window.applyMobileScale = applyMobileScale;
+window.testSaveInvitation = testSaveInvitation;
