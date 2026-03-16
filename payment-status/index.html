@@ -9,6 +9,7 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="/js/firebase-config.js"></script>
+    <script src="/js/api-config.js"></script>
     <style>
         .status-card {
             background: white;
@@ -24,6 +25,7 @@
         }
         .status-icon.success { color: #4CAF50; }
         .status-icon.pending { color: #FF9800; }
+        .status-icon.cancelled { color: #F44336; }
         .status-icon.error { color: #F44336; }
         .status-title {
             font-size: 2rem;
@@ -50,10 +52,6 @@
             justify-content: center;
             margin-top: 2rem;
         }
-        .btn-retry {
-            background: linear-gradient(135deg, #FF9800, #F44336);
-            color: white;
-        }
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
@@ -75,27 +73,22 @@
     <main>
         <div class="container" style="min-height: 60vh; display: flex; align-items: center; justify-content: center;">
             <div class="status-card" id="statusCard">
+                <div id="loadingContent">
+                    <div class="spinner"></div>
+                    <p class="status-message" style="margin-top: 1rem;">Проверяем статус платежа...</p>
+                </div>
+                
                 <div id="successContent" style="display: none;">
                     <span class="material-symbols-outlined status-icon success">check_circle</span>
                     <h1 class="status-title">Оплата прошла успешно!</h1>
-                    <p class="status-message">Сохраняем ваше приглашение и перенаправляем...</p>
+                    <p class="status-message">Создаём ваше приглашение...</p>
                     <div class="spinner"></div>
                 </div>
                 
-                <div id="pendingContent" style="display: none;">
-                    <span class="material-symbols-outlined status-icon pending">hourglass_empty</span>
-                    <h1 class="status-title">Ожидание оплаты</h1>
-                    <p class="status-message">Платёж не был завершён. Вы можете вернуться в редактор и попробовать снова.</p>
-                    <div class="btn-group">
-                        <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
-                        <a href="/" class="btn btn-secondary">На главную</a>
-                    </div>
-                </div>
-                
                 <div id="cancelledContent" style="display: none;">
-                    <span class="material-symbols-outlined status-icon error">cancel</span>
+                    <span class="material-symbols-outlined status-icon cancelled">cancel</span>
                     <h1 class="status-title">Платёж отменён</h1>
-                    <p class="status-message">Вы отменили оплату. Вы можете вернуться в редактор и попробовать снова.</p>
+                    <p class="status-message">Вы отменили оплату. Приглашение не было создано.</p>
                     <div class="btn-group">
                         <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
                         <a href="/" class="btn btn-secondary">На главную</a>
@@ -104,7 +97,7 @@
                 
                 <div id="errorContent" style="display: none;">
                     <span class="material-symbols-outlined status-icon error">error</span>
-                    <h1 class="status-title">Ошибка оплаты</h1>
+                    <h1 class="status-title">Ошибка</h1>
                     <p class="status-message">Произошла ошибка при обработке платежа. Пожалуйста, попробуйте позже.</p>
                     <div class="btn-group">
                         <a href="/editor/" class="btn btn-primary">Вернуться в редактор</a>
@@ -118,80 +111,101 @@
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const slug = urlParams.get('slug');
-        const status = urlParams.get('status');
         
         function showContent(statusType) {
+            document.getElementById('loadingContent').style.display = 'none';
             document.getElementById('successContent').style.display = 'none';
-            document.getElementById('pendingContent').style.display = 'none';
             document.getElementById('cancelledContent').style.display = 'none';
             document.getElementById('errorContent').style.display = 'none';
             
             if (statusType === 'success') {
                 document.getElementById('successContent').style.display = 'block';
-            } else if (statusType === 'pending') {
-                document.getElementById('pendingContent').style.display = 'block';
-            } else if (statusType === 'cancelled' || statusType === 'canceled') {
+            } else if (statusType === 'cancelled') {
                 document.getElementById('cancelledContent').style.display = 'block';
             } else {
                 document.getElementById('errorContent').style.display = 'block';
             }
         }
         
-        async function handlePaymentStatus() {
-            if (status === 'cancelled' || status === 'canceled') {
-                showContent('cancelled');
-                localStorage.removeItem('pendingInvitation');
-                return;
-            }
-
+        async function checkPaymentStatus() {
             if (!slug) {
                 showContent('error');
                 return;
             }
 
             try {
+                const urlStatus = urlParams.get('status');
+                
+                if (urlStatus === 'cancelled' || urlStatus === 'canceled') {
+                    localStorage.removeItem('pendingInvitation');
+                    showContent('cancelled');
+                    return;
+                }
+
                 const pending = localStorage.getItem('pendingInvitation');
                 
-                if (pending) {
-                    const { data } = JSON.parse(pending);
-                    
-                    const existing = await db.collection('invitations').where('slug', '==', slug).get();
-                    
-                    if (existing.empty) {
-                        await db.collection('invitations').add({
-                            ...data,
-                            slug: slug,
-                            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
-                            paid: true
-                        });
+                if (!pending) {
+                    showContent('error');
+                    return;
+                }
+
+                const { data, paymentId } = JSON.parse(pending);
+                
+                if (paymentId) {
+                    try {
+                        const response = await fetch(API_CONFIG.getUrl(`/api/check-payment/${paymentId}`));
+                        const paymentData = await response.json();
+                        
+                        if (paymentData.success && paymentData.status === 'succeeded') {
+                            const existing = await db.collection('invitations').where('slug', '==', slug).get();
+                            
+                            if (existing.empty) {
+                                await db.collection('invitations').add({
+                                    ...data,
+                                    slug: slug,
+                                    createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+                                    paid: true
+                                });
+                            }
+                            
+                            localStorage.removeItem('pendingInvitation');
+                            showContent('success');
+                            
+                            setTimeout(() => {
+                                window.location.href = `/invitation/#${slug}`;
+                            }, 2000);
+                            return;
+                        } else if (paymentData.success && paymentData.status === 'canceled') {
+                            localStorage.removeItem('pendingInvitation');
+                            showContent('cancelled');
+                            return;
+                        }
+                    } catch (apiError) {
+                        console.error('API check failed:', apiError);
                     }
-                    
+                }
+
+                const existing = await db.collection('invitations').where('slug', '==', slug).get();
+                
+                if (!existing.empty) {
                     localStorage.removeItem('pendingInvitation');
                     showContent('success');
-                    
                     setTimeout(() => {
                         window.location.href = `/invitation/#${slug}`;
                     }, 2000);
                     return;
-                } else {
-                    const existing = await db.collection('invitations').where('slug', '==', slug).get();
-                    if (!existing.empty) {
-                        showContent('success');
-                        setTimeout(() => {
-                            window.location.href = `/invitation/#${slug}`;
-                        }, 2000);
-                    } else {
-                        showContent('pending');
-                    }
                 }
-                
+
+                showContent('cancelled');
+                localStorage.removeItem('pendingInvitation');
+
             } catch (error) {
                 console.error('Error:', error);
                 showContent('error');
             }
         }
         
-        handlePaymentStatus();
+        checkPaymentStatus();
     </script>
 </body>
 </html>
