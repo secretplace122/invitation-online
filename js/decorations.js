@@ -522,7 +522,7 @@ function updatePreviewDecorations() {
             background-repeat: no-repeat;
             background-position: center;
             pointer-events: none;
-            z-index: ${decor.aboveText ? 20 : 5};
+            z-index: ${decor.aboveText ? 30 : 5};
         `;
 
         card.appendChild(decorEl);
@@ -559,6 +559,22 @@ function initMobileDecorPanel() {
                 updatePreviewDecorations();
             }
             closeMobileDecorPanel();
+        });
+    }
+
+    const mobileTabs = document.getElementById('mobileTabs');
+    if (mobileTabs) {
+        const observer = new MutationObserver(() => {
+            const activeTab = document.querySelector('.mobile-tab.active');
+            if (activeTab && activeTab.dataset.tab === 'settings' && mobileDecorPanel.classList.contains('active')) {
+                closeMobileDecorPanel();
+            }
+        });
+
+        observer.observe(mobileTabs, {
+            attributes: true,
+            subtree: true,
+            attributeFilter: ['class']
         });
     }
 
@@ -675,32 +691,6 @@ function initMobileDecorPanel() {
             closeMobileDecorPanel();
         });
     }
-
-    const mobileTabs = document.getElementById('mobileTabs');
-    if (mobileTabs) {
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
-                    const settingsTab = document.querySelector('.mobile-tab[data-tab="settings"]');
-                    if (settingsTab && settingsTab.classList.contains('active')) {
-                        if (EditorState.activeDecorId) {
-                            EditorState.activeDecorId = null;
-                            hideDecorControls();
-                            renderDecorList();
-                            updatePreviewDecorations();
-                        }
-                        closeMobileDecorPanel();
-                    }
-                }
-            });
-        });
-
-        observer.observe(mobileTabs, {
-            attributes: true,
-            subtree: true,
-            attributeFilter: ['class']
-        });
-    }
 }
 
 function openMobileDecorPanel(decorId) {
@@ -711,7 +701,7 @@ function openMobileDecorPanel(decorId) {
 
     if (mobileDecorPanel) {
         mobileDecorPanel.classList.add('active');
-        
+
         setTimeout(() => {
             const card = document.getElementById('previewCard');
             const container = document.querySelector('.preview-container');
@@ -719,7 +709,7 @@ function openMobileDecorPanel(decorId) {
                 const cardRect = card.getBoundingClientRect();
                 const containerRect = container.getBoundingClientRect();
                 const scrollTop = container.scrollTop;
-                
+
                 if (cardRect.bottom > window.innerHeight - 200) {
                     container.scrollTo({
                         top: scrollTop + (cardRect.bottom - window.innerHeight + 200),
@@ -737,7 +727,7 @@ function openMobileDecorPanel(decorId) {
 function closeMobileDecorPanel() {
     if (mobileDecorPanel) {
         mobileDecorPanel.classList.remove('active');
-        
+
         setTimeout(() => {
             const container = document.querySelector('.preview-container');
             if (container) {
@@ -801,5 +791,6 @@ window.decorationsAPI = {
     applyClipToFrame,
     openMobileDecorPanel,
     closeMobileDecorPanel,
-    initMobileDecorPanel
+    initMobileDecorPanel,
+    hideDecorControls
 };

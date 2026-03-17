@@ -16,7 +16,7 @@ class AnimationManager {
 
         this.isRunning = true;
 
-        this.createContainer(config.position);
+        this.createContainer(config.container);
 
         const colors = config.colors || ['#FF69B4', '#FFD700', '#87CEEB'];
         const intensity = config.intensity || 5;
@@ -32,47 +32,31 @@ class AnimationManager {
         }, intervalTime);
     }
 
-    createContainer(position) {
+    createContainer(containerElement) {
         this.destroyContainer();
+
+        if (!containerElement) {
+            containerElement = document.querySelector('.preview-container');
+        }
+
+        if (!containerElement) return;
 
         this.container = document.createElement('div');
         this.container.className = 'animation-container';
 
-        const styles = {
-            // ИСПРАВЛЕНО: Оставляем только нужные позиции
-            'around-card': `
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                pointer-events: none;
-                z-index: 100;
-                overflow: hidden;
-            `,
-            whole: `
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                pointer-events: none;
-                z-index: 9999;
-                overflow: hidden;
-            `
-        };
+        this.container.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 100;
+            overflow: hidden;
+        `;
 
-        this.container.style.cssText = styles[position] || styles.whole;
-
-        if (position === 'around-card') {
-            const card = document.querySelector('.invitation-card');
-            if (card) {
-                card.style.position = 'relative';
-                card.appendChild(this.container);
-                return;
-            }
-        }
-        document.body.appendChild(this.container);
+        containerElement.style.position = 'relative';
+        containerElement.appendChild(this.container);
     }
 
     destroyContainer() {
@@ -215,7 +199,17 @@ style.textContent = `
         80% { transform: translate(-50%, -50%) translateY(100px) rotate(10deg); opacity: 1; }
         100% { transform: translate(-50%, -50%) translateY(150px) rotate(20deg); opacity: 0; }
     }
-    .animation-container { pointer-events: none; user-select: none; }
+    .animation-container { 
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        user-select: none;
+        overflow: hidden;
+        z-index: 100;
+    }
     .animation-element {
         position: absolute;
         user-select: none;

@@ -10,44 +10,8 @@ const EditorState = {
     borderGlowIntensity: 0.5,
     containerBgColor: '#FFFFFF',
     containerBgOpacity: 0.95,
-    eventType: 'Свадебное приглашение',
-    eventTypeSize: 16,
-    eventTypeBold: false,
-    eventTypeItalic: false,
-    eventTypeFont: "'Playfair Display', serif",
-    names: 'Александр & Елена',
-    namesSize: 48,
-    namesBold: false,
-    namesItalic: false,
-    namesFont: "'Great Vibes', cursive",
-    greeting: 'приглашают вас разделить с ними радость',
-    greetingSize: 18,
-    greetingBold: false,
-    greetingItalic: true,
-    greetingFont: "'Playfair Display', serif",
-    dateText: '15 июня 2026',
-    dateSize: 18,
-    dateBold: false,
-    dateItalic: false,
-    dateFont: "'Playfair Display', serif",
-    timeText: 'в 16:00',
-    timeSize: 18,
-    timeBold: false,
-    timeItalic: false,
-    timeFont: "'Playfair Display', serif",
-    placeText: 'ЗАГС, г. Москва',
-    placeSize: 18,
-    placeBold: true,
-    placeItalic: false,
-    placeFont: "'Playfair Display', serif",
-    messageText: 'Программа:\n1. Сбор гостей - 15:00\n2. Церемония - 16:00\n3. Фуршет - 17:00\n4. Танцы - 18:00',
-    messageSize: 16,
-    messageBold: false,
-    messageItalic: false,
-    messageFont: "'Inter', sans-serif",
-    textColor: '#475569',
-    showDecorLines: true,
-    enablePerLineDecor: false,
+    defaultTextColor: '#475569',
+    cardHeight: 700,
     enableAnimations: false,
     animationType: 'balloons',
     animationIntensity: 5,
@@ -57,7 +21,78 @@ const EditorState = {
     animationPosition: 'whole',
     decorations: [],
     activeDecorId: null,
-    clipDecorations: true
+    clipDecorations: true,
+    textBlocks: [
+        {
+            id: 'text_' + Date.now() + '_1',
+            type: 'textBlock',
+            content: 'Свадебное приглашение',
+            fontSize: 16,
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            color: '#475569',
+            textAlign: 'center',
+            posX: 50,
+            posY: 15,
+            width: 90,
+            aboveText: false,
+            isMultiLine: false,
+            order: 0
+        },
+        {
+            id: 'text_' + Date.now() + '_2',
+            type: 'textBlock',
+            content: 'Александр & Елена',
+            fontSize: 48,
+            fontFamily: "'Great Vibes', cursive",
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            color: '#475569',
+            textAlign: 'center',
+            posX: 50,
+            posY: 40,
+            width: 90,
+            aboveText: false,
+            isMultiLine: false,
+            order: 1
+        },
+        {
+            id: 'text_' + Date.now() + '_3',
+            type: 'textBlock',
+            content: 'приглашают вас разделить с ними радость',
+            fontSize: 18,
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 'normal',
+            fontStyle: 'italic',
+            color: '#475569',
+            textAlign: 'center',
+            posX: 50,
+            posY: 55,
+            width: 80,
+            aboveText: false,
+            isMultiLine: false,
+            order: 2
+        },
+        {
+            id: 'text_' + Date.now() + '_4',
+            type: 'textBlock',
+            content: '15 июня 2026\nв 16:00\nЗАГС, г. Москва',
+            fontSize: 18,
+            fontFamily: "'Playfair Display', serif",
+            fontWeight: 'normal',
+            fontStyle: 'normal',
+            color: '#475569',
+            textAlign: 'center',
+            posX: 50,
+            posY: 70,
+            width: 80,
+            aboveText: false,
+            isMultiLine: true,
+            order: 3
+        }
+    ],
+    activeTextId: null,
 };
 
 const PAYMENT_AMOUNT = 299;
@@ -90,7 +125,7 @@ const patterns = [
     { id: 'wedding-25', file: 'wedding25.webp', category: 'wedding', name: '25' },
     { id: 'wedding-26', file: 'wedding26.webp', category: 'wedding', name: '26' },
     { id: 'wedding-27', file: 'wedding27.webp', category: 'wedding', name: '27' },
-    
+
     { id: 'birthday-1', file: 'birthday1.webp', category: 'birthday', name: '1' },
     { id: 'birthday-2', file: 'birthday2.webp', category: 'birthday', name: '2' },
     { id: 'birthday-3', file: 'birthday3.webp', category: 'birthday', name: '3' },
@@ -119,7 +154,6 @@ const patterns = [
     { id: 'other-10', file: 'other10.webp', category: 'other', name: '10' },
     { id: 'other-11', file: 'other11.webp', category: 'other', name: '11' },
     { id: 'other-12', file: 'other12.webp', category: 'other', name: '12' },
-
 ];
 
 const fonts = [
@@ -131,26 +165,23 @@ const fonts = [
     { value: "'Inter', sans-serif", name: "Inter" },
     { value: "'Pacifico', cursive", name: "Pacifico" },
     { value: "'Amatic SC', cursive", name: "Amatic SC" },
-    { value: "'Caveat', cursive", name: "Caveat (рукописный)" },
-    { value: "'Comfortaa', sans-serif", name: "Comfortaa (современный)" },
-    { value: "'Rubik', sans-serif", name: "Rubik (гротеск)" },
-    { value: "'Raleway', sans-serif", name: "Raleway (элегантный)" },
-    { value: "'Marck Script', cursive", name: "Marck Script (рукописный)" },
-    { value: "'Poiret One', cursive", name: "Poiret One (геометричный)" },
-    { value: "'Neucha', cursive", name: "Neucha (детский)" },
-    { value: "'Roboto', sans-serif", name: "Roboto (нейтральный)" },
-    { value: "'Open Sans', sans-serif", name: "Open Sans (универсальный)" },
-    { value: "'Merriweather', serif", name: "Merriweather (антиква)" },
-    { value: "'Exo 2', sans-serif", name: "Exo 2 (футуристичный)" },
-    { value: "'Jura', sans-serif", name: "Jura (кириллический гротеск)" }
+    { value: "'Caveat', cursive", name: "Caveat" },
+    { value: "'Comfortaa', sans-serif", name: "Comfortaa" },
+    { value: "'Rubik', sans-serif", name: "Rubik" },
+    { value: "'Raleway', sans-serif", name: "Raleway" },
+    { value: "'Marck Script', cursive", name: "Marck Script" },
+    { value: "'Poiret One', cursive", name: "Poiret One" },
+    { value: "'Neucha', cursive", name: "Neucha" },
+    { value: "'Roboto', sans-serif", name: "Roboto" },
+    { value: "'Open Sans', sans-serif", name: "Open Sans" },
+    { value: "'Merriweather', serif", name: "Merriweather" },
+    { value: "'Exo 2', sans-serif", name: "Exo 2" },
+    { value: "'Jura', sans-serif", name: "Jura" }
 ];
 
 let isMobileView = window.innerWidth <= 768;
 let activeTab = 'settings';
 let currentFilter = 'all';
-
-let fontPickerModal = null;
-let colorPickerModal = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initPatternFilters();
@@ -160,17 +191,8 @@ document.addEventListener('DOMContentLoaded', () => {
     initColorPresets();
     initAccordion();
     initFontSelectors();
-
-    if (window.innerWidth <= 768) {
-        initMobileFontPicker();
-        initMobileColorPicker();
-    }
-
-    initBoldItalicButtons();
     initAnimationControls();
     updatePreview();
-    updateAllText();
-    setInitialFonts();
 
     setTimeout(() => {
         checkPaymentReturn();
@@ -191,11 +213,6 @@ document.addEventListener('DOMContentLoaded', () => {
     window.addEventListener('orientationchange', () => {
         setTimeout(() => {
             applyMobileScale();
-            if (window.innerWidth <= 768) {
-                if (window.decorationsAPI) {
-                    window.decorationsAPI.closeMobileDecorPanel();
-                }
-            }
         }, 100);
     });
 
@@ -207,10 +224,13 @@ document.addEventListener('DOMContentLoaded', () => {
         if (window.decorationsAPI) {
             window.decorationsAPI.initDecorations();
         }
+        if (window.textBlocksAPI) {
+            window.textBlocksAPI.initTextBlocks();
+        }
     }, 300);
 
     setTimeout(observeCardResize, 500);
-    
+
     const testBtn = document.getElementById('testSaveInvitationBtn');
     if (testBtn) {
         testBtn.addEventListener('click', testSaveInvitation);
@@ -220,729 +240,51 @@ document.addEventListener('DOMContentLoaded', () => {
 function applyMobileScale() {
     const container = document.querySelector('.preview-container');
     const card = document.getElementById('previewCard');
-    
+
     if (!container || !card) return;
-    
+
     const oldSpacer = document.getElementById('scroll-spacer');
     if (oldSpacer) oldSpacer.remove();
-    
+
     if (window.innerWidth <= 768) {
         const paddingLeft = 30;
         const paddingRight = 30;
-        
+
         container.style.paddingLeft = paddingLeft + 'px';
         container.style.paddingRight = paddingRight + 'px';
         container.style.paddingTop = '20px';
         container.style.paddingBottom = '40px';
-        
+
         const containerWidth = container.clientWidth - paddingLeft - paddingRight;
         const cardWidth = 500;
         let scale = containerWidth / cardWidth;
         scale = Math.min(scale, 0.9);
-        
+
         card.style.position = 'absolute';
         card.style.left = '50%';
         card.style.top = '20px';
         card.style.transform = `translateX(-50%) scale(${scale})`;
         card.style.margin = '0';
-        
+
         const spacer = document.createElement('div');
         spacer.id = 'scroll-spacer';
         spacer.style.width = '1px';
         spacer.style.height = (card.offsetHeight * scale + 40) + 'px';
         spacer.style.pointerEvents = 'none';
-        
+
         container.appendChild(spacer);
-        
+
     } else {
         card.style.position = 'relative';
         card.style.left = 'auto';
         card.style.top = 'auto';
         card.style.transform = 'none';
         card.style.margin = '0 auto';
-        
+
         container.style.paddingLeft = '';
         container.style.paddingRight = '';
         container.style.paddingTop = '';
         container.style.paddingBottom = '';
-    }
-}
-
-function initMobileFontPicker() {
-    if (!document.getElementById('mobileFontPicker')) {
-        const modal = document.createElement('div');
-        modal.id = 'mobileFontPicker';
-        modal.className = 'mobile-font-picker';
-        modal.innerHTML = `
-            <div class="mobile-font-picker-content">
-                <div class="mobile-font-picker-header">
-                    <span>Выберите шрифт</span>
-                    <button class="mobile-font-picker-close">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>
-                <div class="mobile-font-picker-list" id="mobileFontList"></div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        const style = document.createElement('style');
-        style.textContent = `
-            .mobile-font-picker {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 10000;
-                display: none;
-                align-items: flex-end;
-                justify-content: center;
-            }
-            .mobile-font-picker.active {
-                display: flex;
-            }
-            .mobile-font-picker-content {
-                background: white;
-                width: 100%;
-                max-height: 70vh;
-                border-radius: 20px 20px 0 0;
-                display: flex;
-                flex-direction: column;
-                animation: slideUp 0.3s ease;
-            }
-            .mobile-font-picker-header {
-                padding: 16px;
-                background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
-                border-radius: 20px 20px 0 0;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                color: #475569;
-                font-weight: 600;
-            }
-            .mobile-font-picker-header button {
-                background: none;
-                border: none;
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                color: #475569;
-            }
-            .mobile-font-picker-list {
-                overflow-y: auto;
-                padding: 10px;
-                max-height: calc(70vh - 70px);
-            }
-            .mobile-font-item {
-                padding: 15px;
-                border-bottom: 1px solid #e2e8f0;
-                font-size: 18px;
-                cursor: pointer;
-                transition: background 0.2s;
-            }
-            .mobile-font-item:active {
-                background: #f0f9ff;
-            }
-            .mobile-font-item.selected {
-                background: #e6f3ff;
-                border-left: 4px solid #A8D8EA;
-            }
-            @keyframes slideUp {
-                from { transform: translateY(100%); }
-                to { transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        const closeBtn = document.querySelector('.mobile-font-picker-close');
-        if (closeBtn) {
-            const newCloseBtn = closeBtn.cloneNode(true);
-            closeBtn.parentNode.replaceChild(newCloseBtn, closeBtn);
-
-            newCloseBtn.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                modal.classList.remove('active');
-            });
-        }
-
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                modal.classList.remove('active');
-            }
-        });
-    }
-
-    fontPickerModal = document.getElementById('mobileFontPicker');
-
-    if (window.innerWidth <= 768) {
-        document.querySelectorAll('.text-format-row .font-select').forEach(select => {
-            if (select.parentElement && select.parentElement.classList.contains('font-select-wrapper')) {
-                return;
-            }
-
-            const wrapper = document.createElement('div');
-            wrapper.className = 'font-select-wrapper';
-            wrapper.style.position = 'relative';
-            wrapper.style.width = '100%';
-
-            select.parentNode.insertBefore(wrapper, select);
-            wrapper.appendChild(select);
-
-            const clickArea = document.createElement('div');
-            clickArea.style.position = 'absolute';
-            clickArea.style.top = '-10px';
-            clickArea.style.left = '-10px';
-            clickArea.style.right = '-10px';
-            clickArea.style.bottom = '-10px';
-            clickArea.style.cursor = 'pointer';
-            clickArea.style.zIndex = '10';
-
-            wrapper.appendChild(clickArea);
-
-            const newClickArea = clickArea.cloneNode(true);
-            clickArea.parentNode.replaceChild(newClickArea, clickArea);
-
-            newClickArea.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const targetId = select.id;
-                showMobileFontPicker(targetId);
-            });
-
-            select.style.pointerEvents = 'none';
-            select.style.appearance = 'none';
-            select.style.webkitAppearance = 'none';
-            select.style.mozAppearance = 'none';
-        });
-    }
-}
-
-function showMobileFontPicker(targetSelectId) {
-    if (!fontPickerModal) return;
-
-    const list = document.getElementById('mobileFontList');
-    const currentValue = document.getElementById(targetSelectId).value;
-
-    list.innerHTML = fonts.map(font => {
-        const isSelected = font.value === currentValue ? 'selected' : '';
-        return `<div class="mobile-font-item ${isSelected}" data-value="${font.value}" style="font-family: ${font.value}">${font.name}</div>`;
-    }).join('');
-
-    list.querySelectorAll('.mobile-font-item').forEach(item => {
-        item.addEventListener('click', () => {
-            const value = item.dataset.value;
-            const select = document.getElementById(targetSelectId);
-            select.value = value;
-
-            EditorState[targetSelectId] = value;
-
-            const previewElementId = 'preview' + targetSelectId.replace('Font', '');
-            const previewElement = document.getElementById(previewElementId);
-            if (previewElement) {
-                previewElement.style.fontFamily = value;
-            }
-            updatePreview();
-
-            fontPickerModal.classList.remove('active');
-        });
-    });
-
-    fontPickerModal.classList.add('active');
-}
-
-function initMobileColorPicker() {
-    if (!document.getElementById('mobileColorPicker')) {
-        const modal = document.createElement('div');
-        modal.id = 'mobileColorPicker';
-        modal.className = 'mobile-color-picker';
-        modal.innerHTML = `
-            <div class="mobile-color-picker-content">
-                <div class="mobile-color-picker-header">
-                    <span>Выберите цвет</span>
-                    <button class="mobile-color-picker-close">
-                        <span class="material-symbols-outlined">close</span>
-                    </button>
-                </div>
-                <div class="mobile-color-picker-body">
-                    <div class="color-palette-container">
-                        <canvas id="colorPalette" width="300" height="200"></canvas>
-                        <div class="color-palette-preview" id="colorPreview"></div>
-                    </div>
-                    
-                    <div class="color-sliders">
-                        <div class="color-slider-group">
-                            <label>R <span id="redValue">255</span></label>
-                            <input type="range" id="redSlider" min="0" max="255" value="255" class="color-slider red-slider">
-                        </div>
-                        <div class="color-slider-group">
-                            <label>G <span id="greenValue">255</span></label>
-                            <input type="range" id="greenSlider" min="0" max="255" value="255" class="color-slider green-slider">
-                        </div>
-                        <div class="color-slider-group">
-                            <label>B <span id="blueValue">255</span></label>
-                            <input type="range" id="blueSlider" min="0" max="255" value="255" class="color-slider blue-slider">
-                        </div>
-                    </div>
-                    
-                    <div class="quick-colors">
-                        <div class="quick-color" style="background: #FF0000;" data-color="#FF0000"></div>
-                        <div class="quick-color" style="background: #FF69B4;" data-color="#FF69B4"></div>
-                        <div class="quick-color" style="background: #FFA500;" data-color="#FFA500"></div>
-                        <div class="quick-color" style="background: #FFFF00;" data-color="#FFFF00"></div>
-                        <div class="quick-color" style="background: #00FF00;" data-color="#00FF00"></div>
-                        <div class="quick-color" style="background: #00FFFF;" data-color="#00FFFF"></div>
-                        <div class="quick-color" style="background: #0000FF;" data-color="#0000FF"></div>
-                        <div class="quick-color" style="background: #800080;" data-color="#800080"></div>
-                        <div class="quick-color" style="background: #FF00FF;" data-color="#FF00FF"></div>
-                        <div class="quick-color" style="background: #A52A2A;" data-color="#A52A2A"></div>
-                        <div class="quick-color" style="background: #808080;" data-color="#808080"></div>
-                        <div class="quick-color" style="background: #000000;" data-color="#000000"></div>
-                        <div class="quick-color" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
-                        <div class="quick-color" style="background: #D4AF37;" data-color="#D4AF37"></div>
-                        <div class="quick-color" style="background: #C0C0C0;" data-color="#C0C0C0"></div>
-                        <div class="quick-color" style="background: #CD7F32;" data-color="#CD7F32"></div>
-                    </div>
-                    
-                    <div class="hex-input-group">
-                        <span>#</span>
-                        <input type="text" id="hexInput" maxlength="6" placeholder="FF0000">
-                    </div>
-                    
-                    <div class="mobile-color-controls">
-                        <button class="btn btn-secondary" id="mobileColorCancel">Отмена</button>
-                        <button class="btn btn-primary" id="mobileColorApply">Применить</button>
-                    </div>
-                </div>
-            </div>
-        `;
-        document.body.appendChild(modal);
-
-        const style = document.createElement('style');
-        style.textContent = `
-            .mobile-color-picker {
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 10000;
-                display: none;
-                align-items: flex-end;
-                justify-content: center;
-            }
-            .mobile-color-picker.active {
-                display: flex;
-            }
-            .mobile-color-picker-content {
-                background: white;
-                width: 100%;
-                max-width: 500px;
-                border-radius: 20px 20px 0 0;
-                display: flex;
-                flex-direction: column;
-                animation: slideUp 0.3s ease;
-                padding: 20px;
-                max-height: 90vh;
-                overflow-y: auto;
-            }
-            .mobile-color-picker-header {
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 2px;
-                color: #475569;
-                font-weight: 600;
-                font-size: 15px;
-            }
-            .mobile-color-picker-header button {
-                background: none;
-                border: none;
-                width: 44px;
-                height: 44px;
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                cursor: pointer;
-                color: #475569;
-            }
-            .color-palette-container {
-                position: relative;
-                margin-bottom: 2px;
-                border-radius: 12px;
-                overflow: hidden;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            }
-            #colorPalette {
-                width: 100%;
-                height: auto;
-                display: block;
-                cursor: crosshair;
-            }
-            .color-palette-preview {
-                position: absolute;
-                bottom: 10px;
-                right: 10px;
-                width: 50px;
-                height: 50px;
-                border-radius: 8px;
-                border: 2px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-            }
-            .color-sliders {
-                margin-bottom: 15px;
-            }
-            .color-slider-group {
-                margin-bottom: 2px;
-            }
-            .color-slider-group label {
-                display: flex;
-                justify-content: space-between;
-                margin-bottom: 5px;
-                color: #475569;
-                font-size: 14px;
-            }
-            .color-slider {
-                width: 100%;
-                height: 8px;
-                border-radius: 4px;
-                -webkit-appearance: none;
-                appearance: none;
-            }
-            .color-slider::-webkit-slider-thumb {
-                -webkit-appearance: none;
-                width: 20px;
-                height: 20px;
-                border-radius: 50%;
-                background: white;
-                border: 2px solid #A8D8EA;
-                cursor: pointer;
-                margin-top: -6px;
-                box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-            }
-            .red-slider { background: linear-gradient(to right, #000000, #FF0000); }
-            .green-slider { background: linear-gradient(to right, #000000, #00FF00); }
-            .blue-slider { background: linear-gradient(to right, #000000, #0000FF); }
-            .quick-colors {
-                display: grid;
-                grid-template-columns: repeat(8, 1fr);
-                gap: 20px;
-                margin-bottom: 2px;
-            }
-            .quick-color {
-                aspect-ratio: 1;
-                border-radius: 8px;
-                cursor: pointer;
-                border: 2px solid transparent;
-                transition: all 0.2s;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .quick-color:hover {
-                transform: scale(1.1);
-                border-color: #A8D8EA;
-            }
-            .quick-color.selected {
-                border-color: #A8D8EA;
-                box-shadow: 0 0 0 2px #A8D8EA;
-            }
-            .hex-input-group {
-                display: flex;
-                align-items: center;
-                gap: 8px;
-                margin-bottom: 2px;
-                background: #f8fafc;
-                padding: 10px;
-                border-radius: 8px;
-            }
-            .hex-input-group span {
-                font-size: 18px;
-                font-weight: 600;
-                color: #475569;
-            }
-            .hex-input-group input {
-                flex: 1;
-                padding: 3px;
-                border: 1px solid #e2e8f0;
-                border-radius: 6px;
-                font-size: 12px;
-                text-transform: uppercase;
-            }
-            .mobile-color-controls {
-                display: flex;
-                gap: 10px;
-                margin-top: 10px;
-            }
-            .mobile-color-controls button {
-                flex: 1;
-                padding: 15px;
-                font-size: 16px;
-                border-radius: 12px;
-                border: none;
-                font-weight: 600;
-                cursor: pointer;
-            }
-            .btn-secondary {
-                background: #e2e8f0;
-                color: #475569;
-            }
-            .btn-primary {
-                background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
-                color: #475569;
-            }
-            @keyframes slideUp {
-                from { transform: translateY(100%); }
-                to { transform: translateY(0); }
-            }
-        `;
-        document.head.appendChild(style);
-
-        initColorPalette();
-        setupColorPickerEvents(modal);
-    }
-
-    colorPickerModal = document.getElementById('mobileColorPicker');
-
-    if (window.innerWidth <= 768) {
-        document.querySelectorAll('.setting-group input[type="color"]').forEach(input => {
-            const wrapper = document.createElement('div');
-            wrapper.style.position = 'relative';
-            wrapper.style.display = 'inline-block';
-            wrapper.style.width = '100%';
-
-            const parent = input.parentNode;
-            parent.insertBefore(wrapper, input);
-            wrapper.appendChild(input);
-
-            const clickArea = document.createElement('div');
-            clickArea.style.position = 'absolute';
-            clickArea.style.top = '-10px';
-            clickArea.style.left = '-10px';
-            clickArea.style.right = '-10px';
-            clickArea.style.bottom = '-10px';
-            clickArea.style.cursor = 'pointer';
-            clickArea.style.zIndex = '10';
-
-            wrapper.appendChild(clickArea);
-
-            clickArea.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                const targetId = input.id;
-                showMobileColorPicker(targetId);
-            });
-
-            input.style.pointerEvents = 'none';
-        });
-    }
-}
-
-function initColorPalette() {
-    const canvas = document.getElementById('colorPalette');
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    const width = canvas.width;
-    const height = canvas.height;
-
-    for (let x = 0; x < width; x++) {
-        const hue = (x / width) * 360;
-        for (let y = 0; y < height; y++) {
-            const saturation = 1;
-            const lightness = 0.5 - (y / height) * 0.5;
-
-            ctx.fillStyle = `hsl(${hue}, ${saturation * 100}%, ${lightness * 100}%)`;
-            ctx.fillRect(x, y, 1, 1);
-        }
-    }
-}
-
-function setupColorPickerEvents(modal) {
-    const canvas = document.getElementById('colorPalette');
-    const redSlider = document.getElementById('redSlider');
-    const greenSlider = document.getElementById('greenSlider');
-    const blueSlider = document.getElementById('blueSlider');
-    const redValue = document.getElementById('redValue');
-    const greenValue = document.getElementById('greenValue');
-    const blueValue = document.getElementById('blueValue');
-    const hexInput = document.getElementById('hexInput');
-    const colorPreview = document.getElementById('colorPreview');
-    const closeBtn = modal.querySelector('.mobile-color-picker-close');
-    const cancelBtn = modal.querySelector('#mobileColorCancel');
-    const applyBtn = modal.querySelector('#mobileColorApply');
-
-    let currentTargetInput = null;
-    let currentColor = { r: 255, g: 255, b: 255 };
-
-    function updateColorFromRGB() {
-        const r = parseInt(redSlider.value);
-        const g = parseInt(greenSlider.value);
-        const b = parseInt(blueSlider.value);
-
-        currentColor = { r, g, b };
-
-        redValue.textContent = r;
-        greenValue.textContent = g;
-        blueValue.textContent = b;
-
-        const hex = ((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1).toUpperCase();
-        hexInput.value = hex;
-        colorPreview.style.backgroundColor = `rgb(${r}, ${g}, ${b})`;
-    }
-
-    function updateColorFromHex() {
-        let hex = hexInput.value.replace('#', '').toUpperCase();
-
-        while (hex.length < 6) hex += '0';
-
-        if (/^[0-9A-F]{6}$/.test(hex)) {
-            const r = parseInt(hex.substring(0, 2), 16);
-            const g = parseInt(hex.substring(2, 4), 16);
-            const b = parseInt(hex.substring(4, 6), 16);
-
-            redSlider.value = r;
-            greenSlider.value = g;
-            blueSlider.value = b;
-            updateColorFromRGB();
-        }
-    }
-
-    canvas.addEventListener('click', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const scaleX = canvas.width / rect.width;
-        const scaleY = canvas.height / rect.height;
-
-        const x = Math.floor((e.clientX - rect.left) * scaleX);
-        const y = Math.floor((e.clientY - rect.top) * scaleY);
-
-        const ctx = canvas.getContext('2d');
-        const pixel = ctx.getImageData(x, y, 1, 1).data;
-
-        redSlider.value = pixel[0];
-        greenSlider.value = pixel[1];
-        blueSlider.value = pixel[2];
-
-        updateColorFromRGB();
-    });
-
-    redSlider.addEventListener('input', updateColorFromRGB);
-    greenSlider.addEventListener('input', updateColorFromRGB);
-    blueSlider.addEventListener('input', updateColorFromRGB);
-
-    hexInput.addEventListener('input', updateColorFromHex);
-
-    modal.querySelectorAll('.quick-color').forEach(quickColor => {
-        quickColor.addEventListener('click', () => {
-            const color = quickColor.dataset.color;
-            const r = parseInt(color.substring(1, 3), 16);
-            const g = parseInt(color.substring(3, 5), 16);
-            const b = parseInt(color.substring(5, 7), 16);
-
-            redSlider.value = r;
-            greenSlider.value = g;
-            blueSlider.value = b;
-            updateColorFromRGB();
-
-            modal.querySelectorAll('.quick-color').forEach(q => q.classList.remove('selected'));
-            quickColor.classList.add('selected');
-        });
-    });
-
-    window.showMobileColorPicker = (targetInputId) => {
-        currentTargetInput = document.getElementById(targetInputId);
-        if (!currentTargetInput) return;
-
-        const currentHex = currentTargetInput.value;
-        const r = parseInt(currentHex.substring(1, 3), 16);
-        const g = parseInt(currentHex.substring(3, 5), 16);
-        const b = parseInt(currentHex.substring(5, 7), 16);
-
-        if (!isNaN(r) && !isNaN(g) && !isNaN(b)) {
-            redSlider.value = r;
-            greenSlider.value = g;
-            blueSlider.value = b;
-            updateColorFromRGB();
-        }
-
-        modal.classList.add('active');
-    };
-
-    applyBtn.addEventListener('click', () => {
-        if (currentTargetInput) {
-            const hex = ((1 << 24) + (currentColor.r << 16) + (currentColor.g << 8) + currentColor.b).toString(16).slice(1).toUpperCase();
-            const fullHex = '#' + hex;
-            currentTargetInput.value = fullHex;
-
-            if (EditorState && currentTargetInput.id) {
-                EditorState[currentTargetInput.id] = fullHex;
-                updatePreview();
-
-                const presetContainers = [
-                    document.getElementById(currentTargetInput.id.replace('Color', 'Presets')),
-                    document.getElementById(currentTargetInput.id.replace('Color', 'Presets2'))
-                ];
-
-                presetContainers.forEach(container => {
-                    if (container) {
-                        container.querySelectorAll('.color-preset').forEach(p => {
-                            if (p.dataset.color.toUpperCase() === fullHex.toUpperCase()) {
-                                p.classList.add('selected');
-                            } else {
-                                p.classList.remove('selected');
-                            }
-                        });
-                    }
-                });
-            }
-        }
-        modal.classList.remove('active');
-    });
-
-    closeBtn.addEventListener('click', () => modal.classList.remove('active'));
-    cancelBtn.addEventListener('click', () => modal.classList.remove('active'));
-
-    modal.addEventListener('click', (e) => {
-        if (e.target === modal) modal.classList.remove('active');
-    });
-}
-
-function observeCardResize() {
-    const card = document.getElementById('previewCard');
-    if (!card) return;
-    const resizeObserver = new ResizeObserver(() => {
-        if (window.decorationsAPI) {
-            window.decorationsAPI.updatePreviewDecorations();
-        }
-    });
-    resizeObserver.observe(card);
-}
-
-function fixBackgroundScroll() {
-    const previewContainer = document.getElementById('previewContainer');
-    const bgLayer = document.getElementById('previewBgLayer');
-    if (previewContainer && bgLayer && isMobileView) {
-        previewContainer.removeEventListener('scroll', handleBgScroll);
-        previewContainer.addEventListener('scroll', handleBgScroll);
-    }
-}
-
-function handleBgScroll(e) {
-    const bgLayer = document.getElementById('previewBgLayer');
-    if (bgLayer) bgLayer.style.transform = `translateY(${e.target.scrollTop}px)`;
-}
-
-function fixMobileTabsPosition() {
-    const navbar = document.querySelector('.navbar');
-    const mobileTabs = document.getElementById('mobileTabs');
-    if (navbar && mobileTabs && isMobileView) {
-        mobileTabs.style.top = navbar.offsetHeight + 'px';
     }
 }
 
@@ -952,53 +294,6 @@ function initFontSelectors() {
             `<option value="${f.value}" style="font-family: ${f.value}">${f.name}</option>`
         ).join('');
     });
-}
-
-function setInitialFonts() {
-    const fontMap = {
-        eventTypeFont: 'eventTypeFont',
-        namesFont: 'namesFont',
-        greetingFont: 'greetingFont',
-        dateFont: 'dateFont',
-        timeFont: 'timeFont',
-        placeFont: 'placeFont',
-        messageFont: 'messageFont'
-    };
-    Object.entries(fontMap).forEach(([id, state]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = EditorState[state];
-    });
-}
-
-function initBoldItalicButtons() {
-    const setupButton = (buttonId, stateProperty, elementId, styleType) => {
-        const btn = document.getElementById(buttonId);
-        if (!btn) return;
-        if (EditorState[stateProperty]) btn.classList.add('active');
-        btn.addEventListener('click', () => {
-            EditorState[stateProperty] = !EditorState[stateProperty];
-            btn.classList.toggle('active');
-            const element = document.getElementById(elementId);
-            if (element) {
-                if (styleType === 'bold') element.style.fontWeight = EditorState[stateProperty] ? 'bold' : 'normal';
-                else if (styleType === 'italic') element.style.fontStyle = EditorState[stateProperty] ? 'italic' : 'normal';
-            }
-        });
-    };
-    setupButton('eventTypeBold', 'eventTypeBold', 'previewEventType', 'bold');
-    setupButton('eventTypeItalic', 'eventTypeItalic', 'previewEventType', 'italic');
-    setupButton('namesBold', 'namesBold', 'previewNames', 'bold');
-    setupButton('namesItalic', 'namesItalic', 'previewNames', 'italic');
-    setupButton('greetingBold', 'greetingBold', 'previewGreeting', 'bold');
-    setupButton('greetingItalic', 'greetingItalic', 'previewGreeting', 'italic');
-    setupButton('dateBold', 'dateBold', 'previewDate', 'bold');
-    setupButton('dateItalic', 'dateItalic', 'previewDate', 'italic');
-    setupButton('timeBold', 'timeBold', 'previewTime', 'bold');
-    setupButton('timeItalic', 'timeItalic', 'previewTime', 'italic');
-    setupButton('placeBold', 'placeBold', 'previewPlace', 'bold');
-    setupButton('placeItalic', 'placeItalic', 'previewPlace', 'italic');
-    setupButton('messageBold', 'messageBold', 'previewMessage', 'bold');
-    setupButton('messageItalic', 'messageItalic', 'previewMessage', 'italic');
 }
 
 function initPatternFilters() {
@@ -1071,22 +366,50 @@ function initAnimationControls() {
         enableAnimations.addEventListener('change', (e) => {
             EditorState.enableAnimations = e.target.checked;
             if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             } else if (window.animationManager) {
                 window.animationManager.stop();
             }
         });
     }
+
     const animationType = document.getElementById('animationType');
     if (animationType) {
         animationType.value = EditorState.animationType;
         animationType.addEventListener('change', (e) => {
             EditorState.animationType = e.target.value;
             if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             }
         });
     }
+
     const intensity = document.getElementById('animationIntensity');
     if (intensity) {
         intensity.value = EditorState.animationIntensity;
@@ -1095,10 +418,24 @@ function initAnimationControls() {
             EditorState.animationIntensity = parseInt(e.target.value);
             document.getElementById('animationIntensityValue').textContent = EditorState.animationIntensity;
             if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             }
         });
     }
+
     const speed = document.getElementById('animationSpeed');
     if (speed) {
         speed.value = EditorState.animationSpeed;
@@ -1107,10 +444,24 @@ function initAnimationControls() {
             EditorState.animationSpeed = parseInt(e.target.value);
             document.getElementById('animationSpeedValue').textContent = EditorState.animationSpeed;
             if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             }
         });
     }
+
     const size = document.getElementById('animationSize');
     if (size) {
         size.value = EditorState.animationSize;
@@ -1119,32 +470,45 @@ function initAnimationControls() {
             EditorState.animationSize = parseInt(e.target.value);
             document.getElementById('animationSizeValue').textContent = EditorState.animationSize;
             if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             }
         });
     }
-    const position = document.getElementById('animationPosition');
-    if (position) {
-        position.value = EditorState.animationPosition;
-        position.addEventListener('change', (e) => {
-            EditorState.animationPosition = e.target.value;
-            if (EditorState.enableAnimations && window.animationManager) {
-                window.animationManager.start(getAnimationConfig());
-            }
-        });
-    }
-    document.querySelectorAll('.color-checkbox').forEach(checkbox => {
-        checkbox.checked = EditorState.animationColors.includes(checkbox.dataset.color);
-        checkbox.addEventListener('change', updateAnimationColors);
-    });
+
     document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
         if (window.animationManager) {
             const config = getAnimationConfig();
             config.enabled = true;
-            window.animationManager.start(config);
+            if (window.innerWidth <= 768) {
+                const activeTab = document.querySelector('.mobile-tab.active');
+                if (activeTab && activeTab.dataset.tab === 'preview') {
+                    window.animationManager.start({
+                        ...config,
+                        container: document.querySelector('.preview-container')
+                    });
+                } else {
+                    alert('Переключитесь на вкладку "Просмотр" чтобы увидеть анимацию');
+                }
+            } else {
+                window.animationManager.start({
+                    ...config,
+                    container: document.querySelector('.preview-container')
+                });
+            }
             setTimeout(() => window.animationManager.stop(), 5000);
-        } else {
-            alert('Ошибка: менеджер анимаций не загружен');
         }
     });
 }
@@ -1166,9 +530,10 @@ function getAnimationConfig() {
         speed: EditorState.animationSpeed,
         colors: EditorState.animationColors,
         size: EditorState.animationSize,
-        position: EditorState.animationPosition
+        position: 'container'
     };
 }
+
 
 function initEventListeners() {
     const bgOpacity = document.getElementById('bgOpacity');
@@ -1231,211 +596,6 @@ function initEventListeners() {
             updatePreview();
         });
     }
-    const textColor = document.getElementById('textColor');
-    if (textColor) {
-        textColor.value = EditorState.textColor;
-        textColor.addEventListener('input', (e) => {
-            EditorState.textColor = e.target.value;
-            updatePreview();
-        });
-    }
-    const showDecorLines = document.getElementById('showDecorLines');
-    if (showDecorLines) {
-        showDecorLines.checked = EditorState.showDecorLines;
-        showDecorLines.addEventListener('change', (e) => {
-            EditorState.showDecorLines = e.target.checked;
-            updateDecorLines();
-        });
-    }
-    const eventType = document.getElementById('eventType');
-    if (eventType) {
-        eventType.value = EditorState.eventType;
-        eventType.addEventListener('input', (e) => {
-            EditorState.eventType = e.target.value;
-            document.getElementById('previewEventType').textContent = EditorState.eventType;
-        });
-    }
-    const eventTypeSize = document.getElementById('eventTypeSize');
-    if (eventTypeSize) {
-        eventTypeSize.value = EditorState.eventTypeSize;
-        const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
-        if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-        eventTypeSize.addEventListener('input', (e) => {
-            EditorState.eventTypeSize = parseInt(e.target.value);
-            if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-            document.getElementById('previewEventType').style.fontSize = EditorState.eventTypeSize + 'px';
-        });
-    }
-    const eventTypeFont = document.getElementById('eventTypeFont');
-    if (eventTypeFont) {
-        eventTypeFont.value = EditorState.eventTypeFont;
-        eventTypeFont.addEventListener('change', (e) => {
-            EditorState.eventTypeFont = e.target.value;
-            document.getElementById('previewEventType').style.fontFamily = EditorState.eventTypeFont;
-        });
-    }
-    const names = document.getElementById('names');
-    if (names) {
-        names.value = EditorState.names;
-        names.addEventListener('input', (e) => {
-            EditorState.names = e.target.value;
-            document.getElementById('previewNames').textContent = EditorState.names;
-        });
-    }
-    const namesSize = document.getElementById('namesSize');
-    if (namesSize) {
-        namesSize.value = EditorState.namesSize;
-        const namesSizeValue = document.getElementById('namesSizeValue');
-        if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-        namesSize.addEventListener('input', (e) => {
-            EditorState.namesSize = parseInt(e.target.value);
-            if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-            document.getElementById('previewNames').style.fontSize = EditorState.namesSize + 'px';
-        });
-    }
-    const namesFont = document.getElementById('namesFont');
-    if (namesFont) {
-        namesFont.value = EditorState.namesFont;
-        namesFont.addEventListener('change', (e) => {
-            EditorState.namesFont = e.target.value;
-            document.getElementById('previewNames').style.fontFamily = EditorState.namesFont;
-        });
-    }
-    const greeting = document.getElementById('greeting');
-    if (greeting) {
-        greeting.value = EditorState.greeting;
-        greeting.addEventListener('input', (e) => {
-            EditorState.greeting = e.target.value;
-            document.getElementById('previewGreeting').textContent = EditorState.greeting;
-        });
-    }
-    const greetingSize = document.getElementById('greetingSize');
-    if (greetingSize) {
-        greetingSize.value = EditorState.greetingSize;
-        const greetingSizeValue = document.getElementById('greetingSizeValue');
-        if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-        greetingSize.addEventListener('input', (e) => {
-            EditorState.greetingSize = parseInt(e.target.value);
-            if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-            document.getElementById('previewGreeting').style.fontSize = EditorState.greetingSize + 'px';
-        });
-    }
-    const greetingFont = document.getElementById('greetingFont');
-    if (greetingFont) {
-        greetingFont.value = EditorState.greetingFont;
-        greetingFont.addEventListener('change', (e) => {
-            EditorState.greetingFont = e.target.value;
-            document.getElementById('previewGreeting').style.fontFamily = EditorState.greetingFont;
-        });
-    }
-    const dateText = document.getElementById('dateText');
-    if (dateText) {
-        dateText.value = EditorState.dateText;
-        dateText.addEventListener('input', (e) => {
-            EditorState.dateText = e.target.value;
-            document.getElementById('previewDate').textContent = EditorState.dateText;
-        });
-    }
-    const dateSize = document.getElementById('dateSize');
-    if (dateSize) {
-        dateSize.value = EditorState.dateSize;
-        const dateSizeValue = document.getElementById('dateSizeValue');
-        if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-        dateSize.addEventListener('input', (e) => {
-            EditorState.dateSize = parseInt(e.target.value);
-            if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-            document.getElementById('previewDate').style.fontSize = EditorState.dateSize + 'px';
-        });
-    }
-    const dateFont = document.getElementById('dateFont');
-    if (dateFont) {
-        dateFont.value = EditorState.dateFont;
-        dateFont.addEventListener('change', (e) => {
-            EditorState.dateFont = e.target.value;
-            document.getElementById('previewDate').style.fontFamily = EditorState.dateFont;
-        });
-    }
-    const timeText = document.getElementById('timeText');
-    if (timeText) {
-        timeText.value = EditorState.timeText;
-        timeText.addEventListener('input', (e) => {
-            EditorState.timeText = e.target.value;
-            document.getElementById('previewTime').textContent = EditorState.timeText;
-        });
-    }
-    const timeSize = document.getElementById('timeSize');
-    if (timeSize) {
-        timeSize.value = EditorState.timeSize;
-        const timeSizeValue = document.getElementById('timeSizeValue');
-        if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-        timeSize.addEventListener('input', (e) => {
-            EditorState.timeSize = parseInt(e.target.value);
-            if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-            document.getElementById('previewTime').style.fontSize = EditorState.timeSize + 'px';
-        });
-    }
-    const timeFont = document.getElementById('timeFont');
-    if (timeFont) {
-        timeFont.value = EditorState.timeFont;
-        timeFont.addEventListener('change', (e) => {
-            EditorState.timeFont = e.target.value;
-            document.getElementById('previewTime').style.fontFamily = EditorState.timeFont;
-        });
-    }
-    const placeText = document.getElementById('placeText');
-    if (placeText) {
-        placeText.value = EditorState.placeText;
-        placeText.addEventListener('input', (e) => {
-            EditorState.placeText = e.target.value;
-            document.getElementById('previewPlace').textContent = EditorState.placeText;
-        });
-    }
-    const placeSize = document.getElementById('placeSize');
-    if (placeSize) {
-        placeSize.value = EditorState.placeSize;
-        const placeSizeValue = document.getElementById('placeSizeValue');
-        if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-        placeSize.addEventListener('input', (e) => {
-            EditorState.placeSize = parseInt(e.target.value);
-            if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-            document.getElementById('previewPlace').style.fontSize = EditorState.placeSize + 'px';
-        });
-    }
-    const placeFont = document.getElementById('placeFont');
-    if (placeFont) {
-        placeFont.value = EditorState.placeFont;
-        placeFont.addEventListener('change', (e) => {
-            EditorState.placeFont = e.target.value;
-            document.getElementById('previewPlace').style.fontFamily = EditorState.placeFont;
-        });
-    }
-    const messageText = document.getElementById('messageText');
-    if (messageText) {
-        messageText.value = EditorState.messageText;
-        messageText.addEventListener('input', (e) => {
-            EditorState.messageText = e.target.value;
-            updateMessagePreview();
-        });
-    }
-    const messageSize = document.getElementById('messageSize');
-    if (messageSize) {
-        messageSize.value = EditorState.messageSize;
-        const messageSizeValue = document.getElementById('messageSizeValue');
-        if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-        messageSize.addEventListener('input', (e) => {
-            EditorState.messageSize = parseInt(e.target.value);
-            if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-            document.getElementById('previewMessage').style.fontSize = EditorState.messageSize + 'px';
-        });
-    }
-    const messageFont = document.getElementById('messageFont');
-    if (messageFont) {
-        messageFont.value = EditorState.messageFont;
-        messageFont.addEventListener('change', (e) => {
-            EditorState.messageFont = e.target.value;
-            document.getElementById('previewMessage').style.fontFamily = EditorState.messageFont;
-        });
-    }
     const borderGlowEnabled = document.getElementById('borderGlowEnabled');
     if (borderGlowEnabled) {
         borderGlowEnabled.checked = EditorState.borderGlowEnabled;
@@ -1474,113 +634,18 @@ function initEventListeners() {
             updatePreview();
         });
     }
-    const enablePerLineDecor = document.getElementById('enablePerLineDecor');
-    if (enablePerLineDecor) {
-        enablePerLineDecor.checked = EditorState.enablePerLineDecor;
-        enablePerLineDecor.addEventListener('change', (e) => {
-            EditorState.enablePerLineDecor = e.target.checked;
-            updateMessagePreview();
+    const cardHeight = document.getElementById('cardHeight');
+    if (cardHeight) {
+        cardHeight.value = EditorState.cardHeight;
+        const cardHeightValue = document.getElementById('cardHeightValue');
+        if (cardHeightValue) cardHeightValue.textContent = EditorState.cardHeight + 'px';
+        cardHeight.addEventListener('input', (e) => {
+            EditorState.cardHeight = parseInt(e.target.value);
+            if (cardHeightValue) cardHeightValue.textContent = EditorState.cardHeight + 'px';
+            updatePreview();
         });
     }
     document.getElementById('saveInvitationBtn')?.addEventListener('click', saveInvitation);
-}
-
-function updateMessagePreview() {
-    const messageEl = document.getElementById('previewMessage');
-    if (!messageEl) return;
-    const lines = EditorState.messageText.split('\n');
-    let html = '';
-    lines.forEach((line, index) => {
-        html += `<div class="message-line" style="width:100%; text-align:center; white-space:pre-wrap; word-wrap:break-word; margin:0; padding:0;">${line || '&nbsp;'}</div>`;
-        if (EditorState.enablePerLineDecor && index < lines.length - 1) {
-            html += `<div class="message-line-decor" style="background: ${EditorState.textColor};"></div>`;
-        }
-    });
-    messageEl.innerHTML = html;
-    messageEl.style.display = 'flex';
-    messageEl.style.flexDirection = 'column';
-    messageEl.style.alignItems = 'center';
-    messageEl.style.gap = '0px';
-    messageEl.style.width = '100%';
-    messageEl.style.maxWidth = '100%';
-
-    messageEl.style.fontFamily = EditorState.messageFont;
-    messageEl.style.fontSize = EditorState.messageSize + 'px';
-    messageEl.style.fontWeight = EditorState.messageBold ? 'bold' : 'normal';
-    messageEl.style.fontStyle = EditorState.messageItalic ? 'italic' : 'normal';
-}
-
-function updateDecorLines() {
-    document.querySelectorAll('.decor-line').forEach(line => {
-        line.style.opacity = EditorState.showDecorLines ? '0.5' : '0';
-    });
-}
-
-function updateAllText() {
-    const previewEventType = document.getElementById('previewEventType');
-    if (previewEventType) {
-        previewEventType.textContent = EditorState.eventType;
-        previewEventType.style.fontSize = EditorState.eventTypeSize + 'px';
-        previewEventType.style.fontWeight = EditorState.eventTypeBold ? 'bold' : 'normal';
-        previewEventType.style.fontStyle = EditorState.eventTypeItalic ? 'italic' : 'normal';
-        previewEventType.style.fontFamily = EditorState.eventTypeFont;
-    }
-    const previewNames = document.getElementById('previewNames');
-    if (previewNames) {
-        previewNames.textContent = EditorState.names;
-        previewNames.style.fontSize = EditorState.namesSize + 'px';
-        previewNames.style.fontWeight = EditorState.namesBold ? 'bold' : 'normal';
-        previewNames.style.fontStyle = EditorState.namesItalic ? 'italic' : 'normal';
-        previewNames.style.fontFamily = EditorState.namesFont;
-    }
-    const previewGreeting = document.getElementById('previewGreeting');
-    if (previewGreeting) {
-        previewGreeting.textContent = EditorState.greeting;
-        previewGreeting.style.fontSize = EditorState.greetingSize + 'px';
-        previewGreeting.style.fontWeight = EditorState.greetingBold ? 'bold' : 'normal';
-        previewGreeting.style.fontStyle = EditorState.greetingItalic ? 'italic' : 'normal';
-        previewGreeting.style.fontFamily = EditorState.greetingFont;
-    }
-    const previewDate = document.getElementById('previewDate');
-    if (previewDate) {
-        previewDate.textContent = EditorState.dateText;
-        previewDate.style.fontSize = EditorState.dateSize + 'px';
-        previewDate.style.fontWeight = EditorState.dateBold ? 'bold' : 'normal';
-        previewDate.style.fontStyle = EditorState.dateItalic ? 'italic' : 'normal';
-        previewDate.style.fontFamily = EditorState.dateFont;
-    }
-    const previewTime = document.getElementById('previewTime');
-    if (previewTime) {
-        previewTime.textContent = EditorState.timeText;
-        previewTime.style.fontSize = EditorState.timeSize + 'px';
-        previewTime.style.fontWeight = EditorState.timeBold ? 'bold' : 'normal';
-        previewTime.style.fontStyle = EditorState.timeItalic ? 'italic' : 'normal';
-        previewTime.style.fontFamily = EditorState.timeFont;
-    }
-    const previewPlace = document.getElementById('previewPlace');
-    if (previewPlace) {
-        previewPlace.textContent = EditorState.placeText;
-        previewPlace.style.fontSize = EditorState.placeSize + 'px';
-        previewPlace.style.fontWeight = EditorState.placeBold ? 'bold' : 'normal';
-        previewPlace.style.fontStyle = EditorState.placeItalic ? 'italic' : 'normal';
-        previewPlace.style.fontFamily = EditorState.placeFont;
-    }
-    updateMessagePreview();
-    const eventTypeSizeValue = document.getElementById('eventTypeSizeValue');
-    if (eventTypeSizeValue) eventTypeSizeValue.textContent = EditorState.eventTypeSize;
-    const namesSizeValue = document.getElementById('namesSizeValue');
-    if (namesSizeValue) namesSizeValue.textContent = EditorState.namesSize;
-    const greetingSizeValue = document.getElementById('greetingSizeValue');
-    if (greetingSizeValue) greetingSizeValue.textContent = EditorState.greetingSize;
-    const dateSizeValue = document.getElementById('dateSizeValue');
-    if (dateSizeValue) dateSizeValue.textContent = EditorState.dateSize;
-    const timeSizeValue = document.getElementById('timeSizeValue');
-    if (timeSizeValue) timeSizeValue.textContent = EditorState.timeSize;
-    const placeSizeValue = document.getElementById('placeSizeValue');
-    if (placeSizeValue) placeSizeValue.textContent = EditorState.placeSize;
-    const messageSizeValue = document.getElementById('messageSizeValue');
-    if (messageSizeValue) messageSizeValue.textContent = EditorState.messageSize;
-    updateDecorLines();
 }
 
 function updatePreview() {
@@ -1593,6 +658,8 @@ function updatePreview() {
     if (card) {
         card.style.border = `${EditorState.borderWidth}px solid ${EditorState.borderColor}`;
         card.style.borderRadius = `${EditorState.borderRadius}px`;
+        card.style.minHeight = EditorState.cardHeight + 'px';
+        card.style.height = 'auto';
         if (EditorState.borderGlowEnabled) {
             card.style.boxShadow = `0 0 ${EditorState.borderGlowSize}px ${EditorState.borderGlowColor}, 0 25px 50px -12px rgba(0,0,0,0.25)`;
         } else {
@@ -1600,14 +667,18 @@ function updatePreview() {
         }
         const rgb = hexToRgb(EditorState.containerBgColor);
         card.style.backgroundColor = `rgba(${rgb.r}, ${rgb.g}, ${rgb.b}, ${EditorState.containerBgOpacity})`;
-        card.style.color = EditorState.textColor;
     }
-    updateAllText();
     applyMobileScale();
     if (window.decorationsAPI) {
         setTimeout(() => {
             window.decorationsAPI.updatePreviewDecorations();
             window.decorationsAPI.applyClipToFrame();
+            applyMobileScale();
+        }, 10);
+    }
+    if (window.textBlocksAPI) {
+        setTimeout(() => {
+            window.textBlocksAPI.updatePreviewTextBlocks();
             applyMobileScale();
         }, 10);
     }
@@ -1627,11 +698,42 @@ function initMobileTabs() {
     const sidebar = document.getElementById('editorSidebar');
     const preview = document.getElementById('editorPreview');
     if (!mobileTabs || !sidebar || !preview) return;
+
     const switchToTab = (tabName) => {
         activeTab = tabName;
         document.querySelectorAll('.mobile-tab').forEach(t => t.classList.remove('active'));
         document.querySelector(`.mobile-tab[data-tab="${tabName}"]`).classList.add('active');
+
         if (tabName === 'settings') {
+            const doneBtn = document.getElementById('mobileTextDone');
+            if (doneBtn && window.getComputedStyle(doneBtn).display !== 'none') {
+                doneBtn.click();
+            }
+
+            const decorDoneBtn = document.getElementById('mobileDecorDone');
+            if (decorDoneBtn && window.getComputedStyle(decorDoneBtn).display !== 'none') {
+                decorDoneBtn.click();
+            }
+
+            if (EditorState.activeTextId) {
+                EditorState.activeTextId = null;
+                if (window.textBlocksAPI) {
+                    window.textBlocksAPI.renderTextList();
+                    window.textBlocksAPI.hideTextControls();
+                }
+            }
+            if (EditorState.activeDecorId) {
+                EditorState.activeDecorId = null;
+                if (window.decorationsAPI) {
+                    window.decorationsAPI.renderDecorList();
+                    window.decorationsAPI.hideDecorControls();
+                }
+            }
+
+            if (window.animationManager) {
+                window.animationManager.stop();
+            }
+
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
         } else {
@@ -1640,14 +742,23 @@ function initMobileTabs() {
             setTimeout(() => {
                 applyMobileScale();
                 fixBackgroundScroll();
+                if (EditorState.enableAnimations && window.animationManager) {
+                    window.animationManager.start({
+                        ...getAnimationConfig(),
+                        container: document.querySelector('.preview-container')
+                    });
+                }
             }, 50);
         }
     };
+
     isMobileView = window.innerWidth <= 768;
     if (isMobileView) switchToTab('settings');
+
     document.querySelectorAll('.mobile-tab').forEach(tab => {
         tab.addEventListener('click', () => switchToTab(tab.dataset.tab));
     });
+
     let resizeTimeout;
     window.addEventListener('resize', () => {
         clearTimeout(resizeTimeout);
@@ -1660,6 +771,9 @@ function initMobileTabs() {
             } else {
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
+                if (window.animationManager) {
+                    window.animationManager.stop();
+                }
             }
             applyMobileScale();
         }, 150);
@@ -1687,16 +801,42 @@ function initColorPresets() {
             preset.classList.add('selected');
         });
     });
-    document.querySelectorAll('#textColorPresets .color-preset').forEach(preset => {
-        preset.addEventListener('click', () => {
-            const color = preset.dataset.color;
-            document.getElementById('textColor').value = color;
-            EditorState.textColor = color;
-            updatePreview();
-            document.querySelectorAll('#textColorPresets .color-preset').forEach(p => p.classList.remove('selected'));
-            preset.classList.add('selected');
-        });
+}
+
+function fixBackgroundScroll() {
+    const previewContainer = document.getElementById('previewContainer');
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (previewContainer && bgLayer && isMobileView) {
+        previewContainer.removeEventListener('scroll', handleBgScroll);
+        previewContainer.addEventListener('scroll', handleBgScroll);
+    }
+}
+
+function handleBgScroll(e) {
+    const bgLayer = document.getElementById('previewBgLayer');
+    if (bgLayer) bgLayer.style.transform = `translateY(${e.target.scrollTop}px)`;
+}
+
+function fixMobileTabsPosition() {
+    const navbar = document.querySelector('.navbar');
+    const mobileTabs = document.getElementById('mobileTabs');
+    if (navbar && mobileTabs && isMobileView) {
+        mobileTabs.style.top = navbar.offsetHeight + 'px';
+    }
+}
+
+function observeCardResize() {
+    const card = document.getElementById('previewCard');
+    if (!card) return;
+    const resizeObserver = new ResizeObserver(() => {
+        if (window.decorationsAPI) {
+            window.decorationsAPI.updatePreviewDecorations();
+        }
+        if (window.textBlocksAPI) {
+            window.textBlocksAPI.updatePreviewTextBlocks();
+        }
     });
+    resizeObserver.observe(card);
 }
 
 function cancelPendingPayment() {
@@ -1738,11 +878,16 @@ async function checkPendingPayment() {
                 Object.assign(EditorState, data);
                 updatePreview();
                 document.getElementById('customSlug').value = slug;
-                updateAllInputs();
                 if (window.decorationsAPI && data.decorations) {
                     setTimeout(() => {
                         window.decorationsAPI.renderDecorList();
                         window.decorationsAPI.updatePreviewDecorations();
+                    }, 100);
+                }
+                if (window.textBlocksAPI && data.textBlocks) {
+                    setTimeout(() => {
+                        window.textBlocksAPI.renderTextList();
+                        window.textBlocksAPI.updatePreviewTextBlocks();
                     }, 100);
                 }
                 showUserNotification('Данные восстановлены. Нажмите "Сохранить" для оплаты', 'info');
@@ -1768,44 +913,8 @@ function getInvitationData() {
         borderGlowIntensity: EditorState.borderGlowIntensity,
         containerBgColor: EditorState.containerBgColor,
         containerBgOpacity: EditorState.containerBgOpacity,
-        eventType: EditorState.eventType,
-        eventTypeSize: EditorState.eventTypeSize,
-        eventTypeBold: EditorState.eventTypeBold,
-        eventTypeItalic: EditorState.eventTypeItalic,
-        eventTypeFont: EditorState.eventTypeFont,
-        names: EditorState.names,
-        namesSize: EditorState.namesSize,
-        namesBold: EditorState.namesBold,
-        namesItalic: EditorState.namesItalic,
-        namesFont: EditorState.namesFont,
-        greeting: EditorState.greeting,
-        greetingSize: EditorState.greetingSize,
-        greetingBold: EditorState.greetingBold,
-        greetingItalic: EditorState.greetingItalic,
-        greetingFont: EditorState.greetingFont,
-        dateText: EditorState.dateText,
-        dateSize: EditorState.dateSize,
-        dateBold: EditorState.dateBold,
-        dateItalic: EditorState.dateItalic,
-        dateFont: EditorState.dateFont,
-        timeText: EditorState.timeText,
-        timeSize: EditorState.timeSize,
-        timeBold: EditorState.timeBold,
-        timeItalic: EditorState.timeItalic,
-        timeFont: EditorState.timeFont,
-        placeText: EditorState.placeText,
-        placeSize: EditorState.placeSize,
-        placeBold: EditorState.placeBold,
-        placeItalic: EditorState.placeItalic,
-        placeFont: EditorState.placeFont,
-        messageText: EditorState.messageText,
-        messageSize: EditorState.messageSize,
-        messageBold: EditorState.messageBold,
-        messageItalic: EditorState.messageItalic,
-        messageFont: EditorState.messageFont,
-        textColor: EditorState.textColor,
-        showDecorLines: EditorState.showDecorLines,
-        enablePerLineDecor: EditorState.enablePerLineDecor,
+        defaultTextColor: EditorState.defaultTextColor,
+        cardHeight: EditorState.cardHeight,
         enableAnimations: EditorState.enableAnimations,
         animationType: EditorState.animationType,
         animationIntensity: EditorState.animationIntensity,
@@ -1824,7 +933,23 @@ function getInvitationData() {
             opacity: d.opacity,
             aboveText: d.aboveText,
         })),
-        clipDecorations: EditorState.clipDecorations
+        clipDecorations: EditorState.clipDecorations,
+        textBlocks: EditorState.textBlocks.map(b => ({
+            id: b.id,
+            content: b.content,
+            fontSize: b.fontSize,
+            fontFamily: b.fontFamily,
+            fontWeight: b.fontWeight,
+            fontStyle: b.fontStyle,
+            color: b.color,
+            textAlign: b.textAlign,
+            posX: b.posX,
+            posY: b.posY,
+            width: b.width,
+            aboveText: b.aboveText,
+            isMultiLine: b.isMultiLine,
+            order: b.order
+        }))
     };
 }
 
@@ -1857,66 +982,6 @@ async function createPayment(slug) {
             btn.innerHTML = 'Сохранить';
         }
     }
-}
-
-function updateAllInputs() {
-    const textInputs = {
-        'eventType': EditorState.eventType,
-        'names': EditorState.names,
-        'greeting': EditorState.greeting,
-        'dateText': EditorState.dateText,
-        'timeText': EditorState.timeText,
-        'placeText': EditorState.placeText,
-        'messageText': EditorState.messageText
-    };
-    Object.entries(textInputs).forEach(([id, value]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value;
-    });
-    const colorInputs = {
-        'borderColor': EditorState.borderColor,
-        'borderGlowColor': EditorState.borderGlowColor,
-        'containerBgColor': EditorState.containerBgColor,
-        'textColor': EditorState.textColor
-    };
-    Object.entries(colorInputs).forEach(([id, value]) => {
-        const el = document.getElementById(id);
-        if (el) el.value = value;
-    });
-    const ranges = [
-        'bgOpacity', 'borderWidth', 'borderRadius', 'borderGlowSize',
-        'borderGlowIntensity', 'containerBgOpacity', 'eventTypeSize',
-        'namesSize', 'greetingSize', 'dateSize', 'timeSize', 'placeSize',
-        'messageSize', 'animationIntensity', 'animationSpeed', 'animationSize'
-    ];
-    ranges.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) {
-            el.value = EditorState[id];
-            const valueEl = document.getElementById(`${id}Value`);
-            if (valueEl) valueEl.textContent = EditorState[id];
-        }
-    });
-    const checkboxes = [
-        'borderGlowEnabled', 'enableAnimations', 'showDecorLines',
-        'enablePerLineDecor', 'eventTypeBold', 'eventTypeItalic',
-        'namesBold', 'namesItalic', 'greetingBold', 'greetingItalic',
-        'dateBold', 'dateItalic', 'timeBold', 'timeItalic',
-        'placeBold', 'placeItalic', 'messageBold', 'messageItalic'
-    ];
-    checkboxes.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.checked = EditorState[id];
-    });
-    const selects = [
-        'eventTypeFont', 'namesFont', 'greetingFont', 'dateFont',
-        'timeFont', 'placeFont', 'messageFont', 'animationType',
-        'animationPosition'
-    ];
-    selects.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = EditorState[id];
-    });
 }
 
 async function saveInvitation() {
