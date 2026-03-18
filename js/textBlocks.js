@@ -1,5 +1,3 @@
-// textBlocks.js
-
 let mobileTextPanel = null;
 let activeTextInputId = null;
 
@@ -8,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initTextBlocks();
         initMobileTextPanel();
         initMobileFontPicker();
-        initMobileColorPicker(); // Эта функция теперь создаёт модальное окно один раз
+        initMobileColorPicker();
     }, 200);
 
     let resizeTimeout;
@@ -168,32 +166,28 @@ function showTextControls(id) {
     if (controls && block) {
         controls.style.display = 'block';
 
-        const contentInput = document.getElementById('textContent');
-        if (contentInput) {
-            if (contentInput.tagName !== 'TEXTAREA') {
-                const textarea = document.createElement('textarea');
-                textarea.id = 'textContent';
-                textarea.rows = 4;
-                textarea.placeholder = 'Введите текст...';
-                textarea.value = block.content || '';
-                contentInput.parentNode.replaceChild(textarea, contentInput);
-
-                textarea.addEventListener('input', (e) => {
-                    if (!EditorState.activeTextId) return;
-                    const currentBlock = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
-                    if (currentBlock) {
-                        currentBlock.content = e.target.value;
-                        updatePreviewTextBlocks();
-                        const previewEl = document.querySelector(`.text-list-item[data-text-id="${currentBlock.id}"] .text-list-preview`);
-                        if (previewEl) {
-                            previewEl.textContent = currentBlock.content.substring(0, 20) + (currentBlock.content.length > 20 ? '...' : '');
-                        }
-                    }
-                });
-            } else {
-                contentInput.value = block.content || '';
-            }
+        let contentInput = document.getElementById('textContent');
+        if (!contentInput) {
+            contentInput = document.createElement('textarea');
+            contentInput.id = 'textContent';
+            contentInput.rows = 4;
+            contentInput.placeholder = 'Введите текст...';
+            document.querySelector('#textControls .setting-group:first-child').appendChild(contentInput);
         }
+        contentInput.value = block.content || '';
+        
+        contentInput.oninput = (e) => {
+            if (!EditorState.activeTextId) return;
+            const currentBlock = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
+            if (currentBlock) {
+                currentBlock.content = e.target.value;
+                updatePreviewTextBlocks();
+                const previewEl = document.querySelector(`.text-list-item[data-text-id="${currentBlock.id}"] .text-list-preview`);
+                if (previewEl) {
+                    previewEl.textContent = currentBlock.content.substring(0, 20) + (currentBlock.content.length > 20 ? '...' : '');
+                }
+            }
+        };
 
         document.getElementById('textFont').value = block.fontFamily;
         document.getElementById('textSize').value = block.fontSize;
@@ -207,8 +201,11 @@ function showTextControls(id) {
         document.getElementById('textPosY').value = block.posY;
         document.getElementById('textPosYValue').textContent = block.posY + '%';
 
-        document.getElementById('textBold').classList.toggle('active', block.fontWeight === 'bold');
-        document.getElementById('textItalic').classList.toggle('active', block.fontStyle === 'italic');
+        const boldBtn = document.getElementById('textBold');
+        const italicBtn = document.getElementById('textItalic');
+        
+        boldBtn.classList.toggle('active', block.fontWeight === 'bold');
+        italicBtn.classList.toggle('active', block.fontStyle === 'italic');
     }
 }
 
@@ -298,10 +295,9 @@ function updatePreviewTextBlocks() {
     });
 }
 
-// Новая функция для создания кликабельной области вокруг color input
 function makeInputClickableForColorPicker(inputId) {
     const input = document.getElementById(inputId);
-    if (!input || window.innerWidth > 768) return; // Только для мобильных
+    if (!input || window.innerWidth > 768) return;
 
     const wrapper = document.createElement('div');
     wrapper.style.position = 'relative';
@@ -387,27 +383,37 @@ function initTextControls() {
         });
     }
 
-    document.getElementById('textBold')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!EditorState.activeTextId) return;
-        const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
-        if (block) {
-            block.fontWeight = block.fontWeight === 'bold' ? 'normal' : 'bold';
-            document.getElementById('textBold').classList.toggle('active');
-            updatePreviewTextBlocks();
-        }
-    });
+    const boldBtn = document.getElementById('textBold');
+    if (boldBtn) {
+        boldBtn.replaceWith(boldBtn.cloneNode(true));
+        const newBoldBtn = document.getElementById('textBold');
+        newBoldBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!EditorState.activeTextId) return;
+            const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
+            if (block) {
+                block.fontWeight = block.fontWeight === 'bold' ? 'normal' : 'bold';
+                newBoldBtn.classList.toggle('active', block.fontWeight === 'bold');
+                updatePreviewTextBlocks();
+            }
+        });
+    }
 
-    document.getElementById('textItalic')?.addEventListener('click', (e) => {
-        e.preventDefault();
-        if (!EditorState.activeTextId) return;
-        const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
-        if (block) {
-            block.fontStyle = block.fontStyle === 'italic' ? 'normal' : 'italic';
-            document.getElementById('textItalic').classList.toggle('active');
-            updatePreviewTextBlocks();
-        }
-    });
+    const italicBtn = document.getElementById('textItalic');
+    if (italicBtn) {
+        italicBtn.replaceWith(italicBtn.cloneNode(true));
+        const newItalicBtn = document.getElementById('textItalic');
+        newItalicBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (!EditorState.activeTextId) return;
+            const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
+            if (block) {
+                block.fontStyle = block.fontStyle === 'italic' ? 'normal' : 'italic';
+                newItalicBtn.classList.toggle('active', block.fontStyle === 'italic');
+                updatePreviewTextBlocks();
+            }
+        });
+    }
 
     const colorInput = document.getElementById('textColor');
     if (colorInput) {
@@ -425,13 +431,10 @@ function initTextControls() {
         }
     }
 
-    // Делаем кликабельными color inputs в других секциях
     if (window.innerWidth <= 768) {
         makeInputClickableForColorPicker('borderColor');
         makeInputClickableForColorPicker('borderGlowColor');
         makeInputClickableForColorPicker('containerBgColor');
-    } else {
-        // На десктопе они работают как обычно, обработчики уже есть в editor.js
     }
 
     const alignSelect = document.getElementById('textAlign');
@@ -1006,7 +1009,6 @@ function initMobileColorPicker() {
                 const fullHex = '#' + hex;
                 input.value = fullHex;
 
-                // Обновление EditorState в зависимости от того, какое поле было изменено
                 if (activeTextInputId === 'textColor' && EditorState.activeTextId) {
                     const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
                     if (block) {

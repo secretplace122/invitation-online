@@ -36,12 +36,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     const examples = [
-        { image: '/images/examples/wedding-1.jpg', title: 'Свадебное приглашение' },
-        { image: '/images/examples/birthday-1.jpg', title: 'Приглашение на день рождения' },
-        { image: '/images/examples/corporate-1.jpg', title: 'Корпоративное приглашение' },
-        { image: '/images/examples/wedding-2.jpg', title: 'Нежная свадьба' },
-        { image: '/images/examples/birthday-2.jpg', title: 'Детский праздник' },
-        { image: '/images/examples/housewarming-1.jpg', title: 'Новоселье' }
+        { image: '/images/invitations/wedding-test.webp', title: 'Свадебное приглашение' },
+        { image: '/images/invitations/wedding-2.webp', title: 'Нежная свадьба' },
+        { image: '/images/invitations/birthday-1.webp', title: 'День рождения' },
+        { image: '/images/invitations/birthday-2.webp', title: 'Детский праздник' },
+        { image: '/images/invitations/corporate-1.webp', title: 'Корпоратив' },
+        { image: '/images/invitations/anniversary-1.webp', title: 'Юбилей' }
     ];
 
     const galleryGrid = document.getElementById('galleryGrid');
