@@ -1,3 +1,5 @@
+// textBlocks.js
+
 let mobileTextPanel = null;
 let activeTextInputId = null;
 
@@ -6,7 +8,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initTextBlocks();
         initMobileTextPanel();
         initMobileFontPicker();
-        initMobileColorPicker();
+        initMobileColorPicker(); // Эта функция теперь создаёт модальное окно один раз
     }, 200);
 
     let resizeTimeout;
@@ -296,6 +298,39 @@ function updatePreviewTextBlocks() {
     });
 }
 
+// Новая функция для создания кликабельной области вокруг color input
+function makeInputClickableForColorPicker(inputId) {
+    const input = document.getElementById(inputId);
+    if (!input || window.innerWidth > 768) return; // Только для мобильных
+
+    const wrapper = document.createElement('div');
+    wrapper.style.position = 'relative';
+    wrapper.style.width = '100%';
+    input.parentNode.insertBefore(wrapper, input);
+    wrapper.appendChild(input);
+
+    const clickArea = document.createElement('div');
+    clickArea.style.position = 'absolute';
+    clickArea.style.top = '0';
+    clickArea.style.left = '0';
+    clickArea.style.right = '0';
+    clickArea.style.bottom = '0';
+    clickArea.style.cursor = 'pointer';
+    clickArea.style.zIndex = '10';
+    wrapper.appendChild(clickArea);
+
+    clickArea.addEventListener('click', (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        activeTextInputId = inputId;
+        if (typeof window.showMobileColorPicker === 'function') {
+            window.showMobileColorPicker(inputId);
+        }
+    });
+
+    input.style.pointerEvents = 'none';
+}
+
 function initTextControls() {
     document.getElementById('addTextBtn')?.addEventListener('click', addTextBlock);
 
@@ -377,30 +412,7 @@ function initTextControls() {
     const colorInput = document.getElementById('textColor');
     if (colorInput) {
         if (window.innerWidth <= 768) {
-            const wrapper = document.createElement('div');
-            wrapper.style.position = 'relative';
-            wrapper.style.width = '100%';
-            colorInput.parentNode.insertBefore(wrapper, colorInput);
-            wrapper.appendChild(colorInput);
-
-            const clickArea = document.createElement('div');
-            clickArea.style.position = 'absolute';
-            clickArea.style.top = '0';
-            clickArea.style.left = '0';
-            clickArea.style.right = '0';
-            clickArea.style.bottom = '0';
-            clickArea.style.cursor = 'pointer';
-            clickArea.style.zIndex = '10';
-            wrapper.appendChild(clickArea);
-
-            clickArea.addEventListener('click', (e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                activeTextInputId = 'textColor';
-                showMobileColorPicker('textColor');
-            });
-
-            colorInput.style.pointerEvents = 'none';
+            makeInputClickableForColorPicker('textColor');
         } else {
             colorInput.addEventListener('input', (e) => {
                 if (!EditorState.activeTextId) return;
@@ -411,6 +423,15 @@ function initTextControls() {
                 }
             });
         }
+    }
+
+    // Делаем кликабельными color inputs в других секциях
+    if (window.innerWidth <= 768) {
+        makeInputClickableForColorPicker('borderColor');
+        makeInputClickableForColorPicker('borderGlowColor');
+        makeInputClickableForColorPicker('containerBgColor');
+    } else {
+        // На десктопе они работают как обычно, обработчики уже есть в editor.js
     }
 
     const alignSelect = document.getElementById('textAlign');
@@ -668,7 +689,6 @@ function initMobileColorPicker() {
                     <div class="quick-color" style="background: #98FB98;" data-color="#98FB98"></div>
                     <div class="quick-color" style="background: #FFA07A;" data-color="#FFA07A"></div>
                     <div class="quick-color" style="background: #DDA0DD;" data-color="#DDA0DD"></div>
-                    <div class="quick-color" style="background: #FFFFFF;" data-color="#FFFFFF"></div>
                 </div>
                 <div class="color-palette-container">
                     <canvas id="colorPalette" width="300" height="200"></canvas>
@@ -712,7 +732,7 @@ function initMobileColorPicker() {
             background: rgba(0,0,0,0.5);
             z-index: 11000;
             display: none;
-            align-items: flex-end;
+            align-items: center;
             justify-content: center;
         }
         .mobile-color-picker.active {
@@ -722,10 +742,10 @@ function initMobileColorPicker() {
             background: white;
             width: 100%;
             max-width: 500px;
-            border-radius: 20px 20px 0 0;
+            border-radius: 20px;
             display: flex;
             flex-direction: column;
-            animation: slideUp 0.3s ease;
+            animation: fadeIn 0.3s ease;
             padding: 20px;
             max-height: 90vh;
             overflow-y: auto;
@@ -734,7 +754,6 @@ function initMobileColorPicker() {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
             color: #475569;
             font-weight: 600;
         }
@@ -752,7 +771,7 @@ function initMobileColorPicker() {
         }
         .color-palette-container {
             position: relative;
-            margin-bottom: 15px;
+            margin-bottom: 2px;
             border-radius: 12px;
             overflow: hidden;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
@@ -775,9 +794,9 @@ function initMobileColorPicker() {
         }
         .quick-colors {
             display: grid;
-            grid-template-columns: repeat(5, 1fr);
+            grid-template-columns: repeat(7, 1fr);
             gap: 10px;
-            margin-bottom: 15px;
+            margin-bottom: 5px;
         }
         .quick-color {
             aspect-ratio: 1;
@@ -796,17 +815,17 @@ function initMobileColorPicker() {
             box-shadow: 0 0 0 2px #A8D8EA;
         }
         .color-sliders {
-            margin-bottom: 15px;
+            margin-bottom: 2px;
         }
         .color-slider-group {
-            margin-bottom: 10px;
+            margin-bottom: 2px;
         }
         .color-slider-group label {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 5px;
+            margin-bottom: 2px;
             color: #475569;
-            font-size: 14px;
+            font-size: 10px;
         }
         .color-slider {
             width: 100%;
@@ -833,9 +852,9 @@ function initMobileColorPicker() {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 15px;
+            margin-bottom: 2px;
             background: #f8fafc;
-            padding: 10px;
+            padding: 2px;
             border-radius: 8px;
         }
         .hex-input-group span {
@@ -845,10 +864,10 @@ function initMobileColorPicker() {
         }
         .hex-input-group input {
             flex: 1;
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #e2e8f0;
             border-radius: 6px;
-            font-size: 14px;
+            font-size: 10px;
             text-transform: uppercase;
         }
         .mobile-color-controls {
@@ -857,12 +876,13 @@ function initMobileColorPicker() {
         }
         .mobile-color-controls button {
             flex: 1;
-            padding: 15px;
+            padding: 10px;
             font-size: 16px;
             border-radius: 12px;
             border: none;
             font-weight: 600;
             cursor: pointer;
+            margin-bottom: 10px;
         }
         .btn-secondary {
             background: #e2e8f0;
@@ -871,6 +891,10 @@ function initMobileColorPicker() {
         .btn-primary {
             background: linear-gradient(135deg, #A8D8EA, #FAC0C0);
             color: #475569;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
     `;
     document.head.appendChild(style);
@@ -982,6 +1006,7 @@ function initMobileColorPicker() {
                 const fullHex = '#' + hex;
                 input.value = fullHex;
 
+                // Обновление EditorState в зависимости от того, какое поле было изменено
                 if (activeTextInputId === 'textColor' && EditorState.activeTextId) {
                     const block = EditorState.textBlocks.find(b => b.id === EditorState.activeTextId);
                     if (block) {
@@ -996,13 +1021,16 @@ function initMobileColorPicker() {
                         updateMobileTextPanelValues(block);
                     }
                 } else if (activeTextInputId === 'borderColor') {
-                    document.getElementById('borderColor').value = fullHex;
                     if (EditorState) {
                         EditorState.borderColor = fullHex;
                         if (typeof updatePreview === 'function') updatePreview();
                     }
+                } else if (activeTextInputId === 'borderGlowColor') {
+                    if (EditorState) {
+                        EditorState.borderGlowColor = fullHex;
+                        if (typeof updatePreview === 'function') updatePreview();
+                    }
                 } else if (activeTextInputId === 'containerBgColor') {
-                    document.getElementById('containerBgColor').value = fullHex;
                     if (EditorState) {
                         EditorState.containerBgColor = fullHex;
                         if (typeof updatePreview === 'function') updatePreview();

@@ -235,6 +235,14 @@ document.addEventListener('DOMContentLoaded', () => {
     if (testBtn) {
         testBtn.addEventListener('click', testSaveInvitation);
     }
+
+    const customSlugInput = document.getElementById('customSlug');
+    if (customSlugInput) {
+        customSlugInput.addEventListener('input', function(e) {
+            let value = e.target.value;
+            e.target.value = value.toLowerCase();
+        });
+    }
 });
 
 function applyMobileScale() {
@@ -488,29 +496,29 @@ function initAnimationControls() {
         });
     }
 
-    document.getElementById('previewAnimationBtn')?.addEventListener('click', () => {
-        if (window.animationManager) {
-            const config = getAnimationConfig();
-            config.enabled = true;
-            if (window.innerWidth <= 768) {
-                const activeTab = document.querySelector('.mobile-tab.active');
-                if (activeTab && activeTab.dataset.tab === 'preview') {
+    const position = document.getElementById('animationPosition');
+    if (position) {
+        position.value = EditorState.animationPosition;
+        position.addEventListener('change', (e) => {
+            EditorState.animationPosition = e.target.value;
+            if (EditorState.enableAnimations && window.animationManager) {
+                if (window.innerWidth <= 768) {
+                    const activeTab = document.querySelector('.mobile-tab.active');
+                    if (activeTab && activeTab.dataset.tab === 'preview') {
+                        window.animationManager.start({
+                            ...getAnimationConfig(),
+                            container: document.querySelector('.preview-container')
+                        });
+                    }
+                } else {
                     window.animationManager.start({
-                        ...config,
+                        ...getAnimationConfig(),
                         container: document.querySelector('.preview-container')
                     });
-                } else {
-                    alert('Переключитесь на вкладку "Просмотр" чтобы увидеть анимацию');
                 }
-            } else {
-                window.animationManager.start({
-                    ...config,
-                    container: document.querySelector('.preview-container')
-                });
             }
-            setTimeout(() => window.animationManager.stop(), 5000);
-        }
-    });
+        });
+    }
 }
 
 function updateAnimationColors() {
@@ -530,10 +538,9 @@ function getAnimationConfig() {
         speed: EditorState.animationSpeed,
         colors: EditorState.animationColors,
         size: EditorState.animationSize,
-        position: 'container'
+        position: EditorState.animationPosition
     };
 }
-
 
 function initEventListeners() {
     const bgOpacity = document.getElementById('bgOpacity');
@@ -697,7 +704,10 @@ function initMobileTabs() {
     const mobileTabs = document.getElementById('mobileTabs');
     const sidebar = document.getElementById('editorSidebar');
     const preview = document.getElementById('editorPreview');
-    if (!mobileTabs || !sidebar || !preview) return;
+    const navbar = document.querySelector('.navbar');
+    const editorMain = document.querySelector('.editor-main');
+    
+    if (!mobileTabs || !sidebar || !preview || !navbar || !editorMain) return;
 
     const switchToTab = (tabName) => {
         activeTab = tabName;
@@ -705,6 +715,9 @@ function initMobileTabs() {
         document.querySelector(`.mobile-tab[data-tab="${tabName}"]`).classList.add('active');
 
         if (tabName === 'settings') {
+            navbar.style.display = 'block';
+            mobileTabs.style.top = navbar.offsetHeight + 'px';
+            
             const doneBtn = document.getElementById('mobileTextDone');
             if (doneBtn && window.getComputedStyle(doneBtn).display !== 'none') {
                 doneBtn.click();
@@ -737,6 +750,9 @@ function initMobileTabs() {
             sidebar.classList.remove('hidden');
             preview.classList.add('hidden');
         } else {
+            navbar.style.display = 'none';
+            mobileTabs.style.top = '0';
+            
             sidebar.classList.add('hidden');
             preview.classList.remove('hidden');
             setTimeout(() => {
@@ -766,9 +782,16 @@ function initMobileTabs() {
             isMobileView = window.innerWidth <= 768;
             if (isMobileView) {
                 const active = document.querySelector('.mobile-tab.active');
-                if (active) switchToTab(active.dataset.tab);
+                if (active) {
+                    if (active.dataset.tab === 'settings') {
+                        mobileTabs.style.top = navbar.offsetHeight + 'px';
+                    } else {
+                        mobileTabs.style.top = '0';
+                    }
+                }
                 fixMobileTabsPosition();
             } else {
+                navbar.style.display = 'block';
                 sidebar.classList.remove('hidden');
                 preview.classList.remove('hidden');
                 if (window.animationManager) {
@@ -820,8 +843,14 @@ function handleBgScroll(e) {
 function fixMobileTabsPosition() {
     const navbar = document.querySelector('.navbar');
     const mobileTabs = document.getElementById('mobileTabs');
+    const activeTab = document.querySelector('.mobile-tab.active');
+    
     if (navbar && mobileTabs && isMobileView) {
-        mobileTabs.style.top = navbar.offsetHeight + 'px';
+        if (activeTab && activeTab.dataset.tab === 'settings') {
+            mobileTabs.style.top = navbar.offsetHeight + 'px';
+        } else {
+            mobileTabs.style.top = '0';
+        }
     }
 }
 

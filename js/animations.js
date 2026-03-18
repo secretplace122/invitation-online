@@ -12,27 +12,30 @@ class AnimationManager {
             return;
         }
 
-        if (this.isRunning) return;
+        if (this.isRunning) {
+            this.stop();
+        }
 
         this.isRunning = true;
 
-        this.createContainer(config.container);
+        this.createContainer(config.container, config.position);
 
         const colors = config.colors || ['#FF69B4', '#FFD700', '#87CEEB'];
         const intensity = config.intensity || 5;
         const size = config.size || 30;
         const speed = config.speed || 3;
         const type = config.type || 'balloons';
+        const position = config.position || 'whole';
 
         const intervalTime = Math.max(200, 1000 / intensity);
 
         this.interval = setInterval(() => {
             if (!this.isRunning || !this.container) return;
-            this.createElement(type, colors, size, speed);
+            this.createElement(type, colors, size, speed, position);
         }, intervalTime);
     }
 
-    createContainer(containerElement) {
+    createContainer(containerElement, position) {
         this.destroyContainer();
 
         if (!containerElement) {
@@ -41,9 +44,28 @@ class AnimationManager {
 
         if (!containerElement) return;
 
+        if (position === 'around-card') {
+            const card = document.getElementById('previewCard');
+            if (card) {
+                this.container = document.createElement('div');
+                this.container.className = 'animation-container';
+                this.container.style.cssText = `
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    pointer-events: none;
+                    z-index: 100;
+                    overflow: hidden;
+                `;
+                card.appendChild(this.container);
+                return;
+            }
+        }
+
         this.container = document.createElement('div');
         this.container.className = 'animation-container';
-
         this.container.style.cssText = `
             position: absolute;
             top: 0;
@@ -54,7 +76,6 @@ class AnimationManager {
             z-index: 100;
             overflow: hidden;
         `;
-
         containerElement.style.position = 'relative';
         containerElement.appendChild(this.container);
     }
@@ -66,7 +87,7 @@ class AnimationManager {
         }
     }
 
-    createElement(type, colors, baseSize, speed) {
+    createElement(type, colors, baseSize, speed, position) {
         if (!this.container) return;
 
         const element = document.createElement('div');
