@@ -112,7 +112,7 @@ function displayInvitation(data) {
             position: relative;
             box-shadow: ${data.borderGlowEnabled ? `0 0 ${data.borderGlowSize || 10}px ${data.borderGlowColor || data.borderColor || '#D4AF37'}, 0 25px 50px -12px rgba(0,0,0,0.25)` : '0 25px 50px -12px rgba(0,0,0,0.25)'};
             transform-origin: center top;
-            overflow: visible;
+            overflow: ${data.clipDecorations ? 'hidden' : 'visible'};
         "></div>
     `;
 
