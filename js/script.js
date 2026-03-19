@@ -37,11 +37,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const examples = [
         { image: '/images/invitations/wedding-test.webp', title: 'Свадебное приглашение' },
-        { image: '/images/invitations/wedding-2.webp', title: 'Нежная свадьба' },
-        { image: '/images/invitations/birthday-1.webp', title: 'День рождения' },
-        { image: '/images/invitations/birthday-2.webp', title: 'Детский праздник' },
-        { image: '/images/invitations/corporate-1.webp', title: 'Корпоратив' },
-        { image: '/images/invitations/anniversary-1.webp', title: 'Юбилей' }
+        { image: '/images/invitations/wedding-test2.webp', title: 'Свадебное приглашение' },
+        { image: '/images/invitations/bd-test.webp', title: 'Детский праздник' },
+        { image: '/images/invitations/bd-test2.webp', title: 'День рождения' },
     ];
 
     const galleryGrid = document.getElementById('galleryGrid');
