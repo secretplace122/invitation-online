@@ -265,7 +265,7 @@ window.decorLibrary = [
     { id: 'decor-249', file: 'paskha2.webp', name: 'Кулич 1', category: 'party' },
     { id: 'decor-250', file: 'paskha3.webp', name: 'Кулич 2', category: 'party' },
 
-    // wedding (продолжение)
+    // wedding
     { id: 'decor-251', file: 'wedding1.webp', name: 'свадьба', category: 'wedding' },
     { id: 'decor-252', file: 'wedding2.webp', name: 'свадьба', category: 'wedding' },
     { id: 'decor-253', file: 'wedding3.webp', name: 'свадьба', category: 'wedding' },

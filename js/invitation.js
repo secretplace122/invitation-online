@@ -185,6 +185,13 @@ function displayInvitation(data) {
 
     if (data.enableAnimations && window.animationManager) {
         setTimeout(() => {
+            let container;
+            if (data.animationPosition === 'around-card') {
+                container = document.getElementById('invitationCard');
+            } else {
+                container = document.querySelector('.invitation-wrapper');
+            }
+
             window.animationManager.start({
                 enabled: true,
                 type: data.animationType || 'balloons',
@@ -192,7 +199,8 @@ function displayInvitation(data) {
                 speed: data.animationSpeed || 3,
                 colors: data.animationColors || ['#FF69B4', '#FFD700', '#87CEEB'],
                 size: data.animationSize || 60,
-                position: data.animationPosition || 'whole'
+                position: data.animationPosition || 'whole',
+                container: container
             });
         }, 500);
     }
