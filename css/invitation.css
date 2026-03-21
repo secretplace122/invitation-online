@@ -29,7 +29,6 @@
     0% {
         transform: rotate(0deg);
     }
-
     100% {
         transform: rotate(360deg);
     }
@@ -66,87 +65,104 @@
 }
 
 .invitation-actions {
-    width: 100%;
-    max-width: 500px;
-    margin: 0 auto;
-    text-align: center;
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
 }
 
 .action-btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding: 0.75rem 2rem;
-    border: none;
-    background: linear-gradient(135deg, #667eea, #764ba2);
-    border-radius: 50px;
-    cursor: pointer;
-    font-size: 1rem;
-    font-weight: 500;
-    color: white;
-    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-    transition: all 0.3s;
-}
-
-.action-btn:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 15px 25px -5px rgba(0, 0, 0, 0.2);
-}
-
-.error-page {
-    min-height: 60vh;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    text-align: center;
-    padding: 2rem;
+    border: none;
+    background: rgba(0, 0, 0, 0.25);
+    backdrop-filter: blur(4px);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    padding: 0;
+    margin: 0;
+    flex-shrink: 0;
 }
 
-.error-card {
-    background: white;
-    border-radius: 2.5rem;
-    padding: 3rem;
-    max-width: 500px;
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+.action-btn i {
+    font-size: 1.2rem;
+    color: white;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    margin: 0;
+    padding: 0;
+    line-height: 1;
 }
 
-.error-icon {
-    font-size: 5rem;
-    margin-bottom: 1rem;
+.action-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+    transform: scale(1.05);
 }
 
-.error-card h2 {
-    font-size: 2rem;
-    margin-bottom: 2rem;
-    color: #475569;
+.action-btn:active {
+    transform: scale(0.95);
 }
 
-.message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 0.5rem;
+#downloadImageBtn {
+    background: rgba(76, 175, 80, 0.25);
 }
 
-.message-line {
-    display: block;
-    width: 100%;
-    text-align: center;
-    white-space: pre-wrap;
-    word-wrap: break-word;
+#downloadImageBtn:hover {
+    background: rgba(76, 175, 80, 0.4);
 }
 
-.message-line-decor {
-    display: block;
-    width: 60px;
-    height: 1px;
-    background: currentColor;
-    opacity: 0.3;
-    margin: 0.25rem auto;
-    pointer-events: none;
+#copyLinkBtn {
+    background: rgba(33, 150, 243, 0.25);
 }
 
-/* ===== ДЕКОРАЦИИ ===== */
+#copyLinkBtn:hover {
+    background: rgba(33, 150, 243, 0.4);
+}
+
+#shareBtn {
+    background: rgba(156, 39, 176, 0.25);
+}
+
+#shareBtn:hover {
+    background: rgba(156, 39, 176, 0.4);
+}
+
+@media (max-width: 768px) {
+    .invitation-wrapper {
+        padding: 1rem 0.5rem;
+    }
+    
+    .invitation-card {
+        width: 500px;
+        min-width: 500px;
+        max-width: 500px;
+        margin: 20px auto;
+        transform-origin: center top;
+    }
+    
+    .invitation-actions {
+        bottom: 15px;
+        right: 15px;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .action-btn i {
+        font-size: 1rem;
+    }
+}
+
 .invitation-decor {
     position: absolute;
     pointer-events: none;
@@ -160,7 +176,6 @@
     z-index: 20;
 }
 
-/* ===== ТЕКСТ ПОВЕРХ ДЕКОРАЦИЙ ===== */
 .invitation-card .card-header,
 .invitation-card .card-body,
 .invitation-card .card-footer,
@@ -176,16 +191,27 @@
     z-index: 10;
 }
 
-@media (max-width: 768px) {
-    .invitation-wrapper {
-        padding: 1rem 0.5rem;
+.text-block {
+    position: absolute;
+    pointer-events: none;
+    transition: all 0.1s;
+    z-index: 5;
+    line-height: 1.4;
+    word-wrap: break-word;
+    box-sizing: border-box;
+}
+
+.text-block.above-text {
+    z-index: 25;
+}
+
+@keyframes slideUp {
+    from {
+        transform: translateX(-50%) translateY(100px);
+        opacity: 0;
     }
-    
-    .invitation-card {
-        width: 500px;
-        min-width: 500px;
-        max-width: 500px;
-        margin: 20px auto;
-        transform-origin: center top;
+    to {
+        transform: translateX(-50%) translateY(0);
+        opacity: 1;
     }
 }

@@ -22,6 +22,7 @@
         href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,700;1,400&family=Montserrat:ital,wght@0,400;0,700;1,400&family=Lora:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700&family=Pacifico&family=Amatic+SC:wght@400;700&family=Caveat:wght@400..700&family=Comfortaa:wght@300..700&family=Rubik:wght@400;500;600&family=Raleway:wght@400;600&family=Marck+Script&family=Poiret+One&family=Neucha&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;600&family=Merriweather:wght@400;700&family=Exo+2:wght@400;600&family=Jura:wght@400;600&display=swap"
         rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
 
     <link rel="icon" href="/images/favicon/favicon.ico" type="image/x-icon">
     <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
@@ -58,8 +59,13 @@
             <div class="invitation-content" id="invitationContent"></div>
             <div class="invitation-actions">
                 <button class="action-btn" id="copyLinkBtn">
-                    <span class="material-symbols-outlined">link</span>
-                    <span>Копировать ссылку</span>
+                    <i class="fas fa-link"></i>
+                </button>
+                <button class="action-btn" id="shareBtn">
+                    <i class="fas fa-share-alt"></i>
+                </button>
+                <button class="action-btn" id="downloadImageBtn">
+                    <i class="fas fa-download"></i>
                 </button>
             </div>
         </div>
@@ -80,6 +86,7 @@
     <script src="../js/firebase-config.js"></script>
     <script src="../js/animations.js"></script>
     <script src="../js/invitation.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
 </body>
 
 </html>
